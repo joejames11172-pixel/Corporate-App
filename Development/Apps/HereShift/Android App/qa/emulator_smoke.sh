@@ -42,8 +42,14 @@ def tap(nodes,*phrases):
      return
  raise AssertionError('Cannot locate tappable target '+str(phrases))
 
-home=capture('home')
-assert any(match(x,'HereShift') for x in home),'App did not display HereShift landing page'
+home=[]
+for startup_attempt in range(8):
+ home=capture('home-'+str(startup_attempt))
+ if any(match(x,'HereShift') for x in home):
+  break
+ time.sleep(2)
+else:
+ raise AssertionError('App did not display HereShift landing page after startup retries')
 tap(home,'Display · 40 color themes','Display')
 display=capture('display')
 assert any(match(x,'40 approved paired themes') for x in display),'Display settings not opened'
