@@ -1,11 +1,10 @@
 # HereShift release signing handoff
-Status: unsigned release APK and AAB built in GitHub Actions; no production signing key supplied or used.
+Status: First Google Play release confirmed by owner 2026-10-17. No existing signing identity to preserve. Unsigned release artifacts exist; no production signing key has been supplied.
 Version: 0.5.0-rc1 / versionCode 7.
 Application ID: com.peostectica.hereshift.
 
 ## Owner-controlled signing
-1. Choose an existing production upload keystore if this app has ever been published. Reusing the established signing identity is necessary for updates.
-2. Otherwise create a new upload keystore on an owner-controlled machine using Android Studio's Generate Signed Bundle / APK workflow; store the keystore and passwords in separate secure backups.
+1. Create a NEW upload keystore on an owner-controlled machine using Android Studio's Generate Signed Bundle / APK workflow; store keystore and passwords in separate secure backups. Future updates must preserve the upload identity or use the official Play upload-key reset process.
 3. Never send private signing keys or passwords through chat, GitHub source, issue comments, or build artifacts.
 4. Verify the release AAB's package ID and version; sign using the authorized owner-controlled process.
 5. Record only public certificate fingerprints and signed artifact SHA-256 in the release evidence document.
