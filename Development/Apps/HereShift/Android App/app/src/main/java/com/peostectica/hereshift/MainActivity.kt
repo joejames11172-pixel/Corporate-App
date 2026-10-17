@@ -368,6 +368,13 @@ class MainActivity : Activity() {
             val notes=EditText(this@MainActivity).apply {
                 hint="Screen, steps to reproduce, expected result, actual result, or suggestion"
                 setText(prefs.getString("ui_test_notes",""))
+                addTextChangedListener(object:android.text.TextWatcher {
+                    override fun beforeTextChanged(text:CharSequence?,start:Int,count:Int,after:Int){}
+                    override fun onTextChanged(text:CharSequence?,start:Int,before:Int,count:Int){
+                        prefs.edit().putString("ui_test_notes",text?.toString() ?: "").apply()
+                    }
+                    override fun afterTextChanged(text:android.text.Editable?){}
+                })
                 minLines=4;maxLines=9
                 inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 setTextColor(shade(palette.onSurface))
