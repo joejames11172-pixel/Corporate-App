@@ -1,0 +1,2136 @@
+{
+  "schema": "peostectica.audio.theme.library.v1",
+  "generated_utc": "2026-10-17",
+  "purpose": "Original synthesized non-speech UI sound cues for mobile app testing; genre associations are creative, not measured popularity ranking",
+  "audio_files": "240 mono PCM WAV 22050Hz 16-bit",
+  "none_option": {
+    "id": "none",
+    "name": "None \u00b7 Sound effects off",
+    "default": true,
+    "preview": false
+  },
+  "cue_order": [
+    "tap",
+    "select",
+    "confirm",
+    "back",
+    "swipe",
+    "toggle_on",
+    "toggle_off",
+    "open",
+    "close",
+    "success",
+    "notice",
+    "navigate"
+  ],
+  "behavior": {
+    "app_event": "Advance to next short cue (cycle index modulo 12)",
+    "preview": "User-triggered play/pause loop through 12 cues with ~160 ms gap",
+    "restore": "Back returns to prior screen; preference persists",
+    "mute": "None disables all effects; respect system silent/DND",
+    "volume": "App level adjustable",
+    "reduced_audio": "Use no sound by default and pause when backgrounded/interrupted"
+  },
+  "themes": [
+    {
+      "id": "01",
+      "slug": "casino",
+      "name": "Casino",
+      "description": "Coins, slot bells and bright celebratory chimes",
+      "style": "metal",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "01_casino/01_tap.wav",
+          "duration_ms": 250,
+          "sha256": "354ce16f1c4992b9b3e9172090e0ec0064e136ddeb3fc991d6e14ec05f814e05",
+          "peak": 0.607,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "01_casino/02_select.wav",
+          "duration_ms": 460,
+          "sha256": "2baa44b7ea0ae28e83f6b3cd6189f4c4990d847e497cc56de030f32c3002794f",
+          "peak": 0.608,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "01_casino/03_confirm.wav",
+          "duration_ms": 320,
+          "sha256": "6490163b1d5cbb2e818a1b8ef61d99c2fc23b8241c43aa5c015797a7f67ac264",
+          "peak": 0.57,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "01_casino/04_back.wav",
+          "duration_ms": 530,
+          "sha256": "cde7893cc54ee670ab8fd21c4b4713e91f734b102c22dc0cbd77a33f662d8531",
+          "peak": 0.65,
+          "rms": 0.094
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "01_casino/05_swipe.wav",
+          "duration_ms": 390,
+          "sha256": "47ad3d8d09d03881f17c43cf5050f957462bee89c172e7259202f37fb2462d3f",
+          "peak": 0.604,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "01_casino/06_toggle_on.wav",
+          "duration_ms": 250,
+          "sha256": "7e691de464625c6aa9d4cf9bf4a3930cb390e2e38ca27ecc021447be3b4e1bc2",
+          "peak": 0.513,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "01_casino/07_toggle_off.wav",
+          "duration_ms": 460,
+          "sha256": "498b732f3c693e35c495449b5b1b960a84986057a100de16277342ad9a347706",
+          "peak": 0.65,
+          "rms": 0.108
+        },
+        {
+          "cue_id": "open",
+          "filename": "01_casino/08_open.wav",
+          "duration_ms": 320,
+          "sha256": "ab3d5b3253209825535282fb8ffc7c38f697877702520e274b5e706203e2d8c2",
+          "peak": 0.559,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "01_casino/09_close.wav",
+          "duration_ms": 530,
+          "sha256": "d4472351352904440aebce0ab2da12ae91973403a02c8fa4a1aa17dc370c5a67",
+          "peak": 0.65,
+          "rms": 0.11
+        },
+        {
+          "cue_id": "success",
+          "filename": "01_casino/10_success.wav",
+          "duration_ms": 390,
+          "sha256": "3cc17a147628296eb156ac4e0f24b3764dad3b6d1ae3fda1d2734fe8ddfe38a1",
+          "peak": 0.524,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "01_casino/11_notice.wav",
+          "duration_ms": 250,
+          "sha256": "90f39f7f091129b9e3c42e4f168261bcc706f03150104181f72342d15ef675ca",
+          "peak": 0.496,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "01_casino/12_navigate.wav",
+          "duration_ms": 460,
+          "sha256": "f2ed55b5c92265b098de972c858210069f1b77b1f77e68e064699ae793faef03",
+          "peak": 0.65,
+          "rms": 0.117
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "slug": "arcade",
+      "name": "Arcade",
+      "description": "Bleeps, power-ups and springy joystick chirps",
+      "style": "arcade",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "02_arcade/01_tap.wav",
+          "duration_ms": 320,
+          "sha256": "1e804d6f08964fadcd114cc221109ef730dc83f5ce19d9b3b1583dde7bc1ebc5",
+          "peak": 0.317,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "02_arcade/02_select.wav",
+          "duration_ms": 530,
+          "sha256": "9a1f70e5726ec239664ca0d8aca0a7d560013a25d5121577eef2b0980c690da0",
+          "peak": 0.335,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "02_arcade/03_confirm.wav",
+          "duration_ms": 390,
+          "sha256": "be8d9000610372c89280ff1499507972d340a9a23aece60b8a6fb0a56c54bf9a",
+          "peak": 0.349,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "02_arcade/04_back.wav",
+          "duration_ms": 250,
+          "sha256": "a7b55319dab71e53b788084bdb938fceb1d4b60bb1815a4087b3b60a96677dfe",
+          "peak": 0.281,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "02_arcade/05_swipe.wav",
+          "duration_ms": 460,
+          "sha256": "645d1c84bc0c0a5a0719f370b8953accbbac3d37537c43ba6b1a8446d6b72262",
+          "peak": 0.378,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "02_arcade/06_toggle_on.wav",
+          "duration_ms": 320,
+          "sha256": "de0b14d04a78e7435c186777d0c564c63e22aee2c5cd5b1448e4f857ff59311e",
+          "peak": 0.315,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "02_arcade/07_toggle_off.wav",
+          "duration_ms": 530,
+          "sha256": "57ef71b3f60ee04f0775cb76e533386c2bd1b0eef4f4dd1525ca6fe11f8b5869",
+          "peak": 0.407,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "02_arcade/08_open.wav",
+          "duration_ms": 390,
+          "sha256": "e9c4241f1e6e76e8cc58ab36d86008742b469e2e92036d6fa56df8f0b8c82d2c",
+          "peak": 0.347,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "02_arcade/09_close.wav",
+          "duration_ms": 250,
+          "sha256": "e014dc38386ccb6cba2f3f39b2e11524dddadead6daefbde071636c7b8a150b4",
+          "peak": 0.282,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "02_arcade/10_success.wav",
+          "duration_ms": 460,
+          "sha256": "362b81e333662364388bbbc8a8685c69fe72ae58f123f8d76c89f672b3072d44",
+          "peak": 0.322,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "02_arcade/11_notice.wav",
+          "duration_ms": 320,
+          "sha256": "284fdba2cb3099c5a27f43e1b1f37a07281a4db2170071e1c343a0d6baf8645f",
+          "peak": 0.316,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "02_arcade/12_navigate.wav",
+          "duration_ms": 530,
+          "sha256": "d3255f79b121072a541d86031a26a070b12e4b55777b25b45728aa3d22238388",
+          "peak": 0.364,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "slug": "band",
+      "name": "Concert Band",
+      "description": "Brass punches, snares and festival flourishes",
+      "style": "brass",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "03_band/01_tap.wav",
+          "duration_ms": 390,
+          "sha256": "92e162c98bb78e88b79b8e03e43601e78e47683a841d6f2cecdbb2d257016a45",
+          "peak": 0.572,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "03_band/02_select.wav",
+          "duration_ms": 250,
+          "sha256": "6d748fae1420761665796281cbf4bf4e9dc637fdda2dfcc1537dbb4528f2707f",
+          "peak": 0.461,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "03_band/03_confirm.wav",
+          "duration_ms": 460,
+          "sha256": "2ed8b2395fd9186910230c08ba715db8b5d51231bb0e23082068bde6a89e1fe9",
+          "peak": 0.618,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "03_band/04_back.wav",
+          "duration_ms": 320,
+          "sha256": "3fb6c4e0d4a309b501a53bc7cef6d5d27b0f2b46d35ac536af1a160293990a82",
+          "peak": 0.499,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "03_band/05_swipe.wav",
+          "duration_ms": 530,
+          "sha256": "90e0b7ebc3f9f54bb94d900af20c333019c1cca9d35d4c916c478840e9bcd30a",
+          "peak": 0.65,
+          "rms": 0.118
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "03_band/06_toggle_on.wav",
+          "duration_ms": 390,
+          "sha256": "4441ffb89b6e8fa8f261452cb6758ec23d41e751828927cf33747dedfa826250",
+          "peak": 0.563,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "03_band/07_toggle_off.wav",
+          "duration_ms": 250,
+          "sha256": "4cddc96bff9afe92ba1e64c49b3fb275731c8ce992c9dc7cdd2c87941d1c4871",
+          "peak": 0.474,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "03_band/08_open.wav",
+          "duration_ms": 460,
+          "sha256": "7a4b442ec1224aaa5ac022f7be5c98acd937d1bbfdc2376d5b911afb0bf68a85",
+          "peak": 0.601,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "03_band/09_close.wav",
+          "duration_ms": 320,
+          "sha256": "2208eed8c11fdc05d1f9de0d9af6f399becd7402b22b38d10627c9b4459e4218",
+          "peak": 0.505,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "03_band/10_success.wav",
+          "duration_ms": 530,
+          "sha256": "24a6527f2c997997d3d8554f3efc9cd90f9ac6b3c43c687c471a6321732735ae",
+          "peak": 0.615,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "03_band/11_notice.wav",
+          "duration_ms": 390,
+          "sha256": "8f28f5e0f0dbfa54d4949bc15d18192fc5d7ab0def4c45a60fb98bde385e13eb",
+          "peak": 0.547,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "03_band/12_navigate.wav",
+          "duration_ms": 250,
+          "sha256": "77716dbc00005a96847ce5fb31539ae3691b11f655af41b10be0f92d27c410ca",
+          "peak": 0.454,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "slug": "sci-fi",
+      "name": "Sci-Fi",
+      "description": "Laser chirps, synthetic sweeps and teleport blips",
+      "style": "laser",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "04_sci-fi/01_tap.wav",
+          "duration_ms": 460,
+          "sha256": "d80a75e4bfb0248babd0c2613454d66285bea9c4b2ec6d26532307964dbd9ab0",
+          "peak": 0.362,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "04_sci-fi/02_select.wav",
+          "duration_ms": 320,
+          "sha256": "f1feb6263f65ba5a564dd94b3468ab8385bb1072c9fe31bed05dc0c765d72e4a",
+          "peak": 0.288,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "04_sci-fi/03_confirm.wav",
+          "duration_ms": 530,
+          "sha256": "bfc83128381c73971534c43cf78330946d75abeb77a13cd8cdbaa3fe1ee872be",
+          "peak": 0.388,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "04_sci-fi/04_back.wav",
+          "duration_ms": 390,
+          "sha256": "0d3eb1e2380cc607f38d7208887df3e765c22adc265fee0103bf5c5ccc594544",
+          "peak": 0.334,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "04_sci-fi/05_swipe.wav",
+          "duration_ms": 250,
+          "sha256": "ad4a98d6b2b6ca715308a37d4ecd246b7765e8e52af8a0b482275770add7069b",
+          "peak": 0.268,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "04_sci-fi/06_toggle_on.wav",
+          "duration_ms": 460,
+          "sha256": "8c7cd958fe8220baa2db555f4f5513e4a22085a65236abe83b8d4f6d5b254e79",
+          "peak": 0.361,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "04_sci-fi/07_toggle_off.wav",
+          "duration_ms": 320,
+          "sha256": "756123876554f97002aa26e9e2b4ee84c078e240c6179fd88c92b4e76b1f9b96",
+          "peak": 0.303,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "04_sci-fi/08_open.wav",
+          "duration_ms": 530,
+          "sha256": "d686a3879de615a5bac453c816a7b4d0578e373c5c09b8bfab0523cc67b060bb",
+          "peak": 0.388,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "04_sci-fi/09_close.wav",
+          "duration_ms": 390,
+          "sha256": "a3439ed9578a67c4b0531c6af2e46d6322418299e564eaaa8759f7e7253a25be",
+          "peak": 0.33,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "04_sci-fi/10_success.wav",
+          "duration_ms": 250,
+          "sha256": "b05af15a3eb2936b04a62d1edf4391c3009400bb38eb1af3678c1f3a8241be15",
+          "peak": 0.249,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "04_sci-fi/11_notice.wav",
+          "duration_ms": 460,
+          "sha256": "83a2b8fc5e05caa276b72ed41431c5efe2f837420128ac530e7c293fccc89550",
+          "peak": 0.362,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "04_sci-fi/12_navigate.wav",
+          "duration_ms": 320,
+          "sha256": "9e8b39a10cbf78a3100cbaf0c87175af63f13fb0b912d00c0611f897077d1736",
+          "peak": 0.292,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "slug": "computer",
+      "name": "Computer",
+      "description": "Clean system bleeps, digital confirmations and keyboard chirps",
+      "style": "computer",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "05_computer/01_tap.wav",
+          "duration_ms": 530,
+          "sha256": "380bd214bde8f35c7cb26d040f21d7b859b46922f3255fbf7fad1f46245cc080",
+          "peak": 0.594,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "05_computer/02_select.wav",
+          "duration_ms": 390,
+          "sha256": "7e3338cd277193ba37dd8c4e0775f567e976ff580e8da90f44f0ed25bc324bed",
+          "peak": 0.466,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "05_computer/03_confirm.wav",
+          "duration_ms": 250,
+          "sha256": "63952bee267b6c6320b54eddae7a56e45ae504d39ab5d8cb85a7fbe1833e64cd",
+          "peak": 0.403,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "05_computer/04_back.wav",
+          "duration_ms": 460,
+          "sha256": "f06c13ad166e8cea9936851599c50c9be2360813972d2f779989845c68a67032",
+          "peak": 0.551,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "05_computer/05_swipe.wav",
+          "duration_ms": 320,
+          "sha256": "d4ddc1e5f2175c860ef2257ea66dde90131271414081d80ed96f42d5526e6b95",
+          "peak": 0.456,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "05_computer/06_toggle_on.wav",
+          "duration_ms": 530,
+          "sha256": "4061e86d4799feb045a8153f76880a53a5fe13dcb15db9543894531d3995c19d",
+          "peak": 0.596,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "05_computer/07_toggle_off.wav",
+          "duration_ms": 390,
+          "sha256": "54df53b27814b79d61b3746fe0784541bfc24eae70e32f7c118036050fb774a8",
+          "peak": 0.507,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "05_computer/08_open.wav",
+          "duration_ms": 250,
+          "sha256": "fd7035f1ea6547a7bdd9c58bff4dee534011e430e0683b82f492eab831847d2a",
+          "peak": 0.401,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "05_computer/09_close.wav",
+          "duration_ms": 460,
+          "sha256": "240d846fea7f79a9de31d4213945eacd143e17dfb3849fd68be5edf5c3d73058",
+          "peak": 0.558,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "05_computer/10_success.wav",
+          "duration_ms": 320,
+          "sha256": "066d9794df496284ba5a3e3162e9cde4da0085af9f4281b5bcc2a6938989c4a0",
+          "peak": 0.42,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "05_computer/11_notice.wav",
+          "duration_ms": 530,
+          "sha256": "6e045861ef5ca5b0d774f5ad7ba6cd63747640d55f7450b5ea910464090a0abc",
+          "peak": 0.584,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "05_computer/12_navigate.wav",
+          "duration_ms": 390,
+          "sha256": "803f6e2bb754fc4646105dc20856f5283ffd4687b72073f8f95b57b584551b13",
+          "peak": 0.492,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "slug": "cathedral",
+      "name": "Cathedral Bells",
+      "description": "Resonant bell partials, tiny organ-like chords",
+      "style": "bells",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "06_cathedral/01_tap.wav",
+          "duration_ms": 250,
+          "sha256": "2ec2d6921003e6960b0ccace672329126a42ea60cced7f7f52cee64e17a11375",
+          "peak": 0.393,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "06_cathedral/02_select.wav",
+          "duration_ms": 460,
+          "sha256": "19dc1b7821118d1f7b9ce8c7d21eefd37b8fde918d6c0adb2b6f4fd09ce6f1fc",
+          "peak": 0.416,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "06_cathedral/03_confirm.wav",
+          "duration_ms": 320,
+          "sha256": "3233cf586274c7b30e5fcc9390ff62cce10340d19d3b6909b951265fdc78ad28",
+          "peak": 0.435,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "06_cathedral/04_back.wav",
+          "duration_ms": 530,
+          "sha256": "4d939a8591f888c617327b5354db9946fbf86950eb49a41ef07315e5c8be858c",
+          "peak": 0.541,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "06_cathedral/05_swipe.wav",
+          "duration_ms": 390,
+          "sha256": "d47fe5ad6e66f6b0e284b06caa9706db5b61be0a3b6cbe3cf1e0597af5628928",
+          "peak": 0.481,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "06_cathedral/06_toggle_on.wav",
+          "duration_ms": 250,
+          "sha256": "ea1c3fae5517ae4b582d4f099ede95dcfd864d04c49e0234330c3a0419a36ae5",
+          "peak": 0.403,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "06_cathedral/07_toggle_off.wav",
+          "duration_ms": 460,
+          "sha256": "3a9f76de53bfe76eb5e95ccd6bf421194d0159fbed1ba24c20040edd0484312d",
+          "peak": 0.515,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "06_cathedral/08_open.wav",
+          "duration_ms": 320,
+          "sha256": "838c1902ebad79a660639c590262567640540060c85449f0fb512f43798d2866",
+          "peak": 0.44,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "06_cathedral/09_close.wav",
+          "duration_ms": 530,
+          "sha256": "c50ee2f3ae559c953c6856f38292a1bb17a8e7023d521db351855ef7fa56c81a",
+          "peak": 0.553,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "06_cathedral/10_success.wav",
+          "duration_ms": 390,
+          "sha256": "69650bd436a91df4bba0b59845e618ae64087bb57433972130a5e043b59bc202",
+          "peak": 0.377,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "06_cathedral/11_notice.wav",
+          "duration_ms": 250,
+          "sha256": "679d2573ba08f63be083518ae4f0534282044084bcb9247a1a8015bdb1c7a76d",
+          "peak": 0.396,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "06_cathedral/12_navigate.wav",
+          "duration_ms": 460,
+          "sha256": "97f9b95bed3d725dd2f72154d9f26942286bb7a43eba9df5515cc3772c6b2afe",
+          "peak": 0.44,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "07",
+      "slug": "8-bit",
+      "name": "Retro 8-Bit",
+      "description": "Pixel blips, chip arpeggios and game-console jingles",
+      "style": "chip",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "07_8-bit/01_tap.wav",
+          "duration_ms": 320,
+          "sha256": "c957d1880e6beb809e6bd731aa00c5d38045d6a8d1c6e3c8e8518c874069c10c",
+          "peak": 0.328,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "07_8-bit/02_select.wav",
+          "duration_ms": 530,
+          "sha256": "ff28401de1299e3dbdd1f4cd224fe1f3f63a53fff9eaace7574b621cc8bbe051",
+          "peak": 0.444,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "07_8-bit/03_confirm.wav",
+          "duration_ms": 390,
+          "sha256": "a72cbd174eba7ba735054f737e8fa9c45f8e2f380f3b8ca3757c2af7b501400f",
+          "peak": 0.372,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "07_8-bit/04_back.wav",
+          "duration_ms": 250,
+          "sha256": "273f88816d2d222694a9d74277e49fb26464327bf8c27564a852f4d3c0dd20de",
+          "peak": 0.331,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "07_8-bit/05_swipe.wav",
+          "duration_ms": 460,
+          "sha256": "6e4a33b6b6462077af96844d81391c048b0a9ec39ca58f76414d9714e931e606",
+          "peak": 0.44,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "07_8-bit/06_toggle_on.wav",
+          "duration_ms": 320,
+          "sha256": "ad611b9d897f44e2ed045efa0bad87249d70a00b1c9ef00ccb1f146a653fe32d",
+          "peak": 0.321,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "07_8-bit/07_toggle_off.wav",
+          "duration_ms": 530,
+          "sha256": "8379d723abbaab49759daaf8ddee3fe17f448dea631539f30a4429fa5d1c2f6d",
+          "peak": 0.421,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "07_8-bit/08_open.wav",
+          "duration_ms": 390,
+          "sha256": "f56deb7287a7009dd9e34ea95e01ab180432e9894927e229f0db158e8b578ff1",
+          "peak": 0.363,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "07_8-bit/09_close.wav",
+          "duration_ms": 250,
+          "sha256": "eeeb6f5a3fabbe01d2ef96a61d5c08faaf108ff7ee4f87b4e247c04a23487c2d",
+          "peak": 0.352,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "07_8-bit/10_success.wav",
+          "duration_ms": 460,
+          "sha256": "72ed2c8ab4018170059629da45bf39aff2fc94c7ed174cba06a974f15ff49682",
+          "peak": 0.378,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "07_8-bit/11_notice.wav",
+          "duration_ms": 320,
+          "sha256": "609828d59deeb701b9e40e3d0bcfecb91bd5804af60dc19dbf532a6117883d8a",
+          "peak": 0.357,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "07_8-bit/12_navigate.wav",
+          "duration_ms": 530,
+          "sha256": "4d783eab5270e75461c147d374aaa4f453a3258c082432d72cddabc74652c103",
+          "peak": 0.397,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "slug": "forest",
+      "name": "Forest",
+      "description": "Birdlike tweets, leaflike shimmers and gentle wood taps",
+      "style": "forest",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "08_forest/01_tap.wav",
+          "duration_ms": 450,
+          "sha256": "902cdd5f82e3b3c0859629ba68282507dc8c399cfc20b174b1a9d81f323c58f1",
+          "peak": 0.638,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "08_forest/02_select.wav",
+          "duration_ms": 310,
+          "sha256": "eea0a1017dc97cf1d78caea1503007ad357e57b5a283e783d598c86a457cda55",
+          "peak": 0.511,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "08_forest/03_confirm.wav",
+          "duration_ms": 520,
+          "sha256": "d2b975302f8a8ac38bc05ccec71e83fd8b2c1f3cbeb6666f6a95185af79eff5b",
+          "peak": 0.65,
+          "rms": 0.105
+        },
+        {
+          "cue_id": "back",
+          "filename": "08_forest/04_back.wav",
+          "duration_ms": 380,
+          "sha256": "37ced23a88c93ea3ba22d6652c0d3448abedda32fe8a35f6d8f0852d6c8c875a",
+          "peak": 0.64,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "08_forest/05_swipe.wav",
+          "duration_ms": 590,
+          "sha256": "a74f57e70b24f62727cf1739ba9c196e483a99fd219858eae2c6f7ac575a9216",
+          "peak": 0.65,
+          "rms": 0.113
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "08_forest/06_toggle_on.wav",
+          "duration_ms": 450,
+          "sha256": "87af948281aba97b891cbdc17898fad2f50cbf462814a80e8023104a63dc2949",
+          "peak": 0.65,
+          "rms": 0.118
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "08_forest/07_toggle_off.wav",
+          "duration_ms": 310,
+          "sha256": "81e8944f2b1e91c5ea04415b92844d4ec3ec21c71929ed3b16521cf7d51e1321",
+          "peak": 0.557,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "08_forest/08_open.wav",
+          "duration_ms": 520,
+          "sha256": "2035e90d1f135d6e029391eab55959f66e79e78672dec057afabd06d897f420d",
+          "peak": 0.65,
+          "rms": 0.107
+        },
+        {
+          "cue_id": "close",
+          "filename": "08_forest/09_close.wav",
+          "duration_ms": 380,
+          "sha256": "ab1adc817878170353670421133150c971c333a0dae9a319504146643daaddae",
+          "peak": 0.649,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "08_forest/10_success.wav",
+          "duration_ms": 590,
+          "sha256": "fb5a8159427853811ad876a1b102763a44f57805356fecb86fcfc5e0e598c899",
+          "peak": 0.65,
+          "rms": 0.111
+        },
+        {
+          "cue_id": "notice",
+          "filename": "08_forest/11_notice.wav",
+          "duration_ms": 450,
+          "sha256": "3c21c57714e5860e5ed0c9098b51632661616f391748e96dd79db0ade337669c",
+          "peak": 0.628,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "08_forest/12_navigate.wav",
+          "duration_ms": 310,
+          "sha256": "38c8746a6a4805643f20cd02d31f23445f5fc8009f2428db159b9e847f6bc329",
+          "peak": 0.531,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "09",
+      "slug": "ocean",
+      "name": "Ocean",
+      "description": "Watery bubbles, ripples and soft droplets",
+      "style": "water",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "09_ocean/01_tap.wav",
+          "duration_ms": 520,
+          "sha256": "c475b77aeac783ef44cb18ce1a581122272623b70a98463c2f766aa53a0cc4c1",
+          "peak": 0.629,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "09_ocean/02_select.wav",
+          "duration_ms": 380,
+          "sha256": "053e5269cc01a4b60b9480c6d122c1ef9cd8d390cd71e816bb6b5694ba48569d",
+          "peak": 0.508,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "09_ocean/03_confirm.wav",
+          "duration_ms": 590,
+          "sha256": "8eccaa14434a7bae31e25ae54f12a9344804393aec0e5e6fac4e3452d21b95b3",
+          "peak": 0.65,
+          "rms": 0.117
+        },
+        {
+          "cue_id": "back",
+          "filename": "09_ocean/04_back.wav",
+          "duration_ms": 450,
+          "sha256": "46a6066784da0a60195d596daa8eb80af6750322f8358ae49da355bc437e60fc",
+          "peak": 0.571,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "09_ocean/05_swipe.wav",
+          "duration_ms": 310,
+          "sha256": "d42f5e0fec37f89a472832c488c91456fec485278d3a3371d2f5153c6ee6a864",
+          "peak": 0.495,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "09_ocean/06_toggle_on.wav",
+          "duration_ms": 520,
+          "sha256": "3c7752c5a204161b5d6f1e58183fa1bea6f1a14cac95c48fb6b4badc5f14b459",
+          "peak": 0.645,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "09_ocean/07_toggle_off.wav",
+          "duration_ms": 380,
+          "sha256": "84cecb073177884bc57c574cf4f6e51af8ada3f1219df78f0ddb3f86ebd9df20",
+          "peak": 0.553,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "09_ocean/08_open.wav",
+          "duration_ms": 590,
+          "sha256": "612bf9915e1761cc60585b4083a3a06bf67da7217a2771a23b3ebd68b43172ca",
+          "peak": 0.65,
+          "rms": 0.116
+        },
+        {
+          "cue_id": "close",
+          "filename": "09_ocean/09_close.wav",
+          "duration_ms": 450,
+          "sha256": "76519ccb2ab5080938301c278ec4a9b3e89e7cc64781476d396c5e98780550a5",
+          "peak": 0.59,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "09_ocean/10_success.wav",
+          "duration_ms": 310,
+          "sha256": "8aebaaf42c80dde821a7c3946cc8afc220011b3a8fb0ad25ae140b4b527fe622",
+          "peak": 0.451,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "09_ocean/11_notice.wav",
+          "duration_ms": 520,
+          "sha256": "5783dc66c8948c778246bffc2df946e44dbaa1c87acded02e410aa56888b7059",
+          "peak": 0.642,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "09_ocean/12_navigate.wav",
+          "duration_ms": 380,
+          "sha256": "b92c319dbd2bf6434825e312154b97ca454ba20eb8654a4e129a71ba3baf679a",
+          "peak": 0.522,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "slug": "spacecraft",
+      "name": "Spacecraft",
+      "description": "Radar pings, cockpit chirps and launch-console signals",
+      "style": "radar",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "10_spacecraft/01_tap.wav",
+          "duration_ms": 530,
+          "sha256": "e38da797193db36de99aa3557375c0d8c700bd5bc49cd79c58fa927f954eba4b",
+          "peak": 0.419,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "10_spacecraft/02_select.wav",
+          "duration_ms": 390,
+          "sha256": "ad8ee07913b29d26ec2e923785484604808c64a31b668c3ce51b9084f0bd25f1",
+          "peak": 0.332,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "10_spacecraft/03_confirm.wav",
+          "duration_ms": 250,
+          "sha256": "ddb9cb2ce97c1e8ce2d20a1e006eb603e6ca861b48ed62792fa8ea34c23acf55",
+          "peak": 0.307,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "10_spacecraft/04_back.wav",
+          "duration_ms": 460,
+          "sha256": "df54909d1ba687c8321fa2c38e4cc40fa60815732f6f3f3e56e81ecd148d7b12",
+          "peak": 0.392,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "10_spacecraft/05_swipe.wav",
+          "duration_ms": 320,
+          "sha256": "dbfdc01c3f9ce4c276cdf0a5e2e75c71d78c3dd45bd91058f7d5459565a45ba5",
+          "peak": 0.335,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "10_spacecraft/06_toggle_on.wav",
+          "duration_ms": 530,
+          "sha256": "f7a615481d121098be84839ae4ffe60cbf84fcee2efa0a02e0b4b819e63cd509",
+          "peak": 0.418,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "10_spacecraft/07_toggle_off.wav",
+          "duration_ms": 390,
+          "sha256": "e7d0bf9ef5fb73bfcc0ecfa42c2152ad3cd057c9c3304aef88f35a32f2069b70",
+          "peak": 0.364,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "10_spacecraft/08_open.wav",
+          "duration_ms": 250,
+          "sha256": "294fb1da2fa3ec3635179797815fb170d4c1aed9ca4b2a44cf9592fc956369b8",
+          "peak": 0.307,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "10_spacecraft/09_close.wav",
+          "duration_ms": 460,
+          "sha256": "59a0c16d92f0cdbe1867d4600665284394c63b3128246bdb3474fccdcaae778f",
+          "peak": 0.392,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "10_spacecraft/10_success.wav",
+          "duration_ms": 320,
+          "sha256": "3782dcb7ce0727e9ebe567a2a21100e15b59e96e24edf01f10139192d95f0ec3",
+          "peak": 0.3,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "10_spacecraft/11_notice.wav",
+          "duration_ms": 530,
+          "sha256": "532c24e80f890b17683bdf10201003508352784770e6b06dc774e5ced0e8c8a1",
+          "peak": 0.418,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "10_spacecraft/12_navigate.wav",
+          "duration_ms": 390,
+          "sha256": "3c452e5168e1484e4e30c5b5dab1723353fec0e52a248f51442d33af0163170b",
+          "peak": 0.348,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "slug": "workshop",
+      "name": "Workshop",
+      "description": "Metallic taps, small mechanisms and tool-like clicks",
+      "style": "workshop",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "11_workshop/01_tap.wav",
+          "duration_ms": 310,
+          "sha256": "ef9fc43d1e9d691655b323c14f941f999cf3d3f4960759639baa38db951a20b5",
+          "peak": 0.65,
+          "rms": 0.089
+        },
+        {
+          "cue_id": "select",
+          "filename": "11_workshop/02_select.wav",
+          "duration_ms": 520,
+          "sha256": "b5db5a8676b2917bff826d08320f2f4a4d5e38e50306140bc86dbecac3b1b1c0",
+          "peak": 0.65,
+          "rms": 0.063
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "11_workshop/03_confirm.wav",
+          "duration_ms": 380,
+          "sha256": "5f029bc940083b2a9d0d91878282c3a886f8a2d8185c0b2fd04dc15897eb4088",
+          "peak": 0.65,
+          "rms": 0.071
+        },
+        {
+          "cue_id": "back",
+          "filename": "11_workshop/04_back.wav",
+          "duration_ms": 590,
+          "sha256": "6b06b930284af4e4fe7d4ef72b1320c36d602a55b004b0b3acd292161f02b111",
+          "peak": 0.65,
+          "rms": 0.066
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "11_workshop/05_swipe.wav",
+          "duration_ms": 450,
+          "sha256": "4ca82b2f96344d0da877d805e531a9e06ba3bee42dc73928bef419693871ae67",
+          "peak": 0.65,
+          "rms": 0.074
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "11_workshop/06_toggle_on.wav",
+          "duration_ms": 310,
+          "sha256": "08db32b14fe1006b5a702b2f2aad05ef4f603e3dd3b1279dd9f9e5c9a05d266f",
+          "peak": 0.65,
+          "rms": 0.095
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "11_workshop/07_toggle_off.wav",
+          "duration_ms": 520,
+          "sha256": "19159c2f1687715c74e8ec5c58d8c8ad675c5a1b968ec85f8e57ab743992e969",
+          "peak": 0.65,
+          "rms": 0.058
+        },
+        {
+          "cue_id": "open",
+          "filename": "11_workshop/08_open.wav",
+          "duration_ms": 380,
+          "sha256": "bb97b5a38b1f34141f573058d132f86767c6d5e26012ad0c6f1b07ab208abc14",
+          "peak": 0.65,
+          "rms": 0.081
+        },
+        {
+          "cue_id": "close",
+          "filename": "11_workshop/09_close.wav",
+          "duration_ms": 590,
+          "sha256": "faf96a40566e8595c3a35c0935cb73325a2531d6194aed7c07dc4efb3ea4c119",
+          "peak": 0.65,
+          "rms": 0.06
+        },
+        {
+          "cue_id": "success",
+          "filename": "11_workshop/10_success.wav",
+          "duration_ms": 450,
+          "sha256": "44759da00ea6ef8f099f4610b6acc3e1d8af3a95a07cba667e7a14193d4a8fe2",
+          "peak": 0.65,
+          "rms": 0.073
+        },
+        {
+          "cue_id": "notice",
+          "filename": "11_workshop/11_notice.wav",
+          "duration_ms": 310,
+          "sha256": "e686cf70f0d554282ea934517bf57e40fd5461c5296ba3f2e7d23ec13c0e7a29",
+          "peak": 0.65,
+          "rms": 0.076
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "11_workshop/12_navigate.wav",
+          "duration_ms": 520,
+          "sha256": "7a94dc4d688dd4ce4e9db80698aced477fcfb68914b9c7695c2834f7cda8a55b",
+          "peak": 0.65,
+          "rms": 0.07
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "slug": "orchestra",
+      "name": "Orchestra",
+      "description": "Pizzicato strings, celesta and miniature orchestral phrases",
+      "style": "strings",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "12_orchestra/01_tap.wav",
+          "duration_ms": 320,
+          "sha256": "21ff834f28747f8cd2ef957d809fa443f4495228a26555ca3fefd0c0e91ca41e",
+          "peak": 0.401,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "12_orchestra/02_select.wav",
+          "duration_ms": 530,
+          "sha256": "bab2fe8e79414cc1fd874368f8c50516e587ce76650288001f636639609a35e9",
+          "peak": 0.526,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "12_orchestra/03_confirm.wav",
+          "duration_ms": 390,
+          "sha256": "9c31b756c0081548190c92421a2e61ab17cdf02c3ca829f08ba2a07c0f5d34d2",
+          "peak": 0.438,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "12_orchestra/04_back.wav",
+          "duration_ms": 250,
+          "sha256": "8150ff489c4ffbe2f482cc3c901e1e905a599293753921f82d5adc1c92c1915e",
+          "peak": 0.358,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "12_orchestra/05_swipe.wav",
+          "duration_ms": 460,
+          "sha256": "0e9056d4a09aa26f5251fa1224af795dec79c035cd4f9d22eee90c2dc39e5b26",
+          "peak": 0.47,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "12_orchestra/06_toggle_on.wav",
+          "duration_ms": 320,
+          "sha256": "7fee46e7e4e53f015e41bea458d25ff255bb7e03e4877e6e86602d42405ef85b",
+          "peak": 0.394,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "12_orchestra/07_toggle_off.wav",
+          "duration_ms": 530,
+          "sha256": "66f3028220aaf81ecf0f9ce24b9759ff629ff5f29f417462cb5f42562432370b",
+          "peak": 0.505,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "12_orchestra/08_open.wav",
+          "duration_ms": 390,
+          "sha256": "6ee7091e62574732a1b7f9f4238702241b67bf4cfa2588d0dc8d1178a6cab953",
+          "peak": 0.437,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "12_orchestra/09_close.wav",
+          "duration_ms": 250,
+          "sha256": "b808cfd187b51e2c1252b014fde30727b159cbcc09ceb65bbf5eeefdfe90db2f",
+          "peak": 0.356,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "12_orchestra/10_success.wav",
+          "duration_ms": 460,
+          "sha256": "ab025833a5049bdc32bc097b92d1e9b32f9e594b73439e05cf005cb526867138",
+          "peak": 0.473,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "12_orchestra/11_notice.wav",
+          "duration_ms": 320,
+          "sha256": "74bde6b77000632bb76a14e868a7dd027b4fa9c5236422d830a4c07177fb5298",
+          "peak": 0.394,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "12_orchestra/12_navigate.wav",
+          "duration_ms": 530,
+          "sha256": "30cc97d590631ba5011af819ae5c130f2677e9001fbe669657996be7536bf3c3",
+          "peak": 0.453,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "slug": "jazz",
+      "name": "Jazz Club",
+      "description": "Soft piano stabs, brushed taps and jazzy chromatic runs",
+      "style": "jazz",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "13_jazz/01_tap.wav",
+          "duration_ms": 390,
+          "sha256": "105de875a6281f5088e5d80e671afb23552644c418250ed94c99ac1f2ac6fbb6",
+          "peak": 0.587,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "13_jazz/02_select.wav",
+          "duration_ms": 250,
+          "sha256": "fdc32de72369a34fa7f602b34209f67d91df8e7f3799d3aed077287fc102f460",
+          "peak": 0.463,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "13_jazz/03_confirm.wav",
+          "duration_ms": 460,
+          "sha256": "f0c1e1160360412472a0e3029a8d790268061d867a716b4d63ce3b633510b279",
+          "peak": 0.629,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "13_jazz/04_back.wav",
+          "duration_ms": 320,
+          "sha256": "cca372e05c254b6d78cd4a177a640f74ec47c316c4cdaf1730c74413ede779ac",
+          "peak": 0.563,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "13_jazz/05_swipe.wav",
+          "duration_ms": 530,
+          "sha256": "50284784a210a47a5b6339170df4ae178ead2709510764a826dd6c7bb6b3814c",
+          "peak": 0.65,
+          "rms": 0.115
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "13_jazz/06_toggle_on.wav",
+          "duration_ms": 390,
+          "sha256": "0ee52d2865373e9feb4926c838f76f088f60871ae002e235d59ce353a05a9167",
+          "peak": 0.552,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "13_jazz/07_toggle_off.wav",
+          "duration_ms": 250,
+          "sha256": "6dd06cb54c14c8389d798165c0e1365ef7fa2c7cadc8dbfd7be6eec3bcc10a6b",
+          "peak": 0.489,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "13_jazz/08_open.wav",
+          "duration_ms": 460,
+          "sha256": "6c7ef2bb011e1345f68b0500848df05c9e025048cb4a8a6510e74fd7e2b3f084",
+          "peak": 0.65,
+          "rms": 0.116
+        },
+        {
+          "cue_id": "close",
+          "filename": "13_jazz/09_close.wav",
+          "duration_ms": 320,
+          "sha256": "c488a956a00f4af7e44ec3a3b68d123a8ca37e395f7f443cf6971cf6e3c51a2a",
+          "peak": 0.506,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "13_jazz/10_success.wav",
+          "duration_ms": 530,
+          "sha256": "a58da5d775f8f2700ac54270891bbdcb956123de6fe41bd8f970dfe3efcec2d8",
+          "peak": 0.635,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "13_jazz/11_notice.wav",
+          "duration_ms": 390,
+          "sha256": "535a64d06102fb1f3e24edcad90d8a2d00065e61ee18e81baa7f0183c9eeaadf",
+          "peak": 0.637,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "13_jazz/12_navigate.wav",
+          "duration_ms": 250,
+          "sha256": "ae6d6d1cc9c2a1b137d1e8edd4099563200c1b17292d18f4cf78568f3e928c4a",
+          "peak": 0.493,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "slug": "carnival",
+      "name": "Carnival",
+      "description": "Calliope notes, cheerful chimes and carousel motifs",
+      "style": "calliope",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "14_carnival/01_tap.wav",
+          "duration_ms": 460,
+          "sha256": "fbe0d902d6ad1a681f4879ed62ea981f3700423d6d3674fa51465b3afe85819a",
+          "peak": 0.5,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "14_carnival/02_select.wav",
+          "duration_ms": 320,
+          "sha256": "9f2ac9e7a2570a5108a02bb71bb2b5be583e45055b9c2a034b3365c9c450fe06",
+          "peak": 0.354,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "14_carnival/03_confirm.wav",
+          "duration_ms": 530,
+          "sha256": "b48d9fbb2523fb5f24f7cb53ba13c6030cc84347bb06eaa18af982c0b6c7fa52",
+          "peak": 0.536,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "14_carnival/04_back.wav",
+          "duration_ms": 390,
+          "sha256": "4be9d90befd09d33f661710ad7a7e33425f2d9a40a49fa26b48479fe8e7c4b55",
+          "peak": 0.465,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "14_carnival/05_swipe.wav",
+          "duration_ms": 250,
+          "sha256": "0db90867d515bf2f9a277dad8c028644f30f9f710e72f8ed61d4cb5827517be7",
+          "peak": 0.389,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "14_carnival/06_toggle_on.wav",
+          "duration_ms": 460,
+          "sha256": "fb15863809479bc7ae83b7a22db53a7117a4b13bc608d5ed0596f580c6530eb9",
+          "peak": 0.5,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "14_carnival/07_toggle_off.wav",
+          "duration_ms": 320,
+          "sha256": "a6a943415033d94f518b83a011cb1b9a99a5c6fa6d17c2ce60d54be57ba7da23",
+          "peak": 0.426,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "14_carnival/08_open.wav",
+          "duration_ms": 530,
+          "sha256": "3df7592e038a0915b1863db15c58351cb3195eba17c5f01c478de80d903a6b9a",
+          "peak": 0.537,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "14_carnival/09_close.wav",
+          "duration_ms": 390,
+          "sha256": "65c9329430e73b150fea23454f37c9f167b1d6b3332136c6926b5f75f25983ad",
+          "peak": 0.467,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "14_carnival/10_success.wav",
+          "duration_ms": 250,
+          "sha256": "51274b5634d3e9d4021b9cb611d017aa6b463e8b36410ef6c3a0a76848d0e876",
+          "peak": 0.394,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "14_carnival/11_notice.wav",
+          "duration_ms": 460,
+          "sha256": "a3e4e3dcc3af92bf7e490fad6fb80275b33beff665c2c6c78982dfe16d43cfbb",
+          "peak": 0.504,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "14_carnival/12_navigate.wav",
+          "duration_ms": 320,
+          "sha256": "b7944a29d49b5f29174152df1de21a74e27c5fbc0acdbad3e8ad17d0a133a0a5",
+          "peak": 0.398,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "slug": "railway",
+      "name": "Railway Station",
+      "description": "Platform bells, train-like clicks and station chimes",
+      "style": "rail",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "15_railway/01_tap.wav",
+          "duration_ms": 530,
+          "sha256": "b9b411020342697e39414d7893c8d1a1b3252e21944ccd526fd8055ba9cee9e1",
+          "peak": 0.65,
+          "rms": 0.083
+        },
+        {
+          "cue_id": "select",
+          "filename": "15_railway/02_select.wav",
+          "duration_ms": 390,
+          "sha256": "646251b297d0b114091af6a918aed37f457dbe794f8fb482f0fdd4812abbe2ff",
+          "peak": 0.643,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "15_railway/03_confirm.wav",
+          "duration_ms": 250,
+          "sha256": "915ebbd3e9ff155ace19421f953df55d1805fba098c9f613195250229e77f732",
+          "peak": 0.65,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "15_railway/04_back.wav",
+          "duration_ms": 460,
+          "sha256": "2c63760af282c54f8a5be97b995fa630a2b0ac2a47713a2510523bc2572cc8c9",
+          "peak": 0.65,
+          "rms": 0.084
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "15_railway/05_swipe.wav",
+          "duration_ms": 320,
+          "sha256": "4c93cc1e30caa7787f8c3bd2898688fdcd74e03796bbaba417de00df3363a554",
+          "peak": 0.65,
+          "rms": 0.11
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "15_railway/06_toggle_on.wav",
+          "duration_ms": 530,
+          "sha256": "93ce5de82c69d6d2fa364e1b7a214dd49f0510d7847e2a470a6ec4cc5f90ab09",
+          "peak": 0.65,
+          "rms": 0.076
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "15_railway/07_toggle_off.wav",
+          "duration_ms": 390,
+          "sha256": "82088c3fa5f06e3800552639b11bc3260108aa8a3fae93f190067ac04b7d5252",
+          "peak": 0.65,
+          "rms": 0.08
+        },
+        {
+          "cue_id": "open",
+          "filename": "15_railway/08_open.wav",
+          "duration_ms": 250,
+          "sha256": "c4bd39921d7d01f14239c938257a9c83388cbef55a807ae671ec62fc55bfa6b4",
+          "peak": 0.647,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "15_railway/09_close.wav",
+          "duration_ms": 460,
+          "sha256": "da1302cbf20bed8e4dce9d13b1ed633b69021dddd936410333eed5e121a14bda",
+          "peak": 0.65,
+          "rms": 0.08
+        },
+        {
+          "cue_id": "success",
+          "filename": "15_railway/10_success.wav",
+          "duration_ms": 320,
+          "sha256": "c5b5fa8282e72c12e0f302655494fe83a7ebad4a1182a62f8070064cbdc3ca55",
+          "peak": 0.65,
+          "rms": 0.119
+        },
+        {
+          "cue_id": "notice",
+          "filename": "15_railway/11_notice.wav",
+          "duration_ms": 530,
+          "sha256": "cbe3599913ef3fad4faca7e9033c49c5c6d64e239f506c0ea0331bedb38c2a03",
+          "peak": 0.65,
+          "rms": 0.083
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "15_railway/12_navigate.wav",
+          "duration_ms": 390,
+          "sha256": "82603c9c258bb2e4ab3b5798232bdc56a3b74bab9443fda0263d212783250a43",
+          "peak": 0.65,
+          "rms": 0.096
+        }
+      ]
+    },
+    {
+      "id": "16",
+      "slug": "cyberpunk",
+      "name": "Cyberpunk",
+      "description": "Glitchy bass, neon synths and futuristic UI ticks",
+      "style": "glitch",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "16_cyberpunk/01_tap.wav",
+          "duration_ms": 250,
+          "sha256": "744b3ced7605204f41843439f276e8d45219e25e379d9174b3a0a432faa4ed55",
+          "peak": 0.424,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "16_cyberpunk/02_select.wav",
+          "duration_ms": 460,
+          "sha256": "266f3fe77d25c368c5f7051c81a7e9b2a1644c89a8359bbf1037a6ed55e198b3",
+          "peak": 0.595,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "16_cyberpunk/03_confirm.wav",
+          "duration_ms": 320,
+          "sha256": "822d61309773bf9d5caa6d077356879757b1b7d3fb793d2517ca45bc5ce76130",
+          "peak": 0.493,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "16_cyberpunk/04_back.wav",
+          "duration_ms": 530,
+          "sha256": "0185f7225f5870279d8a6f8d6d52a9cb47f4448e054c182e5891ad0cc50ca2cc",
+          "peak": 0.65,
+          "rms": 0.119
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "16_cyberpunk/05_swipe.wav",
+          "duration_ms": 390,
+          "sha256": "ae9d540c5d4fb989d92090709e91bb7c7e77a64499f774bb548b64c889a70bdb",
+          "peak": 0.586,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "16_cyberpunk/06_toggle_on.wav",
+          "duration_ms": 250,
+          "sha256": "b6d8e59e308b6ba5d96ca644883b3d1f2146f9314ebe2d05cf3af9a2bea5538b",
+          "peak": 0.435,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "16_cyberpunk/07_toggle_off.wav",
+          "duration_ms": 460,
+          "sha256": "116f3d3e071170d9b00594d99fc2a30052d5542c0d93b5f7789ce888a2fc0114",
+          "peak": 0.568,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "16_cyberpunk/08_open.wav",
+          "duration_ms": 320,
+          "sha256": "83a31a7dd85859ca99db30094ae15a7157cc8a837d5a290f392fb8b043cf913e",
+          "peak": 0.501,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "16_cyberpunk/09_close.wav",
+          "duration_ms": 530,
+          "sha256": "79b07fba130ee1fb9139d17a2b4bab6236c677e164c7289427d4c9a5dfd893d8",
+          "peak": 0.608,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "16_cyberpunk/10_success.wav",
+          "duration_ms": 390,
+          "sha256": "b7023f9cb8a37a08afea80e595f9c274e518880a8db527d59ced6ea56dd9e742",
+          "peak": 0.502,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "16_cyberpunk/11_notice.wav",
+          "duration_ms": 250,
+          "sha256": "401fa94ca531da0ea5eaf8929f5ffd0e653c44816033a6140da197ab691ce1bf",
+          "peak": 0.429,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "16_cyberpunk/12_navigate.wav",
+          "duration_ms": 460,
+          "sha256": "fc6b3ab615348c695afafa19141fa9d8982b3f3221dfb4a296450e2dfc27342c",
+          "peak": 0.536,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "17",
+      "slug": "stadium",
+      "name": "Sports Arena",
+      "description": "Claps, taps and brief victory-signal tones",
+      "style": "stadium",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "17_stadium/01_tap.wav",
+          "duration_ms": 320,
+          "sha256": "3258ef2d2e7447c5ce4bca06653369de6d319a1ca936b71ce9a82dd27ea5b8cd",
+          "peak": 0.65,
+          "rms": 0.083
+        },
+        {
+          "cue_id": "select",
+          "filename": "17_stadium/02_select.wav",
+          "duration_ms": 530,
+          "sha256": "e57d1c4d71a62de51e9d70d6109c3eb127352396d2c8ba129e32a2cb5608896c",
+          "peak": 0.65,
+          "rms": 0.097
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "17_stadium/03_confirm.wav",
+          "duration_ms": 390,
+          "sha256": "7b1f60bfb3b48331ca072d83cf7c3c2fa52fda33a9cccfbf5394191ce0ac8ac9",
+          "peak": 0.65,
+          "rms": 0.087
+        },
+        {
+          "cue_id": "back",
+          "filename": "17_stadium/04_back.wav",
+          "duration_ms": 250,
+          "sha256": "0effb83e2c85ee12784bbf7c350c011d31e271c1412c2a89d0883ecb655d7988",
+          "peak": 0.65,
+          "rms": 0.092
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "17_stadium/05_swipe.wav",
+          "duration_ms": 460,
+          "sha256": "bf87caf311a764a999a54ba8dace77425c4045521f3ca7c31b0af3737bc6173c",
+          "peak": 0.65,
+          "rms": 0.07
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "17_stadium/06_toggle_on.wav",
+          "duration_ms": 320,
+          "sha256": "dceda8702e427a385971d0cf1c0764fad5f8e6853e522505e9a0b09b477aaf98",
+          "peak": 0.65,
+          "rms": 0.108
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "17_stadium/07_toggle_off.wav",
+          "duration_ms": 530,
+          "sha256": "9c077477c688d2a5c5b472a22b385ac65bd77a944b6fafbf38fd0c09a35a8481",
+          "peak": 0.65,
+          "rms": 0.072
+        },
+        {
+          "cue_id": "open",
+          "filename": "17_stadium/08_open.wav",
+          "duration_ms": 390,
+          "sha256": "5f0572034a815321ffcc8be5ca667f50824cdd6810c46646132a72152bfa0805",
+          "peak": 0.65,
+          "rms": 0.096
+        },
+        {
+          "cue_id": "close",
+          "filename": "17_stadium/09_close.wav",
+          "duration_ms": 250,
+          "sha256": "a0b54d48dd426e6560f571fa29d4ab65645f0c35cfdf9d9691d842abcbd5ca61",
+          "peak": 0.627,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "17_stadium/10_success.wav",
+          "duration_ms": 460,
+          "sha256": "2e2b903e6a95ca535b4d48d3dcbd9914a16b8889200302a79c27b8d6b065935a",
+          "peak": 0.65,
+          "rms": 0.1
+        },
+        {
+          "cue_id": "notice",
+          "filename": "17_stadium/11_notice.wav",
+          "duration_ms": 320,
+          "sha256": "72343005b44abae29a729497688c12a41f427f7ace78cd8c123ccbaf0d09af38",
+          "peak": 0.65,
+          "rms": 0.1
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "17_stadium/12_navigate.wav",
+          "duration_ms": 530,
+          "sha256": "9b4e9a2ee34545ceda4615a0e63c1e0608d337a424540a7117c63b18cdfd6cf3",
+          "peak": 0.65,
+          "rms": 0.078
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "slug": "percussion",
+      "name": "Percussion Studio",
+      "description": "Woodblocks, hand drums and shakers",
+      "style": "drums",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "18_percussion/01_tap.wav",
+          "duration_ms": 450,
+          "sha256": "e9b397428c3fcc13a38a830caae4df6da22e007109ef8701b4ab865095a2dec1",
+          "peak": 0.65,
+          "rms": 0.081
+        },
+        {
+          "cue_id": "select",
+          "filename": "18_percussion/02_select.wav",
+          "duration_ms": 310,
+          "sha256": "ce644b01c1db27490be42418c405502fa0aea71afefd93b060659d7b67ea3d19",
+          "peak": 0.65,
+          "rms": 0.111
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "18_percussion/03_confirm.wav",
+          "duration_ms": 520,
+          "sha256": "3b0af8daeb38374888e664da950bd25a6760063ce3f1e7764cb25a790b5ae30c",
+          "peak": 0.65,
+          "rms": 0.06
+        },
+        {
+          "cue_id": "back",
+          "filename": "18_percussion/04_back.wav",
+          "duration_ms": 380,
+          "sha256": "fe3864cd18f5c52ad0f9522ab7852d884aa589454dff53098c281ebe40f36cab",
+          "peak": 0.65,
+          "rms": 0.102
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "18_percussion/05_swipe.wav",
+          "duration_ms": 590,
+          "sha256": "ead5a015a4b586b73ed86ee053ca95edbc8540b9ccdeec45f6983c27e5cda814",
+          "peak": 0.65,
+          "rms": 0.067
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "18_percussion/06_toggle_on.wav",
+          "duration_ms": 450,
+          "sha256": "d37b372a79e3d3252d48a400d807fd9318783983ae1bc2428c1a2255795486b1",
+          "peak": 0.65,
+          "rms": 0.09
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "18_percussion/07_toggle_off.wav",
+          "duration_ms": 310,
+          "sha256": "de8b14b5157db0bd203a5480b777defcbd718c38b2cba026f9faae2c79f8426f",
+          "peak": 0.65,
+          "rms": 0.099
+        },
+        {
+          "cue_id": "open",
+          "filename": "18_percussion/08_open.wav",
+          "duration_ms": 520,
+          "sha256": "53524c98c831811ee0b28ee17ace888aea2297a51c0267a2b262aab3acc642cf",
+          "peak": 0.65,
+          "rms": 0.077
+        },
+        {
+          "cue_id": "close",
+          "filename": "18_percussion/09_close.wav",
+          "duration_ms": 380,
+          "sha256": "823760ab19b1b30e11c81a051584af8847960ff7bebe1b0865afc8ab412715c6",
+          "peak": 0.65,
+          "rms": 0.091
+        },
+        {
+          "cue_id": "success",
+          "filename": "18_percussion/10_success.wav",
+          "duration_ms": 590,
+          "sha256": "8d13b1b62efbc8ec263e87316ff2da0cc86c04339b22a34b15806bce1ce0c2b8",
+          "peak": 0.65,
+          "rms": 0.071
+        },
+        {
+          "cue_id": "notice",
+          "filename": "18_percussion/11_notice.wav",
+          "duration_ms": 450,
+          "sha256": "63b098ee1152b8aed1085ad6f9e70751325e71c5ef1e336a69979b5245e70e18",
+          "peak": 0.65,
+          "rms": 0.074
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "18_percussion/12_navigate.wav",
+          "duration_ms": 310,
+          "sha256": "8c760f8b91fff941162209a4d7c117a54b306692b17145cd32d005fe319e519b",
+          "peak": 0.65,
+          "rms": 0.102
+        }
+      ]
+    },
+    {
+      "id": "19",
+      "slug": "fantasy",
+      "name": "Fantasy Magic",
+      "description": "Harp glints, stardust twinkles and spellbook tones",
+      "style": "magic",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "19_fantasy/01_tap.wav",
+          "duration_ms": 460,
+          "sha256": "804b94f7d68166c594f872ba4de5391d9832bf3041500c52471c8240b73c5fa8",
+          "peak": 0.538,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "19_fantasy/02_select.wav",
+          "duration_ms": 320,
+          "sha256": "3503a6a013cfabaaf8495c7389960bf493cafed2b638a14ef221c0df312f3f97",
+          "peak": 0.457,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "19_fantasy/03_confirm.wav",
+          "duration_ms": 530,
+          "sha256": "32541c36aecc91cf03639ade5964691c63ce7491ad9fc414eb6e02426375b320",
+          "peak": 0.583,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "19_fantasy/04_back.wav",
+          "duration_ms": 390,
+          "sha256": "d267d0313f35cee9aad2fc1037d50f12b075baf8286d47d62984f476cbcac8dc",
+          "peak": 0.501,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "19_fantasy/05_swipe.wav",
+          "duration_ms": 250,
+          "sha256": "f2d9a91e31018240dcdb07a37ea75c7f921a7b2abd8aa1b1931d590e722d0eba",
+          "peak": 0.418,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "19_fantasy/06_toggle_on.wav",
+          "duration_ms": 460,
+          "sha256": "bd740297ea1dc40933cb773801f52626511e0eabc02f386ed1a50d2b2ef99bb2",
+          "peak": 0.543,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "19_fantasy/07_toggle_off.wav",
+          "duration_ms": 320,
+          "sha256": "b2f51b31143882e30d469e311a394cd110e43cfa26ae1d160e1167d277705457",
+          "peak": 0.465,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "open",
+          "filename": "19_fantasy/08_open.wav",
+          "duration_ms": 530,
+          "sha256": "7f4925eabe6df7cc7972eb578cef74286bf2eaded917b716c65da3546358c12c",
+          "peak": 0.583,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "19_fantasy/09_close.wav",
+          "duration_ms": 390,
+          "sha256": "8e4eb8cc8ff1c1ee75410bd2dfea8d38a761c5440daffbf4047190b6804f0b67",
+          "peak": 0.5,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "success",
+          "filename": "19_fantasy/10_success.wav",
+          "duration_ms": 250,
+          "sha256": "621dbdc937cc9a1d62837ef60ff9dd68fca9b207898e7874e3cb82d9b77cdd25",
+          "peak": 0.41,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "19_fantasy/11_notice.wav",
+          "duration_ms": 460,
+          "sha256": "9989c86238e4d171c35ede4517211a7fea58e17784266048d4ada9ce7167326e",
+          "peak": 0.537,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "19_fantasy/12_navigate.wav",
+          "duration_ms": 320,
+          "sha256": "0bad0d692c86cc44df91f94536793e8da8e38f409c39fb2aa9b69d7bf2ebe285",
+          "peak": 0.446,
+          "rms": 0.12
+        }
+      ]
+    },
+    {
+      "id": "20",
+      "slug": "vintage-radio",
+      "name": "Vintage Radio",
+      "description": "Radio ticks, dial chimes and soft static pips",
+      "style": "radio",
+      "sounds": [
+        {
+          "cue_id": "tap",
+          "filename": "20_vintage-radio/01_tap.wav",
+          "duration_ms": 590,
+          "sha256": "24b5d9e2f83a6daf5f6461f8e66a780c7257b64e6b56ca90611c913f30b0da1f",
+          "peak": 0.625,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "select",
+          "filename": "20_vintage-radio/02_select.wav",
+          "duration_ms": 450,
+          "sha256": "7f999edd3dbe24ab39ef55723b8b1f712fd607a5ceb6a540090bf6d12ff7a986",
+          "peak": 0.484,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "confirm",
+          "filename": "20_vintage-radio/03_confirm.wav",
+          "duration_ms": 310,
+          "sha256": "82c2ac265659a311f4ecbebcd59048362362c6c9a6c0375841cd28244f58c131",
+          "peak": 0.532,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "back",
+          "filename": "20_vintage-radio/04_back.wav",
+          "duration_ms": 520,
+          "sha256": "7340aba12484041242debc5f13f41cf8d3758e5338002116462cbbfa6bbba90c",
+          "peak": 0.65,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "swipe",
+          "filename": "20_vintage-radio/05_swipe.wav",
+          "duration_ms": 380,
+          "sha256": "f2e34523667b9c62fa2d17a420a260ad3b6fe869d87bae0d4454589e2154a455",
+          "peak": 0.513,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "toggle_on",
+          "filename": "20_vintage-radio/06_toggle_on.wav",
+          "duration_ms": 590,
+          "sha256": "237410dc6b984b248c7615feaf2a6a36e03210a21abde48805b2cc674419e7a2",
+          "peak": 0.65,
+          "rms": 0.106
+        },
+        {
+          "cue_id": "toggle_off",
+          "filename": "20_vintage-radio/07_toggle_off.wav",
+          "duration_ms": 450,
+          "sha256": "bbb5a251d77f8b90965ebb71334cf9176f579eaade14f5f7690d17904ef73474",
+          "peak": 0.65,
+          "rms": 0.118
+        },
+        {
+          "cue_id": "open",
+          "filename": "20_vintage-radio/08_open.wav",
+          "duration_ms": 310,
+          "sha256": "aa985782f1591e5353e27857dc5822c809697ab48c68720ab3fd83d13ecf0be9",
+          "peak": 0.49,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "close",
+          "filename": "20_vintage-radio/09_close.wav",
+          "duration_ms": 520,
+          "sha256": "c13f9d94b7eb4635ac2b8f011fa895d6ce2fd07eb765c8ce51795633723cbc13",
+          "peak": 0.65,
+          "rms": 0.117
+        },
+        {
+          "cue_id": "success",
+          "filename": "20_vintage-radio/10_success.wav",
+          "duration_ms": 380,
+          "sha256": "4e0a3d26d8af39c284f639674085e7c336d4f67fc296a6a682511aa5708d54cc",
+          "peak": 0.479,
+          "rms": 0.12
+        },
+        {
+          "cue_id": "notice",
+          "filename": "20_vintage-radio/11_notice.wav",
+          "duration_ms": 590,
+          "sha256": "763b104219881869dd77e3ea1afcec3291ee322da0cdc9cd6fde5e0f325da0ce",
+          "peak": 0.65,
+          "rms": 0.113
+        },
+        {
+          "cue_id": "navigate",
+          "filename": "20_vintage-radio/12_navigate.wav",
+          "duration_ms": 450,
+          "sha256": "dad56f53f1cdfdf36e89286447547f2293932def89f853b4ac9cad51e4ad634f",
+          "peak": 0.555,
+          "rms": 0.12
+        }
+      ]
+    }
+  ]
+}

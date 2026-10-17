@@ -1,0 +1,31 @@
+package com.peostectica.hereshift
+
+fun main() {
+    scenarioRulesChecks()
+    check(Catalog.pairs.size==40)
+    check(Catalog.pairs.map{it.id}==(1..40).map{"%02d".format(it)})
+    check(Catalog.pairs[20].name=="Sapphire")
+    check(Catalog.pairs.last().name=="Midnight")
+    check(Catalog.audio.size==20)
+    check(Catalog.audio.all { it.cues.size==12 })
+    val store=InMemoryPreferenceStore()
+    val engine=SettingsEngine(store)
+    check(engine.audioId=="none")
+    check(engine.nextInteractionSound()==null)
+    check(engine.chooseTheme("40"))
+    check(engine.themeId=="40")
+    check(engine.chooseAppearance(Appearance.DARK).let{engine.currentPalette(false).background==Catalog.pairs.last().dark.background})
+    check(engine.chooseAudio("04"))
+    val cue=engine.previewSequence("04")
+    check(cue.size==12)
+    repeat(12){i->check(engine.nextInteractionSound()==cue[i])}
+    check(engine.nextInteractionSound()==cue[0])
+    engine.setVolume(0);check(engine.nextInteractionSound()==null)
+    engine.setVolume(35)
+    val engine2=SettingsEngine(store)
+    check(engine2.themeId=="40"&&engine2.appearance==Appearance.DARK&&engine2.audioId=="04")
+    check(!engine2.chooseTheme("41"))
+    check(!engine2.chooseAudio("21"))
+    check(engine2.chooseAudio("none"));check(engine2.nextInteractionSound()==null)
+    println("PASS HereShift Native Kotlin Core: 40 themes, 20 audio schemes, 12-cue wraps, None, volume, persistence, strict selections")
+}

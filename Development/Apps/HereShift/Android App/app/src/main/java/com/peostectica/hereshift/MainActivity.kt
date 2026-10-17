@@ -1,0 +1,306 @@
+package com.peostectica.hereshift
+
+import android.Manifest
+import android.app.Activity
+import android.content.*
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import android.view.*
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import android.widget.*
+import kotlin.math.roundToInt
+
+/** Native, dependency-light initial release: stationary location, 40 paired display themes,
+ * 20 audio themes. No remote control, unapproved billing, telemetry, or integrity evasion. */
+class MainActivity : Activity() {
+    private enum class Page { HOME, DISPLAY, AUDIO, TRUST }
+    private lateinit var engine: SettingsEngine
+    private lateinit var audio: AudioFeedback
+    private var page: Page = Page.HOME
+    private var scroll: ScrollView? = null
+    private val prefs by lazy { getSharedPreferences("hereShift", MODE_PRIVATE) }
+    private var latitudeInput: EditText? = null
+    private var longitudeInput: EditText? = null
+    private val legacyPermissions = 404
+    private var modernBack: OnBackInvokedCallback? = null
+    private fun navigateBack() {
+        if (page == Page.HOME) finish() else { audio.stopPreview(); show(Page.HOME) }
+    }
+
+    private inner class AndroidPrefs : PreferenceStore {
+        override fun get(key: String): String? = prefs.getString("ui_$key", null)
+        override fun put(key: String, value: String) { prefs.edit().putString("ui_$key", value).apply() }
+    }
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).roundToInt()
+    private fun shade(hex: String): Int = Color.parseColor(hex)
+    private val systemDark: Boolean get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+    private val palette: ColorRoles get() = engine.currentPalette(systemDark)
+    private fun rounded(color: Int, radius: Int = 14, stroke: Int? = null): GradientDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE; setColor(color); cornerRadius = dp(radius).toFloat()
+        if (stroke != null) setStroke(dp(1), stroke)
+    }
+    private fun colorText(size: Float, strong: Boolean = false): TextView = TextView(this).apply {
+        setTextColor(shade(palette.onBackground));textSize=size
+        if (strong) typeface = Typeface.DEFAULT_BOLD
+    }
+    private fun topMargin(v: View, space: Int = 10): View = v.apply {
+        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(space) }
+    }
+    private fun column(): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+    }
+    private fun innerCard(padding: Int = 18): LinearLayout = column().apply {
+        background = rounded(shade(palette.surface), 18, shade(palette.primary))
+        setPadding(dp(padding),dp(padding),dp(padding),dp(padding))
+    }
+    private fun addText(parent: LinearLayout, value: String, size: Float = 15f, bold: Boolean = false, margin: Int = 0): TextView = colorText(size, bold).apply {
+        text = value
+        if (margin>0) topMargin(this,margin)
+        parent.addView(this)
+    }
+    private fun button(label: String, secondary: Boolean = false, action: () -> Unit): Button = Button(this).apply {
+        text=label; isAllCaps=false; textSize=15f
+        setTextColor(shade(if (secondary) palette.onSurface else palette.onPrimary))
+        background=rounded(shade(if (secondary) palette.surface else palette.primary), 13, if (secondary) shade(palette.primary) else null)
+        setPadding(dp(10),dp(12),dp(10),dp(12)); minHeight=dp(48)
+        setOnClickListener { audio.interaction(); action() }
+    }
+    private fun field(label: String, value: String): EditText = EditText(this).apply {
+        setSingleLine(true);hint=label;setText(value)
+        textSize=16f;setTextColor(shade(palette.onSurface));setHintTextColor(shade(palette.onSurface))
+        inputType=android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL or android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
+        background=rounded(shade(palette.background), 10, shade(palette.primary))
+        setPadding(dp(14),dp(13),dp(14),dp(13));minHeight=dp(50)
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        engine=SettingsEngine(AndroidPrefs())
+        audio=AudioFeedback(this,engine)
+        if (engine.audioId!="none") audio.loadTheme(engine.audioId)
+        if (Build.VERSION.SDK_INT >= 33) {
+            val callback = OnBackInvokedCallback { navigateBack() }
+            modernBack = callback
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+        }
+        show(Page.HOME)
+    }
+    override fun onResume() { super.onResume(); if (::engine.isInitialized && page == Page.HOME) show(Page.HOME) }
+    override fun onPause() { super.onPause(); if (::audio.isInitialized) audio.stopPreview() }
+    override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= 33) modernBack?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
+        if (::audio.isInitialized) audio.close()
+        super.onDestroy()
+    }
+    @Deprecated("API 26-32 back dispatch only; Android 13+ uses OnBackInvokedCallback")
+    override fun onBackPressed() { navigateBack() }
+
+    private fun show(next: Page, preserveScroll: Boolean = false) {
+        val prevPos = if (preserveScroll) scroll?.scrollY ?: 0 else 0
+        page=next
+        val surface=palette
+        val root = LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setBackgroundColor(shade(surface.background)) }
+        val header=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL; gravity=Gravity.CENTER_VERTICAL;setPadding(dp(16),dp(11),dp(16),dp(11))}
+        if (next!=Page.HOME) {
+            val back=button("← Back",true){ show(Page.HOME) }
+            header.addView(back,LinearLayout.LayoutParams(0,dp(47),0.4f))
+        }
+        val logo=ImageView(this).apply {setImageResource(if (effectiveDark()) R.drawable.hereshift_icon_dark else R.drawable.hereshift_icon_light);contentDescription="HereShift selected icon"; scaleType=ImageView.ScaleType.FIT_CENTER}
+        header.addView(logo,LinearLayout.LayoutParams(dp(42),dp(42)).apply {marginStart=dp(12)})
+        val heading=colorText(21f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing"};setPadding(dp(10),0,0,0) }
+        header.addView(heading,LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
+        root.addView(header)
+        scroll=ScrollView(this).apply {isFillViewport=false;clipToPadding=false}
+        val content=column().apply {setPadding(dp(16),0,dp(16),dp(34))}
+        when(next) { Page.HOME->renderHome(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content) }
+        scroll!!.addView(content)
+        root.addView(scroll,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1f))
+        setContentView(root)
+        if (Build.VERSION.SDK_INT >= 30) {
+            root.setOnApplyWindowInsetsListener { view, insets ->
+                val sys=insets.getInsets(WindowInsets.Type.systemBars())
+                view.setPadding(sys.left,sys.top,sys.right,sys.bottom)
+                insets
+            }
+            root.requestApplyInsets()
+        }
+        if (preserveScroll) scroll?.post {scroll?.scrollTo(0,prevPos)}
+    }
+    private fun effectiveDark():Boolean= when(engine.appearance) {
+        Appearance.FOLLOW_DEVICE->systemDark; Appearance.DARK->true;Appearance.LIGHT->false
+    }
+    private fun renderHome(c: LinearLayout) {
+        addText(c,"Choose where to simulate your test location.",20f,true)
+        addText(c,"Your chosen point is synthetic or manually entered. The app never reads your real GPS coordinates, records routes, or sends data to a server.",14f,margin=8)
+        val navigation=innerCard().apply {
+            addText(this,"Settings",18f,true)
+            addView(topMargin(button("Display · 40 color themes") {saveCoordinates();show(Page.DISPLAY)},12))
+            addView(topMargin(button("Audio · 20 sound themes") {saveCoordinates();show(Page.AUDIO)},8))
+            addView(topMargin(button("Privacy and responsible use",true) {saveCoordinates();show(Page.TRUST)},8))
+        }
+        c.addView(topMargin(navigation,18))
+        val editor=innerCard().apply {
+            addText(this,"1 · Stationary test location",18f,true)
+            addText(this,"Enter latitude and longitude, or choose an illustrative location below.",14f,margin=7)
+            latitudeInput=field("Latitude",prefs.getString("lat","41.8781") ?: "41.8781")
+            longitudeInput=field("Longitude",prefs.getString("lon","-87.6298") ?: "-87.6298")
+            addView(topMargin(latitudeInput!!,12));addView(topMargin(longitudeInput!!,8))
+            addView(topMargin(button("Example: Chicago city center",true){setPoint("41.8781","-87.6298")},8))
+            addView(topMargin(button("Example: San Francisco city center",true){setPoint("37.7749","-122.4194")},8))
+            addView(topMargin(button("Example: New York city center",true){setPoint("40.7128","-74.0060")},8))
+            addView(topMargin(button("Preview my selected point",false){previewPoint()},12))
+        }
+        c.addView(topMargin(editor,16))
+        val physical=innerCard().apply {
+            addText(this,"2 · Android developer test mode",18f,true)
+            addText(this,"For testing apps you own or are authorized to test, Android can provide a MOCK location. Other applications can detect that it is simulated. The Android service displays an active notification with Stop.",14f,margin=7)
+            addView(topMargin(button("Open Developer Options",true){openDeveloperSettings()},10))
+            addView(topMargin(button("Start authorized mock-location session") {startMock()},8))
+            addView(topMargin(button("Stop simulation",true){stopMock()},8))
+            val status=prefs.getString(MockLocationService.PREF_STATUS,"Not running") ?: "Not running"
+            addText(this,"Service: $status",13f,margin=12)
+            addText(this,"Android may require granting precise location for a location-type foreground service. HereShift does not read the device's real position.",12f,margin=8)
+        }
+        c.addView(topMargin(physical,16))
+        val premium=innerCard().apply {
+            addText(this,"Premium · planned, not billed",17f,true)
+            addText(this,"Earlier objectives discuss $1.99/week and a possible TapVoyage discount. No Play Billing integration or charges are active in this build.",13f,margin=6)
+        }
+        c.addView(topMargin(premium,16))
+    }
+    private fun setPoint(lat:String,lon:String) {
+        latitudeInput?.setText(lat);longitudeInput?.setText(lon); saveCoordinates()
+        Toast.makeText(this,"Selected illustrative point",Toast.LENGTH_SHORT).show()
+    }
+    private fun saveCoordinates() {
+        val lat=latitudeInput?.text?.toString() ?: return; val lon=longitudeInput?.text?.toString() ?: return
+        prefs.edit().putString("lat",lat).putString("lon",lon).apply()
+    }
+    private fun currentPoint():TestPoint? {
+        saveCoordinates()
+        return ScenarioRules.parse(prefs.getString("lat","")?:"",prefs.getString("lon","")?:"")
+    }
+    private fun previewPoint() {
+        val point=currentPoint()
+        if(point==null) Toast.makeText(this,"Enter valid latitude [-90,90] and longitude [-180,180]",Toast.LENGTH_LONG).show()
+        else android.app.AlertDialog.Builder(this).setTitle("Virtual location · in-app preview")
+            .setMessage("Latitude: ${point.latitude}\nLongitude: ${point.longitude}\n\nIn-app preview only. This does not change other applications. No real GPS location collected.")
+            .setPositiveButton("OK",null).show()
+    }
+    private fun openDeveloperSettings(){
+        try {startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))}
+        catch (_: Exception){Toast.makeText(this,"Open Android Settings → Developer options → Select mock location app → HereShift",Toast.LENGTH_LONG).show()}
+    }
+    private fun startMock() {
+        val point=currentPoint()
+        if(point==null){Toast.makeText(this,"Choose valid coordinates first",Toast.LENGTH_LONG).show();return}
+        android.app.AlertDialog.Builder(this).setTitle("Confirm authorized test simulation")
+            .setMessage("Only use with software you are authorized to test. Android marks these coordinates as MOCK.\n\nWhen active, HereShift displays a persistent notification and a Stop action.\n\nContinue?")
+            .setNegativeButton("Cancel",null).setPositiveButton("Continue") {_,_->
+                if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED)
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION),legacyPermissions)
+                else launchService(point)
+            }.show()
+    }
+    private fun launchService(point:TestPoint) {
+        // On Android 13+, ask for notification visibility but do not capture device position.
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 405)
+            // Permission is separate from mock-location authorization and from location read access.
+        }
+        try {
+            val intent=Intent(this,MockLocationService::class.java).setAction(MockLocationService.ACTION_START)
+                .putExtra(MockLocationService.EXTRA_LAT,point.latitude).putExtra(MockLocationService.EXTRA_LON,point.longitude)
+            startForegroundService(intent)
+            prefs.edit().putString(MockLocationService.PREF_STATUS,"Starting; check Android notification or Developer Options").apply()
+            show(Page.HOME)
+        } catch (ex:Exception){Toast.makeText(this,"Could not start: ${ex.javaClass.simpleName}",Toast.LENGTH_LONG).show()}
+    }
+    override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<out String>,grantResults:IntArray) {
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults)
+        if(requestCode==legacyPermissions) {
+            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+                currentPoint()?.let{launchService(it)}
+            } else Toast.makeText(this,"Permission denied; in-app preview remains available",Toast.LENGTH_LONG).show()
+        }
+    }
+    private fun stopMock(){stopService(Intent(this,MockLocationService::class.java));prefs.edit().putString(MockLocationService.PREF_STATUS,"Stop requested").apply();show(Page.HOME)}
+    private fun renderDisplay(c:LinearLayout) {
+        addText(c,"40 approved paired themes",20f,true)
+        addText(c,"Choose one appearance family. Light and dark colors are paired automatically. Choose system default, light, or dark.",14f,margin=7)
+        val appearance=Spinner(this)
+        val options=listOf("Follow device","Light","Dark")
+        appearance.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,options)
+        appearance.setSelection(engine.appearance.ordinal)
+        var armed=false
+        appearance.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(p:android.widget.AdapterView<*>?){}
+            override fun onItemSelected(p:android.widget.AdapterView<*>?,v:View?,pos:Int,id:Long){if(!armed){armed=true;return};engine.chooseAppearance(Appearance.values()[pos]);audio.interaction();show(Page.DISPLAY,true)}
+        }
+        c.addView(topMargin(appearance,12))
+        for(theme in Catalog.pairs){
+            val card=innerCard(12)
+            val line=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+            val radio=RadioButton(this).apply {isChecked=engine.themeId==theme.id;buttonTintList=android.content.res.ColorStateList.valueOf(shade(palette.primary))}
+            line.addView(radio,LinearLayout.LayoutParams(dp(50),dp(52)))
+            val name=colorText(16f,true).apply{text="${theme.id} · ${theme.name}"}
+            line.addView(name,LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
+            for(colors in listOf(theme.light,theme.dark)){
+                val chip=View(this).apply{background=rounded(shade(colors.background),8,shade(colors.primary));contentDescription=if(colors===theme.light)"Light preview" else "Dark preview"}
+                line.addView(chip,LinearLayout.LayoutParams(dp(37),dp(37)).apply{marginStart=dp(7)})
+            }
+            card.addView(line)
+            card.contentDescription="Theme ${theme.id}: ${theme.name}";card.isClickable=true
+            val applyTheme= {engine.chooseTheme(theme.id);audio.interaction();show(Page.DISPLAY,true)}
+            card.setOnClickListener{applyTheme()};radio.setOnClickListener{applyTheme()}
+            if(engine.themeId==theme.id){card.background=rounded(shade(palette.surface),16,shade(palette.primary))}
+            c.addView(topMargin(card,8))
+        }
+        c.addView(topMargin(button("← Back to HereShift",true){show(Page.HOME)},18))
+    }
+    private fun renderAudio(c:LinearLayout) {
+        addText(c,"Audio themes",20f,true)
+        addText(c,"None disables effects. Other choices rotate through twelve original sounds when you tap, swipe, or select controls. Previews loop until stopped.",14f,margin=7)
+        val volume=SeekBar(this).apply{max=100;progress=engine.volumePercent;contentDescription="Sound-effect volume"}
+        volume.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
+            override fun onStartTrackingTouch(s:SeekBar?){}
+            override fun onStopTrackingTouch(s:SeekBar?){engine.setVolume(s?.progress ?: 0);audio.interaction()}
+            override fun onProgressChanged(s:SeekBar?,v:Int,user:Boolean){if(user)engine.setVolume(v)}
+        })
+        addText(c,"Volume",15f,true,12);c.addView(volume)
+        c.addView(topMargin(button("Stop audio preview",true){audio.stopPreview()},8))
+        val names=listOf("none" to "None · sound effects off")+Catalog.audio.map{it.id to "${it.id} · ${it.name}"}
+        for((id,title) in names){
+            val card=innerCard(10)
+            val line=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+            val radio=RadioButton(this).apply{isChecked=engine.audioId==id;buttonTintList=android.content.res.ColorStateList.valueOf(shade(palette.primary))}
+            line.addView(radio,LinearLayout.LayoutParams(dp(50),dp(53)))
+            line.addView(colorText(15f,true).apply{text=title},LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
+            if(id!="none")line.addView(button("▶ Play",true){audio.preview(id)},LinearLayout.LayoutParams(dp(90),dp(43)))
+            card.addView(line)
+            card.setOnClickListener {audio.stopPreview();engine.chooseAudio(id);audio.loadTheme(id);show(Page.AUDIO,true)}
+            radio.setOnClickListener{audio.stopPreview();engine.chooseAudio(id);audio.loadTheme(id);show(Page.AUDIO,true)}
+            c.addView(topMargin(card,8))
+        }
+        c.addView(topMargin(button("← Back to HereShift",true){audio.stopPreview();show(Page.HOME)},18))
+    }
+    private fun renderTrust(c:LinearLayout) {
+        addText(c,"Our customer commitment",21f,true)
+        val p=innerCard().apply{
+            addText(this,"HereShift is for legitimate, authorized location simulation and testing.",18f,true)
+            addText(this,"This initial build uses manual or illustrative stationary locations. It has no networking permission, no analytics, no microphone access, no contact access, and does not request or record your physical GPS position.",15f,margin=12)
+            addText(this,"For an Android foreground location-type service, the operating system requires a precise-location permission even though our code does not call the real location APIs. It only writes test-provider coordinates that you choose.",14f,margin=12)
+            addText(this,"Developer Options authorization is always required to provide device test locations. These are marked as mock locations, are not guaranteed to work in third-party applications, and do not establish legal eligibility for location-restricted services.",14f,margin=12)
+            addText(this,"The persistent notification provides an immediate Stop control. Audio themes respect the device ringer's silent and vibrate modes and can be disabled with None.",14f,margin=12)
+            addText(this,"Real-money wagering geolocation controls must not be circumvented. Paid subscriptions, live friend sharing and TapVoyage remote control are not active in this build.",14f,margin=12)
+        }
+        c.addView(topMargin(p,15));c.addView(topMargin(button("← Back",true){show(Page.HOME)},16))
+    }
+}

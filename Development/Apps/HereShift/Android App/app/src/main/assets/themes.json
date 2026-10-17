@@ -1,0 +1,997 @@
+{
+  "schema": "peostectica.mobile.display.paired_themes.v03",
+  "app": "HereShift",
+  "status": "CEO_APPROVED_VISUAL_CHOICES; curated implementation tokens awaiting Android screen reader/contrast visual acceptance",
+  "approvals": "CEO approved all 40 pair concepts in chat on 2026-10-17",
+  "ids": [
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40"
+  ],
+  "default": "01",
+  "appearance_modes": [
+    "auto",
+    "light",
+    "dark"
+  ],
+  "presets": [
+    {
+      "id": "01",
+      "displayNumber": "01",
+      "name": "Monochrome",
+      "approved": true,
+      "light": {
+        "background": "#FFFFFF",
+        "surface": "#F4F5F7",
+        "onBackground": "#111827",
+        "onSurface": "#111827",
+        "primary": "#30343B",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#121418",
+        "surface": "#20252D",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#E5E7EB",
+        "onPrimary": "#121418",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "02",
+      "displayNumber": "02",
+      "name": "Slate Blue",
+      "approved": true,
+      "light": {
+        "background": "#F8FAFF",
+        "surface": "#E2E8F0",
+        "onBackground": "#0F172A",
+        "onSurface": "#0F172A",
+        "primary": "#305F9C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#0F172A",
+        "surface": "#1E293B",
+        "onBackground": "#F8FAFC",
+        "onSurface": "#F8FAFC",
+        "primary": "#87BAFF",
+        "onPrimary": "#0F172A",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "03",
+      "displayNumber": "03",
+      "name": "Indigo",
+      "approved": true,
+      "light": {
+        "background": "#EEF2FF",
+        "surface": "#E0E7FF",
+        "onBackground": "#0F172A",
+        "onSurface": "#0F172A",
+        "primary": "#4338CA",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#111827",
+        "surface": "#242442",
+        "onBackground": "#F5F3FF",
+        "onSurface": "#F5F3FF",
+        "primary": "#A5B4FC",
+        "onPrimary": "#111827",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "04",
+      "displayNumber": "04",
+      "name": "Violet",
+      "approved": true,
+      "light": {
+        "background": "#FAF5FF",
+        "surface": "#EDE9FE",
+        "onBackground": "#1E1B4B",
+        "onSurface": "#1E1B4B",
+        "primary": "#6D28D9",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#1D142B",
+        "surface": "#322143",
+        "onBackground": "#FAF5FF",
+        "onSurface": "#FAF5FF",
+        "primary": "#C4B5FD",
+        "onPrimary": "#1D142B",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "05",
+      "displayNumber": "05",
+      "name": "Teal",
+      "approved": true,
+      "light": {
+        "background": "#F0FDFA",
+        "surface": "#CCFBF1",
+        "onBackground": "#064E3B",
+        "onSurface": "#064E3B",
+        "primary": "#0F766E",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#062C2B",
+        "surface": "#154240",
+        "onBackground": "#F0FDFA",
+        "onSurface": "#F0FDFA",
+        "primary": "#5EEAD4",
+        "onPrimary": "#062C2B",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "06",
+      "displayNumber": "06",
+      "name": "Mint",
+      "approved": true,
+      "light": {
+        "background": "#F0FDF4",
+        "surface": "#DCFCE7",
+        "onBackground": "#14532D",
+        "onSurface": "#14532D",
+        "primary": "#047857",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#072B21",
+        "surface": "#164333",
+        "onBackground": "#ECFDF5",
+        "onSurface": "#ECFDF5",
+        "primary": "#6EE7B7",
+        "onPrimary": "#072B21",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "07",
+      "displayNumber": "07",
+      "name": "Emerald",
+      "approved": true,
+      "light": {
+        "background": "#ECFDF5",
+        "surface": "#D1FAE5",
+        "onBackground": "#064E3B",
+        "onSurface": "#064E3B",
+        "primary": "#047857",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#04291E",
+        "surface": "#0B3E2A",
+        "onBackground": "#ECFDF5",
+        "onSurface": "#ECFDF5",
+        "primary": "#6EE7B7",
+        "onPrimary": "#04291E",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "08",
+      "displayNumber": "08",
+      "name": "Cyan",
+      "approved": true,
+      "light": {
+        "background": "#ECFEFF",
+        "surface": "#CFFAFE",
+        "onBackground": "#0C4A6E",
+        "onSurface": "#0C4A6E",
+        "primary": "#0E7490",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#052D44",
+        "surface": "#0E4560",
+        "onBackground": "#ECFEFF",
+        "onSurface": "#ECFEFF",
+        "primary": "#67E8F9",
+        "onPrimary": "#052D44",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "09",
+      "displayNumber": "09",
+      "name": "Sky Blue",
+      "approved": true,
+      "light": {
+        "background": "#F0F9FF",
+        "surface": "#E0F2FE",
+        "onBackground": "#0F172A",
+        "onSurface": "#0F172A",
+        "primary": "#0369A1",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#0B2538",
+        "surface": "#12374F",
+        "onBackground": "#EFF6FF",
+        "onSurface": "#EFF6FF",
+        "primary": "#7DD3FC",
+        "onPrimary": "#0B2538",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "10",
+      "displayNumber": "10",
+      "name": "Cobalt",
+      "approved": true,
+      "light": {
+        "background": "#EFF6FF",
+        "surface": "#DBEAFE",
+        "onBackground": "#0F172A",
+        "onSurface": "#0F172A",
+        "primary": "#1D4ED8",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#0F172A",
+        "surface": "#203459",
+        "onBackground": "#EFF6FF",
+        "onSurface": "#EFF6FF",
+        "primary": "#93C5FD",
+        "onPrimary": "#0F172A",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "11",
+      "displayNumber": "11",
+      "name": "Royal Purple",
+      "approved": true,
+      "light": {
+        "background": "#F5F3FF",
+        "surface": "#E9D5FF",
+        "onBackground": "#1E1B4B",
+        "onSurface": "#1E1B4B",
+        "primary": "#6D28D9",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#21123C",
+        "surface": "#362151",
+        "onBackground": "#FAF5FF",
+        "onSurface": "#FAF5FF",
+        "primary": "#C4B5FD",
+        "onPrimary": "#21123C",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "12",
+      "displayNumber": "12",
+      "name": "Rose",
+      "approved": true,
+      "light": {
+        "background": "#FFF1F2",
+        "surface": "#FFE4E6",
+        "onBackground": "#881337",
+        "onSurface": "#881337",
+        "primary": "#BE123C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#33111D",
+        "surface": "#4B1B2B",
+        "onBackground": "#FFF1F2",
+        "onSurface": "#FFF1F2",
+        "primary": "#FDA4AF",
+        "onPrimary": "#33111D",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "13",
+      "displayNumber": "13",
+      "name": "Coral",
+      "approved": true,
+      "light": {
+        "background": "#FFF7ED",
+        "surface": "#FFEDD5",
+        "onBackground": "#7F1D1D",
+        "onSurface": "#7F1D1D",
+        "primary": "#C2410C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#361B14",
+        "surface": "#50271D",
+        "onBackground": "#FFF7ED",
+        "onSurface": "#FFF7ED",
+        "primary": "#FDBA74",
+        "onPrimary": "#361B14",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "14",
+      "displayNumber": "14",
+      "name": "Amber",
+      "approved": true,
+      "light": {
+        "background": "#FFFBEB",
+        "surface": "#FEF3C7",
+        "onBackground": "#78350F",
+        "onSurface": "#78350F",
+        "primary": "#92400E",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#291E10",
+        "surface": "#463019",
+        "onBackground": "#FFFBEB",
+        "onSurface": "#FFFBEB",
+        "primary": "#FCD34D",
+        "onPrimary": "#291E10",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "15",
+      "displayNumber": "15",
+      "name": "Terracotta",
+      "approved": true,
+      "light": {
+        "background": "#FDF4F2",
+        "surface": "#FDE8E0",
+        "onBackground": "#7C2D12",
+        "onSurface": "#7C2D12",
+        "primary": "#9A3412",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#321D18",
+        "surface": "#52271D",
+        "onBackground": "#FFF7ED",
+        "onSurface": "#FFF7ED",
+        "primary": "#FCA38B",
+        "onPrimary": "#321D18",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "16",
+      "displayNumber": "16",
+      "name": "Olive",
+      "approved": true,
+      "light": {
+        "background": "#F7FBEE",
+        "surface": "#ECFBD3",
+        "onBackground": "#365314",
+        "onSurface": "#365314",
+        "primary": "#4D7C0F",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#1A2814",
+        "surface": "#2C3C1C",
+        "onBackground": "#F7FEE7",
+        "onSurface": "#F7FEE7",
+        "primary": "#BEF264",
+        "onPrimary": "#1A2814",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "17",
+      "displayNumber": "17",
+      "name": "Sand",
+      "approved": true,
+      "light": {
+        "background": "#FAF9F6",
+        "surface": "#F3E8D8",
+        "onBackground": "#3F3A2E",
+        "onSurface": "#3F3A2E",
+        "primary": "#85632C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#27231E",
+        "surface": "#3E352B",
+        "onBackground": "#FAF7F0",
+        "onSurface": "#FAF7F0",
+        "primary": "#E2BC88",
+        "onPrimary": "#27231E",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "18",
+      "displayNumber": "18",
+      "name": "Graphite",
+      "approved": true,
+      "light": {
+        "background": "#F8FAFC",
+        "surface": "#E5E7EB",
+        "onBackground": "#111827",
+        "onSurface": "#111827",
+        "primary": "#334155",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#111827",
+        "surface": "#252E3C",
+        "onBackground": "#F8FAFC",
+        "onSurface": "#F8FAFC",
+        "primary": "#CBD5E1",
+        "onPrimary": "#111827",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "19",
+      "displayNumber": "19",
+      "name": "Plum",
+      "approved": true,
+      "light": {
+        "background": "#FAF5FF",
+        "surface": "#EDE9FE",
+        "onBackground": "#3B0764",
+        "onSurface": "#3B0764",
+        "primary": "#86198F",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#2B1439",
+        "surface": "#452352",
+        "onBackground": "#FAF5FF",
+        "onSurface": "#FAF5FF",
+        "primary": "#F0ABFC",
+        "onPrimary": "#2B1439",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "20",
+      "displayNumber": "20",
+      "name": "Sunrise",
+      "approved": true,
+      "light": {
+        "background": "#FFF7ED",
+        "surface": "#FFE4CC",
+        "onBackground": "#7C2D12",
+        "onSurface": "#7C2D12",
+        "primary": "#C2410C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#361C14",
+        "surface": "#562919",
+        "onBackground": "#FFF7ED",
+        "onSurface": "#FFF7ED",
+        "primary": "#FDBA74",
+        "onPrimary": "#361C14",
+        "outline": "#9CA3AF"
+      }
+    },
+    {
+      "id": "21",
+      "name": "Sapphire",
+      "approved": true,
+      "light": {
+        "background": "#EFF6FF",
+        "surface": "#DBEAFE",
+        "onBackground": "#0F172A",
+        "onSurface": "#0F172A",
+        "primary": "#0F62FE",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#101E36",
+        "surface": "#213C60",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#93C5FD",
+        "onPrimary": "#101E36",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "22",
+      "name": "Turquoise",
+      "approved": true,
+      "light": {
+        "background": "#ECFDF5",
+        "surface": "#CCFBF1",
+        "onBackground": "#064E3B",
+        "onSurface": "#064E3B",
+        "primary": "#0F766E",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#062F2D",
+        "surface": "#114A48",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#5EEAD4",
+        "onPrimary": "#062F2D",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "23",
+      "name": "Lime",
+      "approved": true,
+      "light": {
+        "background": "#F7FEE7",
+        "surface": "#ECFCCB",
+        "onBackground": "#365314",
+        "onSurface": "#365314",
+        "primary": "#4D7C0F",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#1D2B12",
+        "surface": "#35461D",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#BEF264",
+        "onPrimary": "#1D2B12",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "24",
+      "name": "Aqua",
+      "approved": true,
+      "light": {
+        "background": "#ECFEFF",
+        "surface": "#CFFAFE",
+        "onBackground": "#0C4A6E",
+        "onSurface": "#0C4A6E",
+        "primary": "#0E7490",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#0A3245",
+        "surface": "#17465C",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#67E8F9",
+        "onPrimary": "#0A3245",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "25",
+      "name": "Fuchsia",
+      "approved": true,
+      "light": {
+        "background": "#FAE8FF",
+        "surface": "#F5D0FE",
+        "onBackground": "#701A75",
+        "onSurface": "#701A75",
+        "primary": "#A21CAF",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#351338",
+        "surface": "#532355",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#F0ABFC",
+        "onPrimary": "#351338",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "26",
+      "name": "Magenta",
+      "approved": true,
+      "light": {
+        "background": "#FDF2F8",
+        "surface": "#FBCFE8",
+        "onBackground": "#831843",
+        "onSurface": "#831843",
+        "primary": "#BE185D",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#381227",
+        "surface": "#54203A",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#F9A8D4",
+        "onPrimary": "#381227",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "27",
+      "name": "Purple Haze",
+      "approved": true,
+      "light": {
+        "background": "#F5F3FF",
+        "surface": "#E9D5FF",
+        "onBackground": "#3B0764",
+        "onSurface": "#3B0764",
+        "primary": "#6D28D9",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#241339",
+        "surface": "#412153",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#C4B5FD",
+        "onPrimary": "#241339",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "28",
+      "name": "Blue Gray",
+      "approved": true,
+      "light": {
+        "background": "#F1F5F9",
+        "surface": "#E2E8F0",
+        "onBackground": "#1E293B",
+        "onSurface": "#1E293B",
+        "primary": "#475569",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#121E2C",
+        "surface": "#253447",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#CBD5E1",
+        "onPrimary": "#121E2C",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "29",
+      "name": "Teal Blue",
+      "approved": true,
+      "light": {
+        "background": "#E0F2FE",
+        "surface": "#BAE6FD",
+        "onBackground": "#0C4A6E",
+        "onSurface": "#0C4A6E",
+        "primary": "#0369A1",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#082A3B",
+        "surface": "#104358",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#7DD3FC",
+        "onPrimary": "#082A3B",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "30",
+      "name": "Seafoam",
+      "approved": true,
+      "light": {
+        "background": "#ECFDF5",
+        "surface": "#D1FAE5",
+        "onBackground": "#065F46",
+        "onSurface": "#065F46",
+        "primary": "#047857",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#072D22",
+        "surface": "#154B37",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#6EE7B7",
+        "onPrimary": "#072D22",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "31",
+      "name": "Forest",
+      "approved": true,
+      "light": {
+        "background": "#DCFCE7",
+        "surface": "#BBF7D0",
+        "onBackground": "#14532D",
+        "onSurface": "#14532D",
+        "primary": "#166534",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#092A15",
+        "surface": "#17412B",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#86EFAC",
+        "onPrimary": "#092A15",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "32",
+      "name": "Sage",
+      "approved": true,
+      "light": {
+        "background": "#F0FCE7",
+        "surface": "#D9F2C7",
+        "onBackground": "#365314",
+        "onSurface": "#365314",
+        "primary": "#4D7C0F",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#1D2A19",
+        "surface": "#34452A",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#B7E1A1",
+        "onPrimary": "#1D2A19",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "33",
+      "name": "Sunset",
+      "approved": true,
+      "light": {
+        "background": "#FFF7ED",
+        "surface": "#FFEDD5",
+        "onBackground": "#7C2D12",
+        "onSurface": "#7C2D12",
+        "primary": "#C2410C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#381C14",
+        "surface": "#5B2B1E",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#FDBA74",
+        "onPrimary": "#381C14",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "34",
+      "name": "Apricot",
+      "approved": true,
+      "light": {
+        "background": "#FFFBEB",
+        "surface": "#FEF3C7",
+        "onBackground": "#78350F",
+        "onSurface": "#78350F",
+        "primary": "#92400E",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#32220F",
+        "surface": "#543618",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#FCD34D",
+        "onPrimary": "#32220F",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "35",
+      "name": "Peach",
+      "approved": true,
+      "light": {
+        "background": "#FFF1F2",
+        "surface": "#FFE4E6",
+        "onBackground": "#881337",
+        "onSurface": "#881337",
+        "primary": "#BE123C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#35151C",
+        "surface": "#572934",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#FDA4AF",
+        "onPrimary": "#35151C",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "36",
+      "name": "Salmon",
+      "approved": true,
+      "light": {
+        "background": "#FEF2F2",
+        "surface": "#FECACA",
+        "onBackground": "#7F1D1D",
+        "onSurface": "#7F1D1D",
+        "primary": "#B91C1C",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#341818",
+        "surface": "#572525",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#FCA5A5",
+        "onPrimary": "#341818",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "37",
+      "name": "Chocolate",
+      "approved": true,
+      "light": {
+        "background": "#FEF3C7",
+        "surface": "#FDE68A",
+        "onBackground": "#78350F",
+        "onSurface": "#78350F",
+        "primary": "#92400E",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#302015",
+        "surface": "#50331F",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#FBBF24",
+        "onPrimary": "#302015",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "38",
+      "name": "Rosewood",
+      "approved": true,
+      "light": {
+        "background": "#FDF2F8",
+        "surface": "#FBCFE8",
+        "onBackground": "#881337",
+        "onSurface": "#881337",
+        "primary": "#9F1239",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#32121D",
+        "surface": "#522036",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#F9A8D4",
+        "onPrimary": "#32121D",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "39",
+      "name": "Slate",
+      "approved": true,
+      "light": {
+        "background": "#F1F5F9",
+        "surface": "#E2E8F0",
+        "onBackground": "#1E293B",
+        "onSurface": "#1E293B",
+        "primary": "#475569",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#111E2D",
+        "surface": "#263547",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#CBD5E1",
+        "onPrimary": "#111E2D",
+        "outline": "#A9B6C7"
+      }
+    },
+    {
+      "id": "40",
+      "name": "Midnight",
+      "approved": true,
+      "light": {
+        "background": "#F9FAFB",
+        "surface": "#E5E7EB",
+        "onBackground": "#111827",
+        "onSurface": "#111827",
+        "primary": "#1F2937",
+        "onPrimary": "#FFFFFF",
+        "outline": "#738092"
+      },
+      "dark": {
+        "background": "#0C111B",
+        "surface": "#1D2937",
+        "onBackground": "#F9FAFB",
+        "onSurface": "#F9FAFB",
+        "primary": "#D1D5DB",
+        "onPrimary": "#0C111B",
+        "outline": "#A9B6C7"
+      }
+    }
+  ],
+  "note": "The palette tokens are curated interpretations, not sampled authoritative hex codes from image-generation output; prototype developer test."
+}
