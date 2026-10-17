@@ -174,7 +174,15 @@ page=nodes('development-mode')
 assert any('Real-user UI testing' in n.get('text','') for n in page),'Development Mode heading missing'
 assert any('Guided interface checklist' in n.get('text','') for n in page),'UI checklist missing'
 assert any('Home and navigation' in n.get('text','') for n in page),'First test task missing'
-assert any('Tester feedback' in n.get('text','') for n in page),'Feedback section missing'
+feedback_found=False
+for attempt in range(10):
+ page=nodes('development-feedback-'+str(attempt))
+ if any('Tester feedback' in n.get('text','') for n in page):
+  feedback_found=True
+  break
+ run('shell','input','swipe','170','600','170','210','380')
+ time.sleep(.4)
+assert feedback_found,'Feedback section missing after scrolling'
 status=run('exec-out','run-as',app,'cat','shared_prefs/hereShift.xml')
 assert 'ACTIVE' not in status,'Opening UI test mode unexpectedly activated location service'
 print('PASS Development Mode opens with checklist and feedback without starting mock service')
