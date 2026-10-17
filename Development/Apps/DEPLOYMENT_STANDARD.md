@@ -30,3 +30,14 @@ Every new mobile-app project and template must include deployment folder, intend
 - For dynamic Drive discovery, detect source changes and regenerate/publish approved HTML/PDF outputs, then test mobile viewing, download, accessibility, and cache refresh.
 
 Status: policy recorded; website integration, individual template adoption, and live deployment remain to be verified.
+## Mandatory release-blocking deployment gate — ALL apps
+This gate applies to every existing and future Peostectica application, every shared template, every release candidate, and every revision, not only HereShift or Android. No app may be reported as delivered, publicly deployed, or ready for CEO installation until ALL applicable checks have evidence:
+1. Identify the approved Google Drive release folder and app-specific public website before building; for Android, confirm the intended `deployments/android` folder. Other platforms use their designated platform folder and appropriate installable package.
+2. Build and verify a real installable artifact, its signature, version, SHA-256, and test result; never mistake a GitHub ZIP or unsigned candidate for a user-installable APK.
+3. Upload the actual release artifact into the designated Drive folder and independently list/read back the exact file there; keep approved source documents and public export assets linked by version.
+4. Generate responsive HTML previews and optional PDFs from approved public store-listing content; keep private internal documentation excluded by default.
+5. Confirm the website dynamically displays approved documents and offers the actual package via a tested HTTPS download; a repository commit, Drive upload, or placeholder link is NOT publication.
+6. Download from the public website on a real supported device, verify checksum, install, launch, and exercise core functions; log screenshots/test evidence and any remaining blockers.
+7. Apply the Founders' Core Procedure, independent DA review, required auditor acceptances and CEO approval; on any failure, return to forbidden/mandatory/objectives and repeat verification.
+8. Record timestamped proof of each gate and rollback details. If any check is missing, mark release BLOCKED and do not provide a fabricated or untested link.
+Each app template must carry this release gate as a required checklist, and automated release workflows should fail closed when any machine-checkable gate is missing.
