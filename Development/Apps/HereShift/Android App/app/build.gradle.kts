@@ -10,9 +10,15 @@ android {
         applicationId = "com.peostectica.hereshift"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.4.2-dev"
+        versionCode = 7
+        versionName = "0.5.0-rc1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        getByName("release") {
+            isDebuggable = false
+            isMinifyEnabled = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
