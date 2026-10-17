@@ -2,7 +2,7 @@ name: HereShift Android APK (Drive mirror)
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, 'feature/hereshift-real-user-ui-testing']
     paths:
       - 'Development/Apps/HereShift/Android App/**'
       - 'Development/Apps/_template/03_Audio_Settings/generate_audio.py'
