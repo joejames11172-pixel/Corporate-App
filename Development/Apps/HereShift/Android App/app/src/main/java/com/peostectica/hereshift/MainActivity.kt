@@ -329,6 +329,15 @@ class MainActivity : Activity() {
         addText(c,"DEVELOPMENT · Real-user UI testing",20f,true)
         addText(c,"Explore the interface and record feedback. This screen does not start location simulation, send telemetry, or make purchases.",14f,margin=8)
         addText(c,"Android ${Build.VERSION.RELEASE} · API ${Build.VERSION.SDK_INT}",13f,margin=8)
+        val shortcuts=innerCard().apply {
+            addText(this,"Explore screens under test",18f,true)
+            addText(this,"Return to Development Mode from Home. Checklist results stay saved.",13f,margin=6)
+            addView(topMargin(button("Test display settings"){show(Page.DISPLAY)},10))
+            addView(topMargin(button("Test audio settings"){show(Page.AUDIO)},8))
+            addView(topMargin(button("Test privacy screen"){show(Page.TRUST)},8))
+            addView(topMargin(button("Test location preview",true){show(Page.HOME)},8))
+        }
+        c.addView(topMargin(shortcuts,14))
         val p=innerCard().apply {
             addText(this,"Guided interface checklist",18f,true)
             for ((index, task) in uiTestTasks.withIndex()) {
