@@ -21,4 +21,12 @@ Every new mobile-app project and template must include deployment folder, intend
 - Keep Google Drive canonical; use least-privilege read-only access for website publishing, not an open public listing of the entire Drive tree.
 - Acceptance: verify new document appears, updated document refreshes, removed document disappears, preview/download works anonymously on a mobile browser, and unapproved private documents remain inaccessible.
 
+
+## Play Store listing parity and document formats
+- Each app's public website is a mobile-friendly preview of its eventual Google Play listing: approved app name, icon, screenshots, short/full description, feature highlights, support contact, privacy policy, and release information.
+- Render approved public content as accessible responsive HTML; optionally generate PDFs for downloadable/printable documents. Never make users open DOCX to read a public app description.
+- Use a single versioned approved content source/manifest in Google Drive to generate website pages and Play submission assets. Show only assets approved for public display; keep internal submission documents and credentials private.
+- Verify content parity against the actual Google Play listing after publication. Website updates do not automatically update the Google Play listing; store listing changes must be submitted through Play Console and reviewed separately.
+- For dynamic Drive discovery, detect source changes and regenerate/publish approved HTML/PDF outputs, then test mobile viewing, download, accessibility, and cache refresh.
+
 Status: policy recorded; website integration, individual template adoption, and live deployment remain to be verified.
