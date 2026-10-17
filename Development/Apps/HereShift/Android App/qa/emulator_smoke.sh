@@ -122,8 +122,11 @@ run('shell','input','keyevent','4');time.sleep(1)
 scroll_click('Start authorized mock-location session')
 dialog=capture('mock-start-confirmation')
 assert any('Confirm authorized test simulation' in x.get('text','') for x in dialog),'Missing informed mock-start confirmation'
-assert click('Continue',dialog),'Could not accept the on-app test-only authorization'
+assert click('CONTINUE',[node for node in dialog if node.get('class')=='android.widget.Button']),'Could not press the actual on-app confirmation button'
 time.sleep(4)
+# Save UI and logcat before assertions, including when the service cannot start.
+capture('after-continue')
+(folder/'logcat-service.txt').write_text(run('logcat','-d','-t','2500'))
 active=get_status()
 (folder/'foreground-active.xml').write_text(active)
 assert 'ACTIVE' in active, 'Location provider did not report ACTIVE; '+active[-800:]
