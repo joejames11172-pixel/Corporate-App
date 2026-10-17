@@ -140,3 +140,42 @@ run('shell','appops','set',app,'android:mock_location','deny')
 print('PASS private test service authorized and stopped from app UI, provider removal confirmed')
 PY_SERVICE
 adb logcat -d -t 4500 > "$QA_DIR/logcat.txt" || true
+
+# Verify the new real-user Development Mode is navigable and does not activate
+# mock location merely by opening the test interface.
+python3 - "$QA_DIR" "$APP" <<'PY_UI_TEST'
+import subprocess,sys,xml.etree.ElementTree as ET,re,time
+from pathlib import Path
+folder=Path(sys.argv[1]);app=sys.argv[2]
+def run(*args):
+ return subprocess.run(['adb',*args],capture_output=True,text=True,check=True).stdout
+run('shell','am','force-stop',app)
+run('shell','am','start','-n',app+'/.MainActivity')
+time.sleep(2)
+def nodes(label):
+ run('shell','uiautomator','dump','/sdcard/hs-window.xml')
+ raw=run('exec-out','cat','/sdcard/hs-window.xml')
+ (folder/(label+'.xml')).write_text(raw)
+ return list(ET.fromstring(raw).iter())
+def click(phrase):
+ for attempt in range(9):
+  for n in nodes('development-find-'+str(attempt)):
+   if phrase.casefold() in (n.get('text','')+' '+n.get('content-desc','')).casefold():
+    m=re.search(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',n.get('bounds',''))
+    if m:
+     x1,y1,x2,y2=map(int,m.groups())
+     run('shell','input','tap',str((x1+x2)//2),str((y1+y2)//2))
+     time.sleep(1)
+     return
+  run('shell','input','swipe','170','570','170','230','400')
+ raise AssertionError('Missing UI element '+phrase)
+click('Development mode')
+page=nodes('development-mode')
+assert any('Real-user UI testing' in n.get('text','') for n in page),'Development Mode heading missing'
+assert any('Guided interface checklist' in n.get('text','') for n in page),'UI checklist missing'
+assert any('Home and navigation' in n.get('text','') for n in page),'First test task missing'
+assert any('Tester feedback' in n.get('text','') for n in page),'Feedback section missing'
+status=run('exec-out','run-as',app,'cat','shared_prefs/hereShift.xml')
+assert 'ACTIVE' not in status,'Opening UI test mode unexpectedly activated location service'
+print('PASS Development Mode opens with checklist and feedback without starting mock service')
+PY_UI_TEST
