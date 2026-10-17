@@ -1,0 +1,9 @@
+2026-10-17 HERE SHIFT ANDROID V04 OBJECTIVES
+AUTHORITATIVE: Existing Development/Apps/HereShift/HereShift.objectives.txt; previous accepted brand/display/audio records.
+NEW v04 DEVELOPMENT PURPOSE: package a native Android codebase for HereShift and obtain an installable debug APK with explicit on-device acceptance tests.
+MUST: 40 approved paired display themes, 20 approved audio themes (12 clips each), None, volume, Back controls, preference persistence, theme-linked #15/#20 icons, stationary selected coordinate, in-app preview, user-authorized Android Developer Options mock test-provider mode, user-controlled Stop and visible notification.
+MUST NOT: promise universal third-party acceptance, defeat regulated wagering controls, collect actual precise GPS history, download third-party copyrighted effects, insert unreviewed tracker SDKs, enable billing without verified Play purchase APIs, or publish production before five independent auditors.
+TEST GATES: compile Kotlin core; validate manifest and all sound files; build debug APK with Android 36 compile target; run real phone smoke tests; verify stop and service cleanup; contrast and accessibility QA; security/licensing/legal review; verify named policy URLs; signed production AAB and owner consent to publish.
+ASSET STORE: Google Drive is authoritative; cloud build repository (if approved) is delivery mechanism, not canonical metadata store.
+STATUS: SOURCE PREPARED; SDK APK BUILD AND DEVICE PROOF PENDING. Preserve previous versions; no live website or infrastructure changes.
+DAVG REQUIRED: DAVG HereShift Native v04 20261017.txt before release acceptance.
