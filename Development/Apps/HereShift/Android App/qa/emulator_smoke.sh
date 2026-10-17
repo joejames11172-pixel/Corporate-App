@@ -173,7 +173,15 @@ click('Development mode')
 page=nodes('development-mode')
 assert any('Real-user UI testing' in n.get('text','') for n in page),'Development Mode heading missing'
 assert any('Guided interface checklist' in n.get('text','') for n in page),'UI checklist missing'
-assert any('Home and navigation' in n.get('text','') for n in page),'First test task missing'
+first_task_found=False
+for attempt in range(8):
+ page=nodes('development-checklist-'+str(attempt))
+ if any('Home and navigation' in n.get('text','') for n in page):
+  first_task_found=True
+  break
+ run('shell','input','swipe','170','600','170','230','380')
+ time.sleep(.4)
+assert first_task_found,'First test task missing after scrolling'
 feedback_found=False
 for attempt in range(10):
  page=nodes('development-feedback-'+str(attempt))
