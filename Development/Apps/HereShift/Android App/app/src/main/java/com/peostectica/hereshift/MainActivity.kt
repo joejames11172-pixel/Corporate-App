@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 /** Native, dependency-light initial release: stationary location, 40 paired display themes,
  * 20 audio themes. No remote control, unapproved billing, telemetry, or integrity evasion. */
 class MainActivity : Activity() {
-    private enum class Page { HOME, DISPLAY, AUDIO, TRUST }
+    private enum class Page { HOME, DISPLAY, AUDIO, TRUST, TESTING }
     private lateinit var engine: SettingsEngine
     private lateinit var audio: AudioFeedback
     private var page: Page = Page.HOME
@@ -116,12 +116,12 @@ class MainActivity : Activity() {
         }
         val logo=ImageView(this).apply {setImageResource(if (effectiveDark()) R.drawable.hereshift_icon_dark else R.drawable.hereshift_icon_light);contentDescription="HereShift selected icon"; scaleType=ImageView.ScaleType.FIT_CENTER}
         header.addView(logo,LinearLayout.LayoutParams(dp(36),dp(36)).apply {marginStart=dp(8)})
-        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing"};setPadding(dp(8),0,0,0) }
+        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing";Page.TESTING->"Development mode"};setPadding(dp(8),0,0,0) }
         header.addView(heading,LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
         root.addView(header)
         scroll=ScrollView(this).apply {isFillViewport=false;clipToPadding=false}
         val content=column().apply {setPadding(dp(16),0,dp(16),dp(34))}
-        when(next) { Page.HOME->renderHome(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content) }
+        when(next) { Page.HOME->renderHome(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content);Page.TESTING->renderTesting(content) }
         scroll!!.addView(content)
         root.addView(scroll,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1f))
         setContentView(root)
@@ -156,6 +156,7 @@ class MainActivity : Activity() {
             addView(topMargin(button("Display · 40 color themes") {saveCoordinates();show(Page.DISPLAY)},12))
             addView(topMargin(button("Audio · 20 sound themes") {saveCoordinates();show(Page.AUDIO)},8))
             addView(topMargin(button("Privacy and responsible use",true) {saveCoordinates();show(Page.TRUST)},8))
+            addView(topMargin(button("Development mode · UI testing",true) {saveCoordinates();show(Page.TESTING)},8))
         }
         c.addView(topMargin(navigation,18))
         val editor=innerCard().apply {
@@ -319,6 +320,89 @@ class MainActivity : Activity() {
         }
         c.addView(topMargin(button("← Back to HereShift",true){audio.stopPreview();show(Page.HOME)},18))
     }
+    private val uiTestTasks = listOf(
+        "Home and navigation", "Display themes and contrast", "Audio themes and None",
+        "Volume and sound preview", "Coordinate validation and preview",
+        "Privacy information", "Back navigation", "Settings persistence after restart"
+    )
+    private fun renderTesting(c: LinearLayout) {
+        addText(c,"DEVELOPMENT · Real-user UI testing",20f,true)
+        addText(c,"Explore the interface and record feedback. This screen does not start location simulation, send telemetry, or make purchases.",14f,margin=8)
+        addText(c,"Android ${Build.VERSION.RELEASE} · API ${Build.VERSION.SDK_INT}",13f,margin=8)
+        val p=innerCard().apply {
+            addText(this,"Guided interface checklist",18f,true)
+            for ((index, task) in uiTestTasks.withIndex()) {
+                val key="ui_test_$index"
+                addText(this,"${index+1}. $task",15f,true,12)
+                val options=listOf("Not tested","Pass","Fail","Skip")
+                val spinner=Spinner(this@MainActivity)
+                spinner.adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,options)
+                spinner.setSelection(prefs.getInt(key,0).coerceIn(0,3))
+                spinner.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent:android.widget.AdapterView<*>?){}
+                    override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
+                        prefs.edit().putInt(key,position).apply()
+                    }
+                }
+                addView(topMargin(spinner,4))
+            }
+        }
+        c.addView(topMargin(p,14))
+        val feedback=innerCard().apply {
+            addText(this,"Tester feedback",18f,true)
+            addText(this,"Rate overall usability from 1 (difficult) to 5 (easy).",14f,margin=8)
+            val rating=RatingBar(this@MainActivity).apply {
+                numStars=5;stepSize=1f;rating=prefs.getFloat("ui_test_rating",0f)
+                setOnRatingBarChangeListener { _, value, _ -> prefs.edit().putFloat("ui_test_rating",value).apply() }
+            }
+            addView(topMargin(rating,8))
+            val notes=EditText(this@MainActivity).apply {
+                hint="Screen, steps to reproduce, expected result, actual result, or suggestion"
+                setText(prefs.getString("ui_test_notes",""))
+                minLines=4;maxLines=9
+                inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                setTextColor(shade(palette.onSurface))
+                setHintTextColor(shade(palette.onSurface))
+            }
+            addView(topMargin(notes,8))
+            addView(topMargin(button("Save feedback",true){
+                prefs.edit().putString("ui_test_notes",notes.text.toString()).apply()
+                Toast.makeText(this@MainActivity,"Feedback saved on this phone",Toast.LENGTH_SHORT).show()
+            },8))
+            addView(topMargin(button("Review and share test report"){
+                prefs.edit().putString("ui_test_notes",notes.text.toString()).apply()
+                val report=buildString {
+                    appendLine("HereShift UI development test report")
+                    appendLine("Android ${Build.VERSION.RELEASE} / API ${Build.VERSION.SDK_INT}")
+                    appendLine("Usability rating: ${prefs.getFloat("ui_test_rating",0f)}/5")
+                    val statuses=listOf("Not tested","Pass","Fail","Skip")
+                    uiTestTasks.forEachIndexed { i, task -> appendLine("${i+1}. $task: ${statuses[prefs.getInt("ui_test_$i",0).coerceIn(0,3)]}") }
+                    appendLine("Feedback: ${prefs.getString("ui_test_notes","")}")
+                }
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Share UI test report?")
+                    .setMessage("The report contains your checklist, rating, device version, and written feedback. It stays on this phone unless you choose Share.")
+                    .setNegativeButton("Cancel",null)
+                    .setPositiveButton("Share"){_,_->
+                        val intent=Intent(Intent.ACTION_SEND).apply { type="text/plain";putExtra(Intent.EXTRA_TEXT,report) }
+                        startActivity(Intent.createChooser(intent,"Share HereShift UI feedback"))
+                    }.show()
+            },8))
+            addView(topMargin(button("Delete local test feedback",true){
+                android.app.AlertDialog.Builder(this@MainActivity).setTitle("Delete test feedback?")
+                    .setMessage("Remove all saved UI checklist results, rating, and notes from this phone?")
+                    .setNegativeButton("Cancel",null).setPositiveButton("Delete"){_,_->
+                        val edit=prefs.edit()
+                        uiTestTasks.indices.forEach { edit.remove("ui_test_$it") }
+                        edit.remove("ui_test_rating").remove("ui_test_notes").apply()
+                        show(Page.TESTING)
+                    }.show()
+            },8))
+        }
+        c.addView(topMargin(feedback,16))
+        c.addView(topMargin(button("← Back to HereShift",true){show(Page.HOME)},16))
+    }
+
     private fun renderTrust(c:LinearLayout) {
         addText(c,"Our customer commitment",21f,true)
         val p=innerCard().apply{
