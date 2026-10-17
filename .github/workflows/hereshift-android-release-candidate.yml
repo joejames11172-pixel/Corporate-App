@@ -1,0 +1,82 @@
+name: HereShift release candidate (unsigned)
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/hereshift-real-user-ui-testing']
+    paths:
+      - 'Development/Apps/HereShift/Android App/**'
+      - 'Development/Apps/_template/03_Audio_Settings/generate_audio.py'
+      - '.github/workflows/hereshift-android-release-candidate.yml'
+permissions:
+  contents: read
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify preinstalled Android SDK
+        run: |
+          test -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" || command -v sdkmanager
+      - name: Install SDK 36
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original sound/image generators
+        run: pip install numpy cairosvg
+      - name: Reproduce approved original sound cues and branded app icons
+        env:
+          PEO_AUDIO_OUT: ${{ github.workspace }}/.generated/audio
+        run: |
+          python 'Development/Apps/_template/03_Audio_Settings/generate_audio.py'
+          python 'Development/Apps/HereShift/Android App/build_icons.py'
+          python - <<'PYGEN'
+          from pathlib import Path
+          import shutil
+          p=Path('Development/Apps/HereShift/Android App/app/src/main/assets/sounds')
+          p.mkdir(parents=True,exist_ok=True)
+          source=Path('.generated/audio/sounds')
+          assert len(list(source.rglob('*.wav')))==240
+          for f in source.rglob('*.wav'):
+            dst=p/f.relative_to(source)
+            dst.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(f,dst)
+          PYGEN
+      - name: Verify generated WAV hashes
+        run: |
+          python - <<'PYVERIFY'
+          from pathlib import Path
+          import json,hashlib
+          app=Path('Development/Apps/HereShift/Android App/app/src/main/assets')
+          j=json.loads((app/'audio_themes_manifest.json').read_text())
+          soundcount=0
+          for theme in j['themes']:
+            for clip in theme['sounds']:
+              f=app/'sounds'/clip['filename']
+              assert f.is_file(), str(f)
+              assert hashlib.sha256(f.read_bytes()).hexdigest()==clip['sha256'], str(f)
+              soundcount+=1
+          assert soundcount==240
+          print('Verified',soundcount,'original audio clips')
+          PYVERIFY
+      - name: Compile non-debuggable release APK and AAB
+        working-directory: Development/Apps/HereShift/Android App
+        run: gradle --no-daemon --stacktrace :app:assembleRelease :app:bundleRelease
+      - name: Publish unsigned release candidate artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: HereShift-unsigned-release-candidate
+          path: |
+            Development/Apps/HereShift/Android App/app/build/outputs/apk/release/*.apk
+            Development/Apps/HereShift/Android App/app/build/outputs/bundle/release/*.aab
+          retention-days: 14
+          if-no-files-found: error
