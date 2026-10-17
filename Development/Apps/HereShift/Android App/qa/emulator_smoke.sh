@@ -76,3 +76,34 @@ print('PASS Android emulator: launch, Display selected theme persisted, Back nav
 (folder/'results.txt').write_text('PASS launch/home/display/theme 02 persistence/back/audio Casino selection UI smoke test\n')
 PY
 adb logcat -d -t 3500 > "$QA_DIR/logcat.txt" || true
+
+
+# This separate test is isolated to a disposable, authorized Android emulator.
+# HereShift's test-provider privileges are granted by the test harness only;
+# no real device or third-party app is modified.
+QA_DIR="${GITHUB_WORKSPACE:-$PWD}/qa-results"
+APP='com.peostectica.hereshift'
+adb shell pm grant "$APP" android.permission.ACCESS_COARSE_LOCATION
+adb shell pm grant "$APP" android.permission.ACCESS_FINE_LOCATION
+adb shell pm grant "$APP" android.permission.POST_NOTIFICATIONS
+adb shell appops set "$APP" android:mock_location allow
+adb shell am start-foreground-service -n "$APP/.MockLocationService" \
+   -a "$APP.START_TEST" --ed latitude 37.7749 --ed longitude -122.4194
+sleep 5
+adb exec-out run-as "$APP" cat shared_prefs/hereShift.xml > "$QA_DIR/foreground-active.xml"
+if ! grep -q 'ACTIVE' "$QA_DIR/foreground-active.xml"; then
+  echo 'FAILED: Foreground service never confirmed authorized active state' >&2
+  cat "$QA_DIR/foreground-active.xml" >&2
+  exit 1
+fi
+adb shell am startservice -n "$APP/.MockLocationService" -a "$APP.STOP_TEST"
+sleep 2
+adb exec-out run-as "$APP" cat shared_prefs/hereShift.xml > "$QA_DIR/foreground-stopped.xml"
+if ! grep -q 'Stopped. Android test provider removed.' "$QA_DIR/foreground-stopped.xml"; then
+  echo 'FAILED: Stop action did not confirm test provider cleanup' >&2
+  cat "$QA_DIR/foreground-stopped.xml" >&2
+  exit 1
+fi
+adb shell appops set "$APP" android:mock_location deny
+printf 'PASS explicit emulator test-provider authorization, start, STOP, confirmed provider cleanup\n' >> "$QA_DIR/results.txt"
+adb logcat -d -t 4500 > "$QA_DIR/logcat.txt" || true

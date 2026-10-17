@@ -10,8 +10,8 @@ android {
         applicationId = "com.peostectica.hereshift"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.4.1-dev"
+        versionCode = 6
+        versionName = "0.4.2-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {

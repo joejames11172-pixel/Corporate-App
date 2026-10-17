@@ -125,6 +125,16 @@ class MainActivity : Activity() {
         scroll!!.addView(content)
         root.addView(scroll,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1f))
         setContentView(root)
+        // Match system bar icons to the currently selected light/dark palette. Android 15+
+        // enforces edge-to-edge, so setting statusBarColor alone is not sufficient.
+        if (Build.VERSION.SDK_INT >= 30) {
+            val mask = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+            window.insetsController?.setSystemBarsAppearance(if (effectiveDark()) 0 else mask, mask)
+        } else {
+            window.decorView.systemUiVisibility = if (effectiveDark()) 0 else
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
         if (Build.VERSION.SDK_INT >= 30) {
             root.setOnApplyWindowInsetsListener { view, insets ->
                 val sys=insets.getInsets(WindowInsets.Type.systemBars())
