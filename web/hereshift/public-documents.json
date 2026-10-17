@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "status": "development-preview",
+  "documents": [
+    {
+      "title": "About Us",
+      "href": "about.html",
+      "public": true
+    },
+    {
+      "title": "Policies",
+      "href": "privacy-policy.html",
+      "public": true
+    },
+    {
+      "title": "Terms of Service",
+      "href": "terms.html",
+      "public": true
+    },
+    {
+      "title": "Google Play Store Listing",
+      "href": "listing.html",
+      "public": true
+    }
+  ]
+}
