@@ -78,32 +78,62 @@ PY
 adb logcat -d -t 3500 > "$QA_DIR/logcat.txt" || true
 
 
-# This separate test is isolated to a disposable, authorized Android emulator.
-# HereShift's test-provider privileges are granted by the test harness only;
-# no real device or third-party app is modified.
-QA_DIR="${GITHUB_WORKSPACE:-$PWD}/qa-results"
-APP='com.peostectica.hereshift'
-adb shell pm grant "$APP" android.permission.ACCESS_COARSE_LOCATION
-adb shell pm grant "$APP" android.permission.ACCESS_FINE_LOCATION
-adb shell pm grant "$APP" android.permission.POST_NOTIFICATIONS
-adb shell appops set "$APP" android:mock_location allow
-adb shell am start-foreground-service -n "$APP/.MockLocationService" \
-   -a "$APP.START_TEST" --ed latitude 37.7749 --ed longitude -122.4194
-sleep 5
-adb exec-out run-as "$APP" cat shared_prefs/hereShift.xml > "$QA_DIR/foreground-active.xml"
-if ! grep -q 'ACTIVE' "$QA_DIR/foreground-active.xml"; then
-  echo 'FAILED: Foreground service never confirmed authorized active state' >&2
-  cat "$QA_DIR/foreground-active.xml" >&2
-  exit 1
-fi
-adb shell am startservice -n "$APP/.MockLocationService" -a "$APP.STOP_TEST"
-sleep 2
-adb exec-out run-as "$APP" cat shared_prefs/hereShift.xml > "$QA_DIR/foreground-stopped.xml"
-if ! grep -q 'Stopped. Android test provider removed.' "$QA_DIR/foreground-stopped.xml"; then
-  echo 'FAILED: Stop action did not confirm test provider cleanup' >&2
-  cat "$QA_DIR/foreground-stopped.xml" >&2
-  exit 1
-fi
-adb shell appops set "$APP" android:mock_location deny
-printf 'PASS explicit emulator test-provider authorization, start, STOP, confirmed provider cleanup\n' >> "$QA_DIR/results.txt"
+
+# Private service is android:exported=false. NEVER weaken its manifest merely so
+# an adb shell caller can start it. Use the app's own user-facing UI to request
+# and stop location injection inside an isolated authorized emulator.
+python3 - "$QA_DIR" "$APP" <<'PY_SERVICE'
+import sys,subprocess,xml.etree.ElementTree as ET,re,time
+from pathlib import Path
+folder=Path(sys.argv[1]);app=sys.argv[2]
+def run(*args):
+ return subprocess.run(['adb',*args],check=True,capture_output=True,text=True).stdout
+def capture(name):
+ run('shell','uiautomator','dump','/sdcard/hs-window.xml')
+ raw=run('exec-out','cat','/sdcard/hs-window.xml')
+ (folder/(name+'.xml')).write_text(raw)
+ nodes=list(ET.fromstring(raw).iter())
+ subprocess.run(['adb','exec-out','screencap','-p'],stdout=(folder/(name+'.png')).open('wb'),check=True)
+ return nodes
+def click(name,nodes):
+ for node in nodes:
+  if name.casefold() in (node.get('text','')+' '+node.get('content-desc','')).casefold():
+   m=re.search(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',node.get('bounds',''))
+   if m:
+    x1,y1,x2,y2=map(int,m.groups())
+    run('shell','input','tap',str((x1+x2)//2),str((y1+y2)//2))
+    time.sleep(1.2)
+    return True
+ return False
+def scroll_click(name):
+ for i in range(7):
+  nodes=capture('find-'+name.split()[0]+'-'+str(i))
+  if click(name,nodes):return
+  run('shell','input','swipe','160','530','160','240','380')
+  time.sleep(.55)
+ raise AssertionError('Could not scroll to '+name)
+def get_status():return run('exec-out','run-as',app,'cat','shared_prefs/hereShift.xml')
+run('shell','pm','grant',app,'android.permission.ACCESS_COARSE_LOCATION')
+run('shell','pm','grant',app,'android.permission.ACCESS_FINE_LOCATION')
+run('shell','pm','grant',app,'android.permission.POST_NOTIFICATIONS')
+run('shell','appops','set',app,'android:mock_location','allow')
+# Return from Audio to Home using normal Android Back.
+run('shell','input','keyevent','4');time.sleep(1)
+scroll_click('Start authorized mock-location session')
+dialog=capture('mock-start-confirmation')
+assert any('Confirm authorized test simulation' in x.get('text','') for x in dialog),'Missing informed mock-start confirmation'
+assert click('Continue',dialog),'Could not accept the on-app test-only authorization'
+time.sleep(4)
+active=get_status()
+(folder/'foreground-active.xml').write_text(active)
+assert 'ACTIVE' in active, 'Location provider did not report ACTIVE; '+active[-800:]
+scroll_click('Stop simulation')
+time.sleep(2)
+status=get_status()
+(folder/'foreground-stopped.xml').write_text(status)
+assert 'Stopped. Android test provider removed.' in status,'Private Stop control failed to confirm provider cleanup: '+status[-800:]
+run('shell','appops','set',app,'android:mock_location','deny')
+(folder/'results.txt').open('a').write('PASS isolated emulator mock-provider start and Stop through non-exported app UI, cleanup confirmed\n')
+print('PASS private test service authorized and stopped from app UI, provider removal confirmed')
+PY_SERVICE
 adb logcat -d -t 4500 > "$QA_DIR/logcat.txt" || true
