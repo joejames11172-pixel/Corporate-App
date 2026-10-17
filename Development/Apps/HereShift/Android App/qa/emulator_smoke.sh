@@ -48,16 +48,31 @@ tap(home,'Display · 40 color themes','Display')
 display=capture('display')
 assert any(match(x,'40 approved paired themes') for x in display),'Display settings not opened'
 assert any(match(x,'Monochrome') for x in display),'Theme list missing first option'
+# Select theme 02, then confirm it persists through Back and reopening Settings.
+tap(display,'02 · Slate Blue','Slate Blue')
+selected=capture('display-selected')
+buttons=[x for x in selected if x.get('class')=='android.widget.RadioButton']
+assert len(buttons)>1 and buttons[1].get('checked')=='true','Theme 02 radio did not become selected'
 # Back must return to previous screen.
 run('shell','input','keyevent','4');time.sleep(1)
 returned=capture('returned-home')
 assert any(match(x,'Audio · 20 sound themes') for x in returned),'Back navigation did not restore home'
+tap(returned,'Display · 40 color themes','Display')
+persisted=capture('display-reopened')
+radios=[x for x in persisted if x.get('class')=='android.widget.RadioButton']
+assert len(radios)>1 and radios[1].get('checked')=='true','Theme 02 preference did not survive settings navigation'
+run('shell','input','keyevent','4');time.sleep(1)
+returned=capture('returned-home-again')
 tap(returned,'Audio · 20 sound themes','Audio')
 audio=capture('audio')
 assert any(match(x,'Audio themes') for x in audio),'Audio settings not opened'
 assert any(match(x,'None') for x in audio),'Audio disable option is missing'
 assert any(match(x,'Casino') for x in audio),'Casino audio option missing'
-print('PASS Android emulator: launch, home, display, 40-theme header, Back, audio, None and Casino')
-(folder/'results.txt').write_text('PASS launch/home/display/back/audio UI smoke test\n')
+tap(audio,'01 · Casino','Casino')
+audio_selected=capture('audio-casino-selected')
+radios=[x for x in audio_selected if x.get('class')=='android.widget.RadioButton']
+assert len(radios)>1 and radios[1].get('checked')=='true','Casino selection was not saved'
+print('PASS Android emulator: launch, Display selected theme persisted, Back navigation, Audio Casino selected, None option')
+(folder/'results.txt').write_text('PASS launch/home/display/theme 02 persistence/back/audio Casino selection UI smoke test\n')
 PY
 adb logcat -d -t 3500 > "$QA_DIR/logcat.txt" || true

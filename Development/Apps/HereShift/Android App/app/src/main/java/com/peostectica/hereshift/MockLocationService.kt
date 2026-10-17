@@ -106,15 +106,19 @@ class MockLocationService : Service() {
         }
         return START_NOT_STICKY // Never silently resume after reboot or system termination.
     }
-    private fun stopProvider() {
+    private fun stopProvider(): Boolean {
         active = false
         handler.removeCallbacks(heartbeat)
-        try { manager.removeTestProvider(LocationManager.GPS_PROVIDER) } catch (_: Exception) {}
+        return try {
+            manager.removeTestProvider(LocationManager.GPS_PROVIDER)
+            true
+        } catch (_: Exception) { false }
     }
     override fun onDestroy() {
-        stopProvider()
-        if ((getSharedPreferences("hereShift", MODE_PRIVATE).getString(PREF_STATUS, "") ?: "").startsWith("ACTIVE"))
-            setStatus("Stopped. Android location provider restored.")
+        val wasActive = active
+        val removed = stopProvider()
+        if (wasActive) setStatus(if (removed) "Stopped. Android test provider removed."
+            else "Stopped; provider cleanup could not be confirmed. Review Android Developer Options.")
         super.onDestroy()
     }
 }

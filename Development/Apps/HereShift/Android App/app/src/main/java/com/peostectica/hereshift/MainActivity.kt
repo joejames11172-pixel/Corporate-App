@@ -29,6 +29,8 @@ class MainActivity : Activity() {
     private var latitudeInput: EditText? = null
     private var longitudeInput: EditText? = null
     private val legacyPermissions = 404
+    private val notificationPermissionRequest = 405
+    private var pendingPointAfterNotificationPermission: TestPoint? = null
     private var modernBack: OnBackInvokedCallback? = null
     private fun navigateBack() {
         if (page == Page.HOME) finish() else { audio.stopPreview(); show(Page.HOME) }
@@ -110,11 +112,11 @@ class MainActivity : Activity() {
         val header=LinearLayout(this).apply {orientation=LinearLayout.HORIZONTAL; gravity=Gravity.CENTER_VERTICAL;setPadding(dp(16),dp(11),dp(16),dp(11))}
         if (next!=Page.HOME) {
             val back=button("← Back",true){ show(Page.HOME) }
-            header.addView(back,LinearLayout.LayoutParams(0,dp(47),0.4f))
+            header.addView(back,LinearLayout.LayoutParams(dp(82),dp(47)))
         }
         val logo=ImageView(this).apply {setImageResource(if (effectiveDark()) R.drawable.hereshift_icon_dark else R.drawable.hereshift_icon_light);contentDescription="HereShift selected icon"; scaleType=ImageView.ScaleType.FIT_CENTER}
-        header.addView(logo,LinearLayout.LayoutParams(dp(42),dp(42)).apply {marginStart=dp(12)})
-        val heading=colorText(21f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing"};setPadding(dp(10),0,0,0) }
+        header.addView(logo,LinearLayout.LayoutParams(dp(36),dp(36)).apply {marginStart=dp(8)})
+        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing"};setPadding(dp(8),0,0,0) }
         header.addView(heading,LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
         root.addView(header)
         scroll=ScrollView(this).apply {isFillViewport=false;clipToPadding=false}
@@ -210,11 +212,16 @@ class MainActivity : Activity() {
             }.show()
     }
     private fun launchService(point:TestPoint) {
-        // On Android 13+, ask for notification visibility but do not capture device position.
+        // Ensure the always-visible foreground Stop control can be displayed. Do not race
+        // the notification-permission dialog; only start after the user grants permission.
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 405)
-            // Permission is separate from mock-location authorization and from location read access.
+            pendingPointAfterNotificationPermission = point
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), notificationPermissionRequest)
+            return
         }
+        startAuthorizedService(point)
+    }
+    private fun startAuthorizedService(point:TestPoint) {
         try {
             val intent=Intent(this,MockLocationService::class.java).setAction(MockLocationService.ACTION_START)
                 .putExtra(MockLocationService.EXTRA_LAT,point.latitude).putExtra(MockLocationService.EXTRA_LON,point.longitude)
@@ -225,10 +232,21 @@ class MainActivity : Activity() {
     }
     override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<out String>,grantResults:IntArray) {
         super.onRequestPermissionsResult(requestCode,permissions,grantResults)
-        if(requestCode==legacyPermissions) {
-            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
-                currentPoint()?.let{launchService(it)}
-            } else Toast.makeText(this,"Permission denied; in-app preview remains available",Toast.LENGTH_LONG).show()
+        when (requestCode) {
+            legacyPermissions -> {
+                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+                    currentPoint()?.let { launchService(it) }
+                } else Toast.makeText(this,"Permission denied; in-app preview remains available",Toast.LENGTH_LONG).show()
+            }
+            notificationPermissionRequest -> {
+                val savedPoint = pendingPointAfterNotificationPermission
+                pendingPointAfterNotificationPermission = null
+                if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED && savedPoint != null) {
+                    startAuthorizedService(savedPoint)
+                } else {
+                    Toast.makeText(this,"Enable notifications for a visible Stop action; simulation was not started",Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
     private fun stopMock(){stopService(Intent(this,MockLocationService::class.java));prefs.edit().putString(MockLocationService.PREF_STATUS,"Stop requested").apply();show(Page.HOME)}
