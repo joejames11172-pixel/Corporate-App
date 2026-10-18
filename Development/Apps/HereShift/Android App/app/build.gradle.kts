@@ -29,3 +29,6 @@ android {
     // SoundPool.openFd requires sound clips to be stored uncompressed in the APK.
     androidResources { noCompress += "wav" }
 }
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+}
