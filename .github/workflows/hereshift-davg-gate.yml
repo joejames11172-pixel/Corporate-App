@@ -1,0 +1,29 @@
+name: HereShift DAVG corrective gate
+on:
+  push:
+    branches:
+      - feature/hereshift-real-user-ui-testing
+    paths:
+      - 'Development/Apps/HereShift/Android App/**'
+      - '.github/workflows/hereshift-davg-gate.yml'
+  pull_request:
+    paths:
+      - 'Development/Apps/HereShift/Android App/**'
+      - '.github/workflows/hereshift-davg-gate.yml'
+permissions:
+  contents: read
+jobs:
+  davg-correction-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Development/Apps/HereShift/Android App
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify executable DAVG rules and provider lifecycle regressions
+        run: |
+          python3 -m unittest discover -s qa -p 'test_davg_*.py' -v
+          python3 -m unittest discover -s qa -p 'test_mock_provider_ownership.py' -v
+      - name: Require structured corrective iteration before release promotion
+        run: |
+          python3 qa/davg_transition_gate.py qa/davg_current_iteration.json
