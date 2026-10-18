@@ -242,7 +242,6 @@ class MainActivity : Activity() {
             addView(topMargin(button("Display · 40 color themes") {saveCoordinates();show(Page.DISPLAY)},12))
             addView(topMargin(button("Audio · 20 sound themes") {saveCoordinates();show(Page.AUDIO)},8))
             addView(topMargin(button("Privacy and responsible use",true) {saveCoordinates();show(Page.TRUST)},8))
-            addView(topMargin(button("Development mode · UI testing",true) {saveCoordinates();show(Page.TESTING)},8))
         }
         c.addView(topMargin(navigation,18))
         val physical=innerCard().apply {
