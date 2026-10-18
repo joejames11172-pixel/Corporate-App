@@ -10,8 +10,11 @@
     },
     {
       "id": "HS-BILLING-002",
-      "state": "OPEN",
-      "description": "Google Play Billing, verified Premium entitlement and Free/Premium gating"
+      "state": "EXTERNAL_BLOCKED",
+      "description": "POST-PLAY-STORE-APPROVAL ONLY: verify Google Play Billing purchase lifecycle and trusted Premium entitlement. Not a pre-approval APK delivery or Play submission gate. Premium remains unavailable until verified.",
+      "owner": "Peostectica Play Console account owner",
+      "required_owner_action": "Obtain Google Play approval before initiating Premium billing verification",
+      "dependency_evidence": "Founder explicitly directed on 2026-10-18 that Premium billing verification occurs only after Play Store approval"
     },
     {
       "id": "HS-SIGNING-003",
