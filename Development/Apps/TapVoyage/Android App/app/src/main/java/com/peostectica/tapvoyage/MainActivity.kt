@@ -5,6 +5,10 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import org.json.JSONObject
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
+import android.widget.Spinner
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -34,11 +38,26 @@ class MainActivity : Activity() {
         "Light" -> false
         else -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
     }
-    private val bg: Int get() = if (night()) Color.rgb(9,18,35) else Color.rgb(245,247,255)
-    private val surface: Int get() = if (night()) Color.rgb(23,36,58) else Color.WHITE
-    private val ink: Int get() = if (night()) Color.rgb(240,245,255) else Color.rgb(28,37,59)
-    private val muted: Int get() = if (night()) Color.rgb(172,187,215) else Color.rgb(86,100,127)
-    private val primary: Int get() = Color.rgb(55,86,235)
+    // These tokens come from the corporate CEO-approved 40 paired light/dark themes.
+    private val themes by lazy {
+        val raw=assets.open("themes.40.approved.json").bufferedReader().use { it.readText() }
+        JSONObject(raw).getJSONArray("presets")
+    }
+    private val themeId: String get() = prefs.getString("theme_id","01") ?: "01"
+    private val colors: JSONObject get() {
+        var selected=themes.getJSONObject(0)
+        for(i in 0 until themes.length()) {
+            val candidate=themes.getJSONObject(i)
+            if(candidate.getString("id")==themeId) {selected=candidate;break}
+        }
+        return selected.getJSONObject(if(night()) "dark" else "light")
+    }
+    private fun themeColor(name:String):Int=Color.parseColor(colors.getString(name))
+    private val bg: Int get()=themeColor("background")
+    private val surface: Int get()=themeColor("surface")
+    private val ink: Int get()=themeColor("onBackground")
+    private val muted: Int get()=themeColor("outline")
+    private val primary: Int get()=themeColor("primary")
     private fun dp(x: Int) = (x*resources.displayMetrics.density).roundToInt()
     private fun rounded(color: Int, radius: Int=15, border: Int?=null): GradientDrawable = GradientDrawable().apply {
         shape=GradientDrawable.RECTANGLE;setColor(color);cornerRadius=dp(radius).toFloat()
@@ -53,8 +72,8 @@ class MainActivity : Activity() {
         }
     private fun button(value: String, action: ()->Unit): Button = Button(this).apply {
         text=value; isAllCaps=false; textSize=13f; minHeight=dp(48)
-        setTextColor(if (night()) Color.WHITE else primary)
-        background=rounded(if (night()) Color.rgb(33,49,87) else Color.rgb(230,236,255),10)
+        setTextColor(themeColor("onPrimary"))
+        background=rounded(primary,10)
         setOnClickListener {action()}
         contentDescription=value
     }
@@ -147,6 +166,26 @@ class MainActivity : Activity() {
                 row.addView(button(choice) {prefs.edit().putString("appearance",choice).apply();render()},LinearLayout.LayoutParams(0,dp(52),1f).apply {marginEnd=dp(4)})
             }
             add(v,row,9)
+        }
+        card(c,"Display themes · 40 choices","All 40 preset pairs follow your selected Auto/Light/Dark appearance.") { v ->
+            val ids=(0 until themes.length()).map { themes.getJSONObject(it).getString("id") }
+            val names=(0 until themes.length()).map {
+                val theme=themes.getJSONObject(it)
+                theme.getString("id") + " · " + theme.getString("name")
+            }
+            val spinner=Spinner(this).apply {
+                adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,names)
+                setSelection(ids.indexOf(themeId).coerceAtLeast(0))
+                onItemSelectedListener=object : AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent:AdapterView<*>?) {}
+                    override fun onItemSelected(parent:AdapterView<*>?, view:View?, position:Int, id:Long) {
+                        val next=ids[position]
+                        if(next!=themeId) {prefs.edit().putString("theme_id",next).apply();render()}
+                    }
+                }
+            }
+            spinner.contentDescription="Select one of 40 display color themes"
+            add(v,spinner,11)
         }
         card(c,"Privacy and security","No contacts are uploaded, no remote sessions are initiated, and no payment is collected by this development app.") { }
     }
