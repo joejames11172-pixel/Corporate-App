@@ -59,6 +59,15 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     }
     fun fullDeviceApproved(requester:String,owner:String):Boolean =
         circles[key(requester,owner)]?.let {it.link==Link.ACCEPTED && it.fullAccessApproved} ?: false
+    /** Eligibility for any all-app/full-device scope, not an OS-level permission.
+     * Owner consent alone never bypasses paid limits; always recheck entitlement.
+     * Native Android supported capabilities still require separate runtime consent.
+     */
+    fun fullDeviceScopeEligible(requester:String,owner:String):Boolean {
+        val c=circles[key(requester,owner)] ?: return false
+        if (c.link!=Link.ACCEPTED || !c.inventory || !c.fullAccessApproved) return false
+        return try { paidEntitlement(requester) } catch (_: Exception) { false }
+    }
     data class VisibleApp(val name:String,val permitted:Boolean,val order:Long)
     fun listApps(requester:String,owner:String):List<VisibleApp> {
         val grants=link(requester,owner).grants.values.toList()
