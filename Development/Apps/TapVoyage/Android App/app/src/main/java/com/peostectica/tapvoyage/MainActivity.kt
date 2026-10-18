@@ -20,7 +20,7 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import com.peostectica.tapvoyage.core.TapVoyagePolicy
+import com.peostectica.tapvoyage.core.HiddenContacts
 import kotlin.math.roundToInt
 
 /** Native development client; no simulated contact is represented as authenticated. */
@@ -30,8 +30,10 @@ class MainActivity : Activity() {
     }
     private val prefs by lazy { getSharedPreferences("tapvoyage_ui", MODE_PRIVATE) }
     private var page = Page.CIRCLE
-    private var selectedContact: String? = null // in-memory only, no unapproved contact history
-    private val policy = TapVoyagePolicy() // offline demo policy; never authorizes a remote connection
+    private var selectedContact: String? = null // user-picked local display name only
+    private var selectedContactId: String? = null // Android local Contacts Provider ID, NOT remote identity
+    private val hiddenContacts = HiddenContacts()
+    private var showHidden = false // display-only; never changes grants or revocation
     private val appearance: String get() = prefs.getString("appearance", "Auto") ?: "Auto"
     private fun night(): Boolean = when (appearance) {
         "Dark" -> true
@@ -119,7 +121,28 @@ class MainActivity : Activity() {
         add(c,text("My Circle",24f,true),5)
         add(c,text("A Circle contact can exist with zero approved apps. Permissions always belong to the device owner.",14f,false,true),9)
         card(c,"↗ Get Permission","Choose a person, then request only the access that person approves.") {v->
-            add(v,text(selectedContact?.let {"Selected locally: $it"} ?: "No verified Circle contacts yet",15f,true),15)
+            val selectedId = selectedContactId
+            val visible = selectedId != null && hiddenContacts.visible(selectedId, showHidden)
+            add(v,text(if (visible) "Selected locally: ${selectedContact.orEmpty()}" else
+                if (selectedId != null) "Selected contact hidden locally" else "No verified Circle contacts yet",15f,true),15)
+            add(v,button(if (showHidden) "Show Hidden: ON" else "Show Hidden: OFF") {
+                showHidden = !showHidden
+                render()
+            },8)
+            if (selectedId != null) {
+                if (hiddenContacts.visible(selectedId, false)) {
+                    add(v,button("Hide Me") {
+                        hiddenContacts.hide(selectedId)
+                        render()
+                    },8)
+                } else if (showHidden) {
+                    add(v,button("Unhide") {
+                        hiddenContacts.unhide(selectedId)
+                        render()
+                    },8)
+                }
+            }
+            add(v,text("Hide Me changes local visibility only. It does not invite contacts, grant access or revoke owner permissions.",13f,false,true),9)
             add(v,button("Choose a phone contact") {chooseContact()},10)
             add(v,button("View Get Permission") {page=Page.GET;render()},8)
         }
@@ -131,7 +154,9 @@ class MainActivity : Activity() {
     private fun showGet(c:LinearLayout) {
         add(c,text("Get Permission",24f,true),5)
         card(c,"Select a person","A contact-list entry is not a device identity or consent.") {v->
-            add(v,text(selectedContact ?: "No contact selected",16f,true),13)
+            add(v,text(selectedContactId?.let { id ->
+                if (hiddenContacts.visible(id,showHidden)) selectedContact else "Contact hidden locally"
+            } ?: "No contact selected",16f,true),13)
             add(v,button("Choose contact") {chooseContact()},9)
         }
         card(c,"Authorized and unauthorized apps","Only owner-approved inventory may be disclosed. Free includes the oldest approved app per owner.") {v->
@@ -204,8 +229,18 @@ class MainActivity : Activity() {
         if(requestCode!=1001 || resultCode!=RESULT_OK)return
         val uri=data?.data ?: return
         try {
-            contentResolver.query(uri,arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME),null,null,null)?.use { cursor ->
-                if(cursor.moveToFirst())selectedContact=cursor.getString(0)?.take(120)
+            contentResolver.query(uri,arrayOf(
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+            ),null,null,null)?.use { cursor ->
+                if(cursor.moveToFirst()) {
+                    val id = cursor.getString(0)?.trim()
+                    val name = cursor.getString(1)?.trim()?.take(120)
+                    if (!id.isNullOrBlank() && !name.isNullOrBlank()) {
+                        selectedContactId = id
+                        selectedContact = name
+                    }
+                }
             }
             render()
         } catch (_:Exception) {unsupported("Selected contact could not be read; no information was saved.")}
