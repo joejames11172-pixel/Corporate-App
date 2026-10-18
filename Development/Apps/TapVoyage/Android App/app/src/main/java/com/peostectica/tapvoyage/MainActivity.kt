@@ -32,8 +32,14 @@ class MainActivity : Activity() {
     private var page = Page.CIRCLE
     private var selectedContact: String? = null // user-picked local display name only
     private var selectedContactId: String? = null // Android local Contacts Provider ID, NOT remote identity
-    private val hiddenContacts = HiddenContacts()
+    private val hiddenContacts by lazy {
+        // Local-only visibility preferences; no contact name, phone number or backend grant is stored.
+        HiddenContacts(prefs.getStringSet("hidden_contact_ids", emptySet()).orEmpty())
+    }
     private var showHidden = false // display-only; never changes grants or revocation
+    private fun rememberHiddenContacts() {
+        prefs.edit().putStringSet("hidden_contact_ids", hiddenContacts.ids()).apply()
+    }
     private val appearance: String get() = prefs.getString("appearance", "Auto") ?: "Auto"
     private fun night(): Boolean = when (appearance) {
         "Dark" -> true
@@ -133,11 +139,13 @@ class MainActivity : Activity() {
                 if (hiddenContacts.visible(selectedId, false)) {
                     add(v,button("Hide Me") {
                         hiddenContacts.hide(selectedId)
+                        rememberHiddenContacts()
                         render()
                     },8)
                 } else if (showHidden) {
                     add(v,button("Unhide") {
                         hiddenContacts.unhide(selectedId)
+                        rememberHiddenContacts()
                         render()
                     },8)
                 }
