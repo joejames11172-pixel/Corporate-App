@@ -10,6 +10,10 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.location.Geocoder
+import java.util.Locale
 import android.provider.Settings
 import android.view.*
 import android.window.OnBackInvokedCallback
@@ -20,7 +24,7 @@ import kotlin.math.roundToInt
 /** Native, dependency-light initial release: stationary location, 40 paired display themes,
  * 20 audio themes. No remote control, unapproved billing, telemetry, or integrity evasion. */
 class MainActivity : Activity() {
-    private enum class Page { HOME, DISPLAY, AUDIO, TRUST }
+    private enum class Page { HOME, CIRCLE, DISPLAY, AUDIO, TRUST, TESTING }
     private lateinit var engine: SettingsEngine
     private lateinit var audio: AudioFeedback
     private var page: Page = Page.HOME
@@ -116,14 +120,47 @@ class MainActivity : Activity() {
         }
         val logo=ImageView(this).apply {setImageResource(if (effectiveDark()) R.drawable.hereshift_icon_dark else R.drawable.hereshift_icon_light);contentDescription="HereShift selected icon"; scaleType=ImageView.ScaleType.FIT_CENTER}
         header.addView(logo,LinearLayout.LayoutParams(dp(36),dp(36)).apply {marginStart=dp(8)})
-        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing"};setPadding(dp(8),0,0,0) }
+        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.CIRCLE->"Circle and sharing";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing";Page.TESTING->"Development mode"};setPadding(dp(8),0,0,0) }
         header.addView(heading,LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
         root.addView(header)
         scroll=ScrollView(this).apply {isFillViewport=false;clipToPadding=false}
         val content=column().apply {setPadding(dp(16),0,dp(16),dp(34))}
-        when(next) { Page.HOME->renderHome(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content) }
+        when(next) { Page.HOME->renderHome(content); Page.CIRCLE->renderCircle(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content);Page.TESTING->renderTesting(content) }
         scroll!!.addView(content)
         root.addView(scroll,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1f))
+        // Persistent native navigation: visible on every screen, independent of scroll position.
+        val navigationBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(dp(7),dp(8),dp(7),dp(8))
+            background = rounded(shade(palette.surface), 16, shade(palette.primary))
+        }
+        listOf(
+            Triple("Home", Page.HOME, "Home"),
+            Triple("Circle", Page.CIRCLE, "Circle"),
+            Triple("Display", Page.DISPLAY, "Display"),
+            Triple("Audio", Page.AUDIO, "Audio"),
+            Triple("Privacy", Page.TRUST, "Privacy")
+        ).forEach { (_, destination, caption) ->
+            val navButton = button(caption, destination != next) {
+                if (destination != page) {
+                    if (page == Page.HOME) saveCoordinates()
+                    show(destination)
+                }
+            }
+            navButton.contentDescription = "Navigate to " + caption
+            navigationBar.addView(navButton, LinearLayout.LayoutParams(dp(92), dp(52)).apply {
+                marginStart = dp(3); marginEnd = dp(3)
+            })
+        }
+        val navigationScroller = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            isFillViewport = true
+            contentDescription = "HereShift page navigation"
+            addView(navigationBar)
+        }
+        root.addView(navigationScroller, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+
         setContentView(root)
         // Match system bar icons to the currently selected light/dark palette. Android 15+
         // enforces edge-to-edge, so setting statusBarColor alone is not sufficient.
@@ -149,8 +186,62 @@ class MainActivity : Activity() {
         Appearance.FOLLOW_DEVICE->systemDark; Appearance.DARK->true;Appearance.LIGHT->false
     }
     private fun renderHome(c: LinearLayout) {
-        addText(c,"Choose where to simulate your test location.",20f,true)
+        addText(c,"Choose your virtual location",24f,true)
         addText(c,"Your chosen point is synthetic or manually entered. The app never reads your real GPS coordinates, records routes, or sends data to a server.",14f,margin=8)
+        val editor=innerCard().apply {
+            addText(this,"Enter your coordinates",20f,true)
+            addText(this,"Type any valid latitude and longitude. Example cities are optional shortcuts.",14f,margin=7)
+            latitudeInput=field("Latitude",prefs.getString("lat","41.8781") ?: "41.8781")
+            longitudeInput=field("Longitude",prefs.getString("lon","-87.6298") ?: "-87.6298")
+            addView(topMargin(latitudeInput!!,12));addView(topMargin(longitudeInput!!,8))
+            addView(topMargin(button("Save my coordinates") {
+                val lat = latitudeInput?.text?.toString()?.trim().orEmpty()
+                val lon = longitudeInput?.text?.toString()?.trim().orEmpty()
+                val point = ScenarioRules.parse(lat, lon)
+                if (point == null) {
+                    latitudeInput?.error = "Latitude must be between -90 and 90"
+                    longitudeInput?.error = "Longitude must be between -180 and 180"
+                    Toast.makeText(this@MainActivity, "Correct both coordinates before saving", Toast.LENGTH_LONG).show()
+                } else {
+                    prefs.edit().putString("lat", lat).putString("lon", lon).apply()
+                    Toast.makeText(this@MainActivity, "Coordinates saved", Toast.LENGTH_SHORT).show()
+                }
+            }, 12))
+            addText(this, "Other location sources", 17f, true, margin = 18)
+            val addressInput = EditText(this@MainActivity).apply {
+                hint = "Street address, city, state"
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS
+                setSingleLine(true)
+                setPadding(dp(14),dp(13),dp(14),dp(13))
+                background = rounded(shade(palette.background),10,shade(palette.primary))
+                setTextColor(shade(palette.onSurface))
+            }
+            addView(topMargin(addressInput, 9))
+            addView(topMargin(button("Confirm address", true) {
+                if (addressInput.text.toString().trim().isEmpty()) addressInput.error = "Enter an address"
+                else resolveStreetAddress(addressInput.text.toString().trim())
+            }, 7))
+            val zipInput = EditText(this@MainActivity).apply {
+                hint = "U.S. ZIP code"
+                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                filters = arrayOf(android.text.InputFilter.LengthFilter(5))
+                setSingleLine(true)
+                setPadding(dp(14),dp(13),dp(14),dp(13))
+                background = rounded(shade(palette.background),10,shade(palette.primary))
+                setTextColor(shade(palette.onSurface))
+            }
+            addView(topMargin(zipInput, 10))
+            addView(topMargin(button("Select ZIP area", true) {
+                val entered = zipInput.text.toString().trim()
+                if (!Regex("[0-9]{5}").matches(entered)) zipInput.error = "Enter a five-digit ZIP"
+                else resolveZipArea(entered)
+            }, 7))
+            addView(topMargin(button("Example: Chicago city center",true){setPoint("41.8781","-87.6298")},8))
+            addView(topMargin(button("Example: San Francisco city center",true){setPoint("37.7749","-122.4194")},8))
+            addView(topMargin(button("Example: New York city center",true){setPoint("40.7128","-74.0060")},8))
+            addView(topMargin(button("Preview my selected point",false){previewPoint()},12))
+        }
+        c.addView(topMargin(editor,16))
         val navigation=innerCard().apply {
             addText(this,"Settings",18f,true)
             addView(topMargin(button("Display · 40 color themes") {saveCoordinates();show(Page.DISPLAY)},12))
@@ -158,18 +249,6 @@ class MainActivity : Activity() {
             addView(topMargin(button("Privacy and responsible use",true) {saveCoordinates();show(Page.TRUST)},8))
         }
         c.addView(topMargin(navigation,18))
-        val editor=innerCard().apply {
-            addText(this,"1 · Stationary test location",18f,true)
-            addText(this,"Enter latitude and longitude, or choose an illustrative location below.",14f,margin=7)
-            latitudeInput=field("Latitude",prefs.getString("lat","41.8781") ?: "41.8781")
-            longitudeInput=field("Longitude",prefs.getString("lon","-87.6298") ?: "-87.6298")
-            addView(topMargin(latitudeInput!!,12));addView(topMargin(longitudeInput!!,8))
-            addView(topMargin(button("Example: Chicago city center",true){setPoint("41.8781","-87.6298")},8))
-            addView(topMargin(button("Example: San Francisco city center",true){setPoint("37.7749","-122.4194")},8))
-            addView(topMargin(button("Example: New York city center",true){setPoint("40.7128","-74.0060")},8))
-            addView(topMargin(button("Preview my selected point",false){previewPoint()},12))
-        }
-        c.addView(topMargin(editor,16))
         val physical=innerCard().apply {
             addText(this,"2 · Android developer test mode",18f,true)
             addText(this,"For testing apps you own or are authorized to test, Android can provide a MOCK location. Other applications can detect that it is simulated. The Android service displays an active notification with Stop.",14f,margin=7)
@@ -182,22 +261,151 @@ class MainActivity : Activity() {
         }
         c.addView(topMargin(physical,16))
         val premium=innerCard().apply {
-            addText(this,"Premium · planned, not billed",17f,true)
-            addText(this,"Earlier objectives discuss $1.99/week and a possible TapVoyage discount. No Play Billing integration or charges are active in this build.",13f,margin=6)
+            addText(this,"Premium status",19f,true)
+            val indicator = addText(this,"✕  Premium inactive · Free",17f,true,margin=8)
+            indicator.setTextColor(Color.rgb(190, 48, 48))
+            addText(this,"Premium requires a verified Google Play subscription. No subscription is active or billed in this build. Free mode cannot access Premium-only Circle sharing.",13f,margin=7)
+            addView(topMargin(button("Get Premium · availability",true) {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Premium is not available yet")
+                    .setMessage("Google Play Billing and verified subscription activation are not connected. This button cannot purchase Premium or grant access. No payment will be taken.")
+                    .setPositiveButton("OK",null).show()
+            },10))
         }
         c.addView(topMargin(premium,16))
     }
+    private fun renderCircle(c: LinearLayout) {
+        addText(c, "Circle · contact sharing", 24f, true)
+        addText(c, "Choose one consenting contact at a time. A Circle invitation alone never grants location access. Remote location sharing is unavailable until authenticated approval and revocation are connected.", 14f, margin = 9)
+        val status = innerCard().apply {
+            addText(this, "Sharing status", 19f, true)
+            val circleAuthorized = CircleConsentPolicy.currentBuildCanView()
+            addText(this, if (circleAuthorized) "Authenticated Circle grant active" else "Not connected · no contact location is being received or published", 14f, margin = 8)
+            addText(this, "In-App Virtual Location and Android Device-Wide Mock Location are separate modes. Both require explicit consent. The latter additionally requires Android Developer Options authorization.", 14f, margin = 10)
+            addView(topMargin(button("Request contact permission", true) {
+                if (!PremiumAccessPolicy.currentBuildCanUse(PremiumAccessPolicy.Feature.CIRCLE_REMOTE_SHARING)) {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Premium verification required")
+                        .setMessage("Circle invitations require an active subscription verified by our trusted service, followed by the contact’s authenticated consent. Neither is available in this build. No invitation was sent.")
+                        .setPositiveButton("OK", null).show()
+                    return@button
+                }
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Contact approval required")
+                    .setMessage("Authenticated Circle invitations and contact-approved live sharing are not connected in this version. No invitation was sent and no contact has been authorized.")
+                    .setPositiveButton("OK", null).show()
+            }, 12))
+            addView(topMargin(button("Stop / revoke my sharing", true) {
+                stopMock()
+                prefs.edit().remove("circle_selected_contact").apply()
+                Toast.makeText(this@MainActivity, "Stop requested for local simulation. No remote sharing was active; verify service cleanup status.", Toast.LENGTH_LONG).show()
+            }, 8))
+        }
+        c.addView(topMargin(status, 18))
+        val policy = innerCard().apply {
+            addText(this, "Required permission rules", 18f, true)
+            addText(this, "Contact selection must be authenticated, owner-approved, time-limited, and immediately revocable. Offline or stale authorization must fail closed. A Premium subscription never overrides the contact's consent.", 14f, margin = 8)
+        }
+        c.addView(topMargin(policy, 14))
+    }
+
+    private fun resolveZipArea(zip: String) {
+        if (!Geocoder.isPresent()) {
+            Toast.makeText(this, "ZIP lookup unavailable on this device", Toast.LENGTH_LONG).show()
+            return
+        }
+        Thread {
+            val results = try {
+                @Suppress("DEPRECATION")
+                Geocoder(this@MainActivity, Locale.US).getFromLocationName("$zip, USA", 8).orEmpty()
+            } catch (_: Exception) { emptyList() }
+            val matches = results.filter { item ->
+                item.countryCode.equals("US", ignoreCase = true) &&
+                    item.postalCode == zip &&
+                    ScenarioRules.parse(item.latitude.toString(), item.longitude.toString()) != null
+            }
+            Handler(Looper.getMainLooper()).post {
+                if (isFinishing || isDestroyed) return@post
+                if (matches.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "No matching verified ZIP area. Location unchanged.", Toast.LENGTH_LONG).show()
+                    return@post
+                }
+                val match = matches.first()
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Confirm approximate ZIP area")
+                    .setMessage("ZIP: $zip\\nArea: ${match.locality.orEmpty()}, ${match.adminArea.orEmpty()}\\n\\nApproximate geocoded area only, NOT a verified street address.\\nCoordinates: ${match.latitude}, ${match.longitude}")
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Use approximate area") { _, _ ->
+                        setPoint(match.latitude.toString(), match.longitude.toString())
+                    }.show()
+            }
+        }.start()
+    }
+
+    private fun resolveStreetAddress(query: String) {
+        if (!Geocoder.isPresent()) {
+            Toast.makeText(this, "Address geocoding is unavailable on this device", Toast.LENGTH_LONG).show()
+            return
+        }
+        // Geocoding may use a platform network service: never block the UI thread.
+        Thread {
+            val results = try {
+                @Suppress("DEPRECATION")
+                Geocoder(this@MainActivity, Locale.US).getFromLocationName(query, 5).orEmpty()
+            } catch (_: Exception) { emptyList() }
+            Handler(Looper.getMainLooper()).post {
+                if (isFinishing || isDestroyed) return@post
+                val candidates = results.filter {
+                    ScenarioRules.parse(it.latitude.toString(), it.longitude.toString()) != null
+                }
+                if (candidates.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "No verified address match. Location unchanged.", Toast.LENGTH_LONG).show()
+                    return@post
+                }
+                val labels = candidates.map { result ->
+                    val label = (0..result.maxAddressLineIndex).joinToString(", ") {
+                        result.getAddressLine(it).orEmpty()
+                    }.ifBlank { "Unnamed geocoded result" }
+                    "$label\n${result.latitude}, ${result.longitude}"
+                }.toTypedArray()
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Select and confirm a geocoded address")
+                    .setSingleChoiceItems(labels, -1) { dialog, selected ->
+                        dialog.dismiss()
+                        val result = candidates[selected]
+                        android.app.AlertDialog.Builder(this@MainActivity)
+                            .setTitle("Use this location?")
+                            .setMessage(labels[selected] + "\n\nThis uses the geocoder's result; confirm that it is correct.")
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("Use location") { _, _ ->
+                                setPoint(result.latitude.toString(), result.longitude.toString())
+                            }.show()
+                    }
+                    .setNegativeButton("Cancel", null).show()
+            }
+        }.start()
+    }
+
     private fun setPoint(lat:String,lon:String) {
         latitudeInput?.setText(lat);longitudeInput?.setText(lon); saveCoordinates()
         Toast.makeText(this,"Selected illustrative point",Toast.LENGTH_SHORT).show()
     }
     private fun saveCoordinates() {
-        val lat=latitudeInput?.text?.toString() ?: return; val lon=longitudeInput?.text?.toString() ?: return
-        prefs.edit().putString("lat",lat).putString("lon",lon).apply()
+        val lat = latitudeInput?.text?.toString()?.trim() ?: return
+        val lon = longitudeInput?.text?.toString()?.trim() ?: return
+        if (ScenarioRules.parse(lat, lon) == null) return
+        prefs.edit().putString("lat", lat).putString("lon", lon).apply()
     }
     private fun currentPoint():TestPoint? {
-        saveCoordinates()
-        return ScenarioRules.parse(prefs.getString("lat","")?:"",prefs.getString("lon","")?:"")
+        // Always validate the visible edits. Never fall back to a previously saved
+        // point when an invalid unsaved coordinate is on screen.
+        val latitude = latitudeInput?.text?.toString()?.trim()
+            ?: prefs.getString("lat", "")?.trim().orEmpty()
+        val longitude = longitudeInput?.text?.toString()?.trim()
+            ?: prefs.getString("lon", "")?.trim().orEmpty()
+        val point = ScenarioRules.parse(latitude, longitude) ?: return null
+        prefs.edit().putString("lat", latitude).putString("lon", longitude).apply()
+        return point
     }
     private fun previewPoint() {
         val point=currentPoint()
@@ -259,7 +467,20 @@ class MainActivity : Activity() {
             }
         }
     }
-    private fun stopMock(){stopService(Intent(this,MockLocationService::class.java));prefs.edit().putString(MockLocationService.PREF_STATUS,"Stop requested").apply();show(Page.HOME)}
+    private fun stopMock() {
+        // Deliver the explicit STOP action so the service can report real provider cleanup.
+        // stopService() alone bypasses ACTION_STOP and overwrote the final status with
+        // "Stop requested", hiding a successful stop or failed cleanup warning.
+        prefs.edit().putString(MockLocationService.PREF_STATUS, "Stop requested").apply()
+        try {
+            startService(Intent(this, MockLocationService::class.java).setAction(MockLocationService.ACTION_STOP))
+        } catch (ex: Exception) {
+            prefs.edit().putString(MockLocationService.PREF_STATUS,
+                "Stop command could not be delivered: ${ex.javaClass.simpleName}").apply()
+            Toast.makeText(this, "Could not confirm simulation stopped", Toast.LENGTH_LONG).show()
+        }
+        show(Page.HOME)
+    }
     private fun renderDisplay(c:LinearLayout) {
         addText(c,"40 approved paired themes",20f,true)
         addText(c,"Choose one appearance family. Light and dark colors are paired automatically. Choose system default, light, or dark.",14f,margin=7)
@@ -319,6 +540,105 @@ class MainActivity : Activity() {
         }
         c.addView(topMargin(button("← Back to HereShift",true){audio.stopPreview();show(Page.HOME)},18))
     }
+    private val uiTestTasks = listOf(
+        "Home and navigation", "Display themes and contrast", "Audio themes and None",
+        "Volume and sound preview", "Coordinate validation and preview",
+        "Privacy information", "Back navigation", "Settings persistence after restart"
+    )
+    private fun renderTesting(c: LinearLayout) {
+        addText(c,"DEVELOPMENT · Real-user UI testing",20f,true)
+        addText(c,"Explore the interface and record feedback. This screen does not start location simulation, send telemetry, or make purchases.",14f,margin=8)
+        addText(c,"Android ${Build.VERSION.RELEASE} · API ${Build.VERSION.SDK_INT}",13f,margin=8)
+        val shortcuts=innerCard().apply {
+            addText(this,"Explore screens under test",18f,true)
+            addText(this,"Return to Development Mode from Home. Checklist results stay saved.",13f,margin=6)
+            addView(topMargin(button("Test display settings"){show(Page.DISPLAY)},10))
+            addView(topMargin(button("Test audio settings"){show(Page.AUDIO)},8))
+            addView(topMargin(button("Test privacy screen"){show(Page.TRUST)},8))
+            addView(topMargin(button("Test location preview",true){show(Page.HOME)},8))
+        }
+        c.addView(topMargin(shortcuts,14))
+        val p=innerCard().apply {
+            addText(this,"Guided interface checklist",18f,true)
+            for ((index, task) in uiTestTasks.withIndex()) {
+                val key="ui_test_$index"
+                addText(this,"${index+1}. $task",15f,true,12)
+                val options=listOf("Not tested","Pass","Fail","Skip")
+                val spinner=Spinner(this@MainActivity)
+                spinner.adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,options)
+                spinner.setSelection(prefs.getInt(key,0).coerceIn(0,3))
+                spinner.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent:android.widget.AdapterView<*>?){}
+                    override fun onItemSelected(parent:android.widget.AdapterView<*>?,view:View?,position:Int,id:Long) {
+                        prefs.edit().putInt(key,position).apply()
+                    }
+                }
+                addView(topMargin(spinner,4))
+            }
+        }
+        c.addView(topMargin(p,14))
+        val feedback=innerCard().apply {
+            addText(this,"Tester feedback",18f,true)
+            addText(this,"Rate overall usability from 1 (difficult) to 5 (easy).",14f,margin=8)
+            val rating=RatingBar(this@MainActivity).apply {
+                numStars=5;stepSize=1f;rating=prefs.getFloat("ui_test_rating",0f)
+                setOnRatingBarChangeListener { _, value, _ -> prefs.edit().putFloat("ui_test_rating",value).apply() }
+            }
+            addView(topMargin(rating,8))
+            val notes=EditText(this@MainActivity).apply {
+                hint="Screen, steps to reproduce, expected result, actual result, or suggestion"
+                setText(prefs.getString("ui_test_notes",""))
+                addTextChangedListener(object:android.text.TextWatcher {
+                    override fun beforeTextChanged(text:CharSequence?,start:Int,count:Int,after:Int){}
+                    override fun onTextChanged(text:CharSequence?,start:Int,before:Int,count:Int){
+                        prefs.edit().putString("ui_test_notes",text?.toString() ?: "").apply()
+                    }
+                    override fun afterTextChanged(text:android.text.Editable?){}
+                })
+                minLines=4;maxLines=9
+                inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                setTextColor(shade(palette.onSurface))
+                setHintTextColor(shade(palette.onSurface))
+            }
+            addView(topMargin(notes,8))
+            addView(topMargin(button("Save feedback",true){
+                prefs.edit().putString("ui_test_notes",notes.text.toString()).apply()
+                Toast.makeText(this@MainActivity,"Feedback saved on this phone",Toast.LENGTH_SHORT).show()
+            },8))
+            addView(topMargin(button("Review and share test report"){
+                prefs.edit().putString("ui_test_notes",notes.text.toString()).apply()
+                val report=buildString {
+                    appendLine("HereShift UI development test report")
+                    appendLine("Android ${Build.VERSION.RELEASE} / API ${Build.VERSION.SDK_INT}")
+                    appendLine("Usability rating: ${prefs.getFloat("ui_test_rating",0f)}/5")
+                    val statuses=listOf("Not tested","Pass","Fail","Skip")
+                    uiTestTasks.forEachIndexed { i, task -> appendLine("${i+1}. $task: ${statuses[prefs.getInt("ui_test_$i",0).coerceIn(0,3)]}") }
+                    appendLine("Feedback: ${prefs.getString("ui_test_notes","")}")
+                }
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Share UI test report?")
+                    .setMessage("The report contains your checklist, rating, device version, and written feedback. It stays on this phone unless you choose Share.")
+                    .setNegativeButton("Cancel",null)
+                    .setPositiveButton("Share"){_,_->
+                        val intent=Intent(Intent.ACTION_SEND).apply { type="text/plain";putExtra(Intent.EXTRA_TEXT,report) }
+                        startActivity(Intent.createChooser(intent,"Share HereShift UI feedback"))
+                    }.show()
+            },8))
+            addView(topMargin(button("Delete local test feedback",true){
+                android.app.AlertDialog.Builder(this@MainActivity).setTitle("Delete test feedback?")
+                    .setMessage("Remove all saved UI checklist results, rating, and notes from this phone?")
+                    .setNegativeButton("Cancel",null).setPositiveButton("Delete"){_,_->
+                        val edit=prefs.edit()
+                        uiTestTasks.indices.forEach { edit.remove("ui_test_$it") }
+                        edit.remove("ui_test_rating").remove("ui_test_notes").apply()
+                        show(Page.TESTING)
+                    }.show()
+            },8))
+        }
+        c.addView(topMargin(feedback,16))
+        c.addView(topMargin(button("← Back to HereShift",true){show(Page.HOME)},16))
+    }
+
     private fun renderTrust(c:LinearLayout) {
         addText(c,"Our customer commitment",21f,true)
         val p=innerCard().apply{

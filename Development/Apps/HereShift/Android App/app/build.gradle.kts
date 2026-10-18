@@ -10,9 +10,15 @@ android {
         applicationId = "com.peostectica.hereshift"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.4.2-dev"
+        versionCode = 8
+        versionName = "0.5.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        getByName("release") {
+            isDebuggable = false
+            isMinifyEnabled = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -22,4 +28,7 @@ android {
     buildFeatures { buildConfig = true }
     // SoundPool.openFd requires sound clips to be stored uncompressed in the APK.
     androidResources { noCompress += "wav" }
+}
+dependencies {
+    testImplementation("junit:junit:4.13.2")
 }

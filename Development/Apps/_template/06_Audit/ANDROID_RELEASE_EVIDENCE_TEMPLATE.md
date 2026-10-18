@@ -1,0 +1,27 @@
+# Android release evidence record — copy into each app
+Created: 2026-10-17 UTC. Template only; no acceptance is implied.
+
+Application: [name]
+Package ID: [applicationId]
+Version name / code: [versionName / versionCode]
+Reviewed commit: [full SHA]
+Source objectives / forbidden / mandatory documents reviewed: [paths]
+Prior Devil's Advocate findings reviewed: [paths]
+Artifact APK: [verified link and SHA-256]
+Artifact AAB: [verified link and SHA-256]
+APK debuggable=false verified by: [tool, command, output]
+Signing identity / certificate SHA-256: [public fingerprint only; no secrets]
+Emulator test: [run URL, pass/fail, evidence]
+Physical device: [model, Android version, test results]
+Accessibility: [TalkBack, scaling, contrast, navigation]
+Security / privacy: [permissions, data safety, policy URL]
+Legal / store compliance: [review evidence]
+Independent DA report: [path and resolved findings]
+Auditor 1: [identity/evidence]
+Auditor 2: [identity/evidence]
+Auditor 3: [identity/evidence]
+Auditor 4: [identity/evidence]
+Auditor 5: [identity/evidence]
+Owner publication authorization: [record]
+Play track / release URL: [verified link]
+Decision: BLOCKED until all required evidence exists.

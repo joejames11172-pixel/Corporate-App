@@ -1,0 +1,116 @@
+name: HereShift signed release
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/hereshift-real-user-ui-testing']
+    paths:
+      - 'Development/Apps/HereShift/Android App/**'
+      - 'Development/Apps/_template/03_Audio_Settings/generate_audio.py'
+      - '.github/workflows/hereshift-android-release-candidate.yml'
+permissions:
+  contents: read
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify preinstalled Android SDK
+        run: |
+          test -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" || command -v sdkmanager
+      - name: Install SDK 36
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original sound/image generators
+        run: pip install numpy cairosvg
+      - name: Reproduce approved original sound cues and branded app icons
+        env:
+          PEO_AUDIO_OUT: ${{ github.workspace }}/.generated/audio
+        run: |
+          python 'Development/Apps/_template/03_Audio_Settings/generate_audio.py'
+          python 'Development/Apps/HereShift/Android App/build_icons.py'
+          python - <<'PYGEN'
+          from pathlib import Path
+          import shutil
+          p=Path('Development/Apps/HereShift/Android App/app/src/main/assets/sounds')
+          p.mkdir(parents=True,exist_ok=True)
+          source=Path('.generated/audio/sounds')
+          assert len(list(source.rglob('*.wav')))==240
+          for f in source.rglob('*.wav'):
+            dst=p/f.relative_to(source)
+            dst.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(f,dst)
+          PYGEN
+      - name: Verify generated WAV hashes
+        run: |
+          python - <<'PYVERIFY'
+          from pathlib import Path
+          import json,hashlib
+          app=Path('Development/Apps/HereShift/Android App/app/src/main/assets')
+          j=json.loads((app/'audio_themes_manifest.json').read_text())
+          soundcount=0
+          for theme in j['themes']:
+            for clip in theme['sounds']:
+              f=app/'sounds'/clip['filename']
+              assert f.is_file(), str(f)
+              assert hashlib.sha256(f.read_bytes()).hexdigest()==clip['sha256'], str(f)
+              soundcount+=1
+          assert soundcount==240
+          print('Verified',soundcount,'original audio clips')
+          PYVERIFY
+      - name: Enforce complete HereShift objectives before release
+        run: python 'Development/Apps/HereShift/Android App/release_objectives_gate.py'
+      - name: Require approved release signing credentials before compilation
+        env:
+          PEO_RELEASE_KEYSTORE_B64: ${{ secrets.HERESHIFT_RELEASE_KEYSTORE_B64 }}
+          PEO_RELEASE_STORE_PASSWORD: ${{ secrets.HERESHIFT_RELEASE_STORE_PASSWORD }}
+          PEO_RELEASE_KEY_ALIAS: ${{ secrets.HERESHIFT_RELEASE_KEY_ALIAS }}
+          PEO_RELEASE_KEY_PASSWORD: ${{ secrets.HERESHIFT_RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$PEO_RELEASE_KEYSTORE_B64" && test -n "$PEO_RELEASE_STORE_PASSWORD" && test -n "$PEO_RELEASE_KEY_ALIAS" && test -n "$PEO_RELEASE_KEY_PASSWORD" || { echo 'BLOCKED: approved production signing secrets missing'; exit 1; }
+      - name: Compile non-debuggable release APK and AAB
+        working-directory: Development/Apps/HereShift/Android App
+        run: gradle --no-daemon --stacktrace :app:assembleRelease :app:bundleRelease
+      - name: Sign and verify release APK and app bundle
+        env:
+          PEO_RELEASE_KEYSTORE_B64: ${{ secrets.HERESHIFT_RELEASE_KEYSTORE_B64 }}
+          PEO_RELEASE_STORE_PASSWORD: ${{ secrets.HERESHIFT_RELEASE_STORE_PASSWORD }}
+          PEO_RELEASE_KEY_ALIAS: ${{ secrets.HERESHIFT_RELEASE_KEY_ALIAS }}
+          PEO_RELEASE_KEY_PASSWORD: ${{ secrets.HERESHIFT_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          KEYS="$RUNNER_TEMP/hereshift-release.jks"
+          printf '%s' "$PEO_RELEASE_KEYSTORE_B64" | base64 -d > "$KEYS"
+          test -s "$KEYS"
+          APP='Development/Apps/HereShift/Android App/app/build/outputs'
+          APK="$APP/apk/release/app-release-unsigned.apk"
+          AAB="$APP/bundle/release/app-release.aab"
+          test -s "$APK" && test -s "$AAB"
+          TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          "$TOOLS/zipalign" -f -p 4 "$APK" "$RUNNER_TEMP/here-aligned.apk"
+          "$TOOLS/apksigner" sign --ks "$KEYS" --ks-key-alias "$PEO_RELEASE_KEY_ALIAS" --ks-pass env:PEO_RELEASE_STORE_PASSWORD --key-pass env:PEO_RELEASE_KEY_PASSWORD --out "$APP/apk/release/HereShift.apk" "$RUNNER_TEMP/here-aligned.apk"
+          "$TOOLS/apksigner" verify --verbose --print-certs "$APP/apk/release/HereShift.apk"
+          jarsigner -keystore "$KEYS" -storepass:env PEO_RELEASE_STORE_PASSWORD -keypass:env PEO_RELEASE_KEY_PASSWORD -signedjar "$APP/bundle/release/HereShift.aab" "$AAB" "$PEO_RELEASE_KEY_ALIAS"
+          jarsigner -verify -strict "$APP/bundle/release/HereShift.aab"
+          rm -f "$APK" "$AAB" "$KEYS"
+          sha256sum "$APP/apk/release/HereShift.apk" "$APP/bundle/release/HereShift.aab"
+      - name: Publish signed release artifacts only
+        uses: actions/upload-artifact@v4
+        with:
+          name: HereShift-signed-release
+          path: |
+            Development/Apps/HereShift/Android App/app/build/outputs/apk/release/HereShift.apk
+            Development/Apps/HereShift/Android App/app/build/outputs/bundle/release/HereShift.aab
+          retention-days: 14
+          if-no-files-found: error

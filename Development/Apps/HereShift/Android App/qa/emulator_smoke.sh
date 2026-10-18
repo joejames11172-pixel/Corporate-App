@@ -42,8 +42,14 @@ def tap(nodes,*phrases):
      return
  raise AssertionError('Cannot locate tappable target '+str(phrases))
 
-home=capture('home')
-assert any(match(x,'HereShift') for x in home),'App did not display HereShift landing page'
+home=[]
+for startup_attempt in range(8):
+ home=capture('home-'+str(startup_attempt))
+ if any(match(x,'HereShift') for x in home):
+  break
+ time.sleep(2)
+else:
+ raise AssertionError('App did not display HereShift landing page after startup retries')
 tap(home,'Display · 40 color themes','Display')
 display=capture('display')
 assert any(match(x,'40 approved paired themes') for x in display),'Display settings not opened'
@@ -140,3 +146,58 @@ run('shell','appops','set',app,'android:mock_location','deny')
 print('PASS private test service authorized and stopped from app UI, provider removal confirmed')
 PY_SERVICE
 adb logcat -d -t 4500 > "$QA_DIR/logcat.txt" || true
+
+# Verify the new real-user Development Mode is navigable and does not activate
+# mock location merely by opening the test interface.
+python3 - "$QA_DIR" "$APP" <<'PY_UI_TEST'
+import subprocess,sys,xml.etree.ElementTree as ET,re,time
+from pathlib import Path
+folder=Path(sys.argv[1]);app=sys.argv[2]
+def run(*args):
+ return subprocess.run(['adb',*args],capture_output=True,text=True,check=True).stdout
+run('shell','am','force-stop',app)
+run('shell','am','start','-n',app+'/.MainActivity')
+time.sleep(2)
+def nodes(label):
+ run('shell','uiautomator','dump','/sdcard/hs-window.xml')
+ raw=run('exec-out','cat','/sdcard/hs-window.xml')
+ (folder/(label+'.xml')).write_text(raw)
+ return list(ET.fromstring(raw).iter())
+def click(phrase):
+ for attempt in range(9):
+  for n in nodes('development-find-'+str(attempt)):
+   if phrase.casefold() in (n.get('text','')+' '+n.get('content-desc','')).casefold():
+    m=re.search(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',n.get('bounds',''))
+    if m:
+     x1,y1,x2,y2=map(int,m.groups())
+     run('shell','input','tap',str((x1+x2)//2),str((y1+y2)//2))
+     time.sleep(1)
+     return
+  run('shell','input','swipe','170','570','170','230','400')
+ raise AssertionError('Missing UI element '+phrase)
+click('Development mode')
+page=nodes('development-mode')
+assert any('Real-user UI testing' in n.get('text','') for n in page),'Development Mode heading missing'
+assert any('Guided interface checklist' in n.get('text','') for n in page),'UI checklist missing'
+first_task_found=False
+for attempt in range(8):
+ page=nodes('development-checklist-'+str(attempt))
+ if any('Home and navigation' in n.get('text','') for n in page):
+  first_task_found=True
+  break
+ run('shell','input','swipe','170','600','170','230','380')
+ time.sleep(.4)
+assert first_task_found,'First test task missing after scrolling'
+feedback_found=False
+for attempt in range(10):
+ page=nodes('development-feedback-'+str(attempt))
+ if any('Tester feedback' in n.get('text','') for n in page):
+  feedback_found=True
+  break
+ run('shell','input','swipe','170','600','170','210','380')
+ time.sleep(.4)
+assert feedback_found,'Feedback section missing after scrolling'
+status=run('exec-out','run-as',app,'cat','shared_prefs/hereShift.xml')
+assert 'ACTIVE' not in status,'Opening UI test mode unexpectedly activated location service'
+print('PASS Development Mode opens with checklist and feedback without starting mock service')
+PY_UI_TEST

@@ -1,0 +1,38 @@
+{
+  "iteration": "2026-10-18-corrective",
+  "attempt_close": false,
+  "attempt_promote": false,
+  "defects": [
+    {
+      "id": "HS-CIRCLE-001",
+      "state": "OPEN",
+      "description": "Authenticated Circle invitation, consent, revocation and offline fail-closed"
+    },
+    {
+      "id": "HS-BILLING-002",
+      "state": "EXTERNAL_BLOCKED",
+      "description": "POST-PLAY-STORE-APPROVAL ONLY: verify Google Play Billing purchase lifecycle and trusted Premium entitlement. Not a pre-approval APK delivery or Play submission gate. Premium remains unavailable until verified.",
+      "owner": "Peostectica Play Console account owner",
+      "required_owner_action": "Obtain Google Play approval before initiating Premium billing verification",
+      "dependency_evidence": "Founder explicitly directed on 2026-10-18 that Premium billing verification occurs only after Play Store approval"
+    },
+    {
+      "id": "HS-SIGNING-003",
+      "state": "EXTERNAL_BLOCKED",
+      "description": "Approved release signing identity",
+      "owner": "Peostectica release-key custodian",
+      "required_owner_action": "Provide approved signing identity through authorized secure CI secrets",
+      "dependency_evidence": "No verified approved signing identity available in this execution"
+    },
+    {
+      "id": "HS-DEVICE-004",
+      "state": "OPEN",
+      "description": "Signed APK installation, UI screenshot comparison and lifecycle verification"
+    },
+    {
+      "id": "HS-AUDIT-005",
+      "state": "OPEN",
+      "description": "Five independent auditor acceptances and CEO approval"
+    }
+  ]
+}

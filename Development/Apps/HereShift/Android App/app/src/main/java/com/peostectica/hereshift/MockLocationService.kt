@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.location.Location
 import android.location.LocationManager
+import android.location.provider.ProviderProperties
 import android.os.*
 import android.provider.Settings
 
@@ -28,6 +29,8 @@ class MockLocationService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val manager by lazy { getSystemService(LOCATION_SERVICE) as LocationManager }
     private var active = false
+    // Never remove a provider that this service did not successfully register.
+    private var ownsTestProvider = false
     private var lat = 0.0
     private var lon = 0.0
     private val heartbeat = object : Runnable {
@@ -71,7 +74,13 @@ class MockLocationService : Service() {
             .build()
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action == ACTION_STOP) {
+            val removed = stopProvider()
+            setStatus(if (removed) "Stopped. Android test provider removed." else
+                "Stop requested; provider cleanup could not be confirmed. Review Android Developer Options.")
+            stopSelf()
+            return START_NOT_STICKY
+        }
         if (intent?.action != ACTION_START) { stopSelf(); return START_NOT_STICKY }
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             setStatus("Permission missing: precise location required by Android foreground-service policy")
@@ -89,10 +98,17 @@ class MockLocationService : Service() {
             } else {
                 startForeground(NOTE_ID, notification("Stationary test point · Stop from notification"))
             }
-            stopProvider()
+            // A failed cleanup means we still own a provider; never register a second one.
+            if (!stopProvider()) {
+                setStatus("Previous test provider cleanup failed. Simulation not restarted.")
+                stopSelf()
+                return START_NOT_STICKY
+            }
             lat = newLat; lon = newLon
             manager.addTestProvider(LocationManager.GPS_PROVIDER,
-                false, true, false, false, false, true, true, 1, 1)
+                false, true, false, false, false, true, true,
+                ProviderProperties.POWER_USAGE_LOW, ProviderProperties.ACCURACY_FINE)
+            ownsTestProvider = true
             manager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
             active = true
             setStatus("ACTIVE · Simulated GPS test point ($lat, $lon). This is detectable as mock data.")
@@ -109,15 +125,18 @@ class MockLocationService : Service() {
     private fun stopProvider(): Boolean {
         active = false
         handler.removeCallbacks(heartbeat)
+        if (!ownsTestProvider) return true
         return try {
             manager.removeTestProvider(LocationManager.GPS_PROVIDER)
+            ownsTestProvider = false
             true
         } catch (_: Exception) { false }
     }
     override fun onDestroy() {
         val wasActive = active
+        val hadOwnedProvider = ownsTestProvider
         val removed = stopProvider()
-        if (wasActive) setStatus(if (removed) "Stopped. Android test provider removed."
+        if (wasActive || hadOwnedProvider || !removed) setStatus(if (removed) "Stopped. Android test provider removed."
             else "Stopped; provider cleanup could not be confirmed. Review Android Developer Options.")
         super.onDestroy()
     }

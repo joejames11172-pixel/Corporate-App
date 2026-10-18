@@ -1,0 +1,82 @@
+name: HereShift DAVG corrective gate
+on:
+  push:
+    branches:
+      - feature/hereshift-real-user-ui-testing
+    paths:
+      - 'Development/Apps/HereShift/Android App/**'
+      - '.github/workflows/hereshift-davg-gate.yml'
+  pull_request:
+    paths:
+      - 'Development/Apps/HereShift/Android App/**'
+      - '.github/workflows/hereshift-davg-gate.yml'
+permissions:
+  contents: read
+jobs:
+  davg-correction-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Development/Apps/HereShift/Android App
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all HereShift QA regression tests
+        run: |
+          python3 -m unittest discover -s qa -p 'test_*.py' -v
+      - name: Require structured corrective iteration before release promotion
+        run: |
+          python3 qa/davg_transition_gate.py qa/davg_current_iteration.json
+  android-debug-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Development/Apps/HereShift/Android App
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Use preinstalled Android SDK and accept licenses
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -d "$ANDROID_HOME"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Compile Android debug APK (not a production release)
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Run Android lint and JVM unit tests
+        run: gradle --no-daemon :app:lintDebug :app:testDebugUnitTest
+      - name: Inspect compiled APK identity and signing
+        run: |
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | head -n 5
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          sha256sum "$APK"
+      - name: Compile release variant (unsigned until approved key is provisioned)
+        run: gradle --no-daemon :app:assembleRelease
+      - name: Verify release variant is not debuggable and never promote unsigned builds
+        run: |
+          APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | head -n 5
+          if "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify "$APK" >/dev/null 2>&1; then
+            echo "::error::Unexpected signature on unsigned release variant; review signing configuration"
+            exit 1
+          fi
+          sha256sum "$APK"
+      - name: Retain release variant for authorized production signing only
+        uses: actions/upload-artifact@v4
+        with:
+          name: hereshift-release-unsigned-NOT-FOR-INSTALLATION
+          path: Development/Apps/HereShift/Android App/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+      - name: Retain internal unsigned-production-ineligible debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hereshift-internal-debug-apk
+          path: Development/Apps/HereShift/Android App/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
