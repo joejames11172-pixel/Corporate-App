@@ -11,6 +11,6 @@ class CircleRevokeTests(unittest.TestCase):
         self.assertIn("verify service cleanup status",block)
         self.assertNotIn("Local session stopped;",block)
     def test_no_fake_remote_revocation(self):
-        self.assertIn("no remote sharing was active",SOURCE)
+        self.assertIn("No remote sharing was active",SOURCE)
 
 if __name__=="__main__":unittest.main()
