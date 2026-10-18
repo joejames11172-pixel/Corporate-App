@@ -459,7 +459,20 @@ class MainActivity : Activity() {
             }
         }
     }
-    private fun stopMock(){stopService(Intent(this,MockLocationService::class.java));prefs.edit().putString(MockLocationService.PREF_STATUS,"Stop requested").apply();show(Page.HOME)}
+    private fun stopMock() {
+        // Deliver the explicit STOP action so the service can report real provider cleanup.
+        // stopService() alone bypasses ACTION_STOP and overwrote the final status with
+        // "Stop requested", hiding a successful stop or failed cleanup warning.
+        prefs.edit().putString(MockLocationService.PREF_STATUS, "Stop requested").apply()
+        try {
+            startService(Intent(this, MockLocationService::class.java).setAction(MockLocationService.ACTION_STOP))
+        } catch (ex: Exception) {
+            prefs.edit().putString(MockLocationService.PREF_STATUS,
+                "Stop command could not be delivered: ${ex.javaClass.simpleName}").apply()
+            Toast.makeText(this, "Could not confirm simulation stopped", Toast.LENGTH_LONG).show()
+        }
+        show(Page.HOME)
+    }
     private fun renderDisplay(c:LinearLayout) {
         addText(c,"40 approved paired themes",20f,true)
         addText(c,"Choose one appearance family. Light and dark colors are paired automatically. Choose system default, light, or dark.",14f,margin=7)
