@@ -89,5 +89,35 @@ fun main() {
  test("Revoke broad scope removes broad authorization") {!separate.fullDeviceApproved("Cameron","Morgan")}
  separate.ownerRevokeRequester("Morgan","Cameron")
  test("Revoke requester still stops independently authorized app") {!separate.sessionAllowed(individualId)}
+ var broadPaid=false
+ val broad=TapVoyagePolicy({broadPaid})
+ broad.invite("Drew","Alexis");broad.ownerAccept("Alexis","Drew")
+ broad.ownerApproveInventory("Alexis","Drew")
+ broad.requestFullDevice("Drew","Alexis")
+ broad.ownerApproveFullDevice("Alexis","Drew")
+ test("Owner broad approval does not bypass Free gate") {
+     broad.fullDeviceApproved("Drew","Alexis") && !broad.fullDeviceScopeEligible("Drew","Alexis")
+ }
+ broadPaid=true
+ test("Premium + owner broad approval establishes scope eligibility") {
+     broad.fullDeviceScopeEligible("Drew","Alexis")
+ }
+ broadPaid=false
+ test("Premium expiry disables broad scope immediately") {
+     !broad.fullDeviceScopeEligible("Drew","Alexis")
+ }
+ broad.ownerRevokeFullDevice("Alexis","Drew")
+ broadPaid=true
+ test("Owner revocation prevents broad scope even for Premium") {
+     !broad.fullDeviceScopeEligible("Drew","Alexis")
+ }
+ val broadUnavailable=TapVoyagePolicy({ throw IllegalStateException("entitlement verifier offline") })
+ broadUnavailable.invite("Drew","Alexis");broadUnavailable.ownerAccept("Alexis","Drew")
+ broadUnavailable.ownerApproveInventory("Alexis","Drew")
+ broadUnavailable.requestFullDevice("Drew","Alexis")
+ broadUnavailable.ownerApproveFullDevice("Alexis","Drew")
+ test("Premium verifier outage blocks broad scope") {
+     !broadUnavailable.fullDeviceScopeEligible("Drew","Alexis")
+ }
  println("SUCCESS $count Kotlin domain tests")
 }
