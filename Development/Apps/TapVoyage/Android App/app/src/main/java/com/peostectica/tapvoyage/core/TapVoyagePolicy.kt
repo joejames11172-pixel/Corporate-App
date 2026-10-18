@@ -155,6 +155,24 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
         sessions[id]=Session(id,requester,owner,null,SessionScope.FULL_DEVICE,clock()+ttl)
         return id
     }
+    /** Decline only a pending request, without revoking independent grants. */
+    fun ownerDeclineSession(owner:String,id:Long) {
+        val s=sessions[id]
+        check(s!=null && s.owner==owner && s.state=="PENDING") { "No owner-controlled pending session to decline" }
+        s.state="STOPPED"
+    }
+    /** Stop this one pending/active request as its verified device owner. */
+    fun ownerStopSession(owner:String,id:Long) {
+        val s=sessions[id]
+        check(s!=null && s.owner==owner && s.state!="STOPPED") { "No owner-controlled live or pending session" }
+        s.state="STOPPED"
+    }
+    /** The requester can withdraw a pending request or end their own active session. */
+    fun requesterStopSession(requester:String,id:Long) {
+        val s=sessions[id]
+        check(s!=null && s.requester==requester && s.state!="STOPPED") { "No requester-controlled live or pending session" }
+        s.state="STOPPED"
+    }
     fun ownerAcceptSession(owner:String,id:Long) {
         val s=sessions[id]
         check(s!=null && s.owner==owner && s.state=="PENDING") {"No owner-controlled pending session"}
