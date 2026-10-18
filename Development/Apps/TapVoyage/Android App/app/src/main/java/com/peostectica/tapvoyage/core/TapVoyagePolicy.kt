@@ -91,7 +91,11 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     fun ownerRevokeFullDevice(owner:String,requester:String) {
         val c=link(requester,owner)
         c.fullAccessRequested=false;c.fullAccessApproved=false
-        invalidate(requester,owner,true)
+        // Broad access and individually approved app grants are separate scopes.
+        // No session in this policy is derived from Full Device Access: requestSession
+        // requires an individual Grant. Do not terminate independent per-app sessions.
+        // A future broad-scope session type MUST identify its grant source and be
+        // terminated here when this owner revokes full-device access.
     }
     fun ownerRevokeRequester(owner:String,requester:String) {
         val c=link(requester,owner)
