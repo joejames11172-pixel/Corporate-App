@@ -221,5 +221,61 @@ fun main() {
  test("Unknown session ID fails closed for real requester") {
      !bound.sessionAllowedForRequester("ScopeRequester",Long.MAX_VALUE)
  }
+ val stop=TapVoyagePolicy({true})
+ stop.invite("Viewer","PhoneOwner");stop.ownerAccept("PhoneOwner","Viewer")
+ stop.ownerApproveInventory("PhoneOwner","Viewer")
+ for (app in listOf("Calendar","Camera")) {
+     stop.requestApp("Viewer","PhoneOwner",app);stop.ownerApproveApp("PhoneOwner","Viewer",app)
+ }
+ val rejected=stop.requestSession("Viewer","PhoneOwner","Calendar")
+ val independent=stop.requestSession("Viewer","PhoneOwner","Camera")
+ stop.ownerAcceptSession("PhoneOwner",independent)
+ stop.ownerDeclineSession("PhoneOwner",rejected)
+ test("Owner declines pending session without revoking another active session") {
+     !stop.sessionAllowed(rejected) && stop.sessionAllowed(independent)
+ }
+ test("Declined session cannot be accepted after decline") {
+     denied { stop.ownerAcceptSession("PhoneOwner",rejected) }
+ }
+ val outsiderPending=stop.requestSession("Viewer","PhoneOwner","Calendar")
+ test("Unrelated owner cannot decline another owner's request") {
+     denied { stop.ownerDeclineSession("Outsider",outsiderPending) }
+ }
+ test("Unrelated requester cannot cancel someone else's session") {
+     denied { stop.requesterStopSession("Outsider",independent) }
+ }
+ stop.requesterStopSession("Viewer",outsiderPending)
+ test("Requester withdrawal of pending session is terminal") {
+     denied { stop.ownerAcceptSession("PhoneOwner",outsiderPending) }
+ }
+ stop.ownerStopSession("PhoneOwner",independent)
+ test("Owner stop immediately terminates an active individually approved session") {
+     !stop.sessionAllowedForRequester("Viewer",independent)
+ }
+ test("Stopped app session cannot be silently restarted") {
+     denied { stop.ownerAcceptSession("PhoneOwner",independent) }
+ }
+ val requesterActive=stop.requestSession("Viewer","PhoneOwner","Camera")
+ stop.ownerAcceptSession("PhoneOwner",requesterActive)
+ stop.requesterStopSession("Viewer",requesterActive)
+ test("Requester may end an active session without affecting owner grants") {
+     !stop.sessionAllowed(requesterActive) && stop.listApps("Viewer","PhoneOwner").size==2
+ }
+ stop.requestFullDevice("Viewer","PhoneOwner")
+ stop.ownerApproveFullDevice("PhoneOwner","Viewer")
+ val broadDeclined=stop.requestFullDeviceSession("Viewer","PhoneOwner")
+ stop.ownerDeclineSession("PhoneOwner",broadDeclined)
+ test("Full-device session may be declined despite broad owner approval") {
+     denied { stop.ownerAcceptSession("PhoneOwner",broadDeclined) }
+ }
+ val broadRunning=stop.requestFullDeviceSession("Viewer","PhoneOwner")
+ stop.ownerAcceptSession("PhoneOwner",broadRunning)
+ stop.ownerStopSession("PhoneOwner",broadRunning)
+ test("Owner may stop a single broad session independently of broad grant") {
+     !stop.sessionAllowed(broadRunning) && stop.fullDeviceScopeEligible("Viewer","PhoneOwner")
+ }
+ test("Other actors cannot stop an already-stopped session") {
+     denied { stop.ownerStopSession("Outsider",broadRunning) }
+ }
  println("SUCCESS $count Kotlin domain tests")
 }
