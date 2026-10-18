@@ -134,7 +134,7 @@ class MockLocationService : Service() {
         val wasActive = active
         val hadOwnedProvider = ownsTestProvider
         val removed = stopProvider()
-        if (wasActive || hadOwnedProvider) setStatus(if (removed) "Stopped. Android test provider removed."
+        if (wasActive || hadOwnedProvider || !removed) setStatus(if (removed) "Stopped. Android test provider removed."
             else "Stopped; provider cleanup could not be confirmed. Review Android Developer Options.")
         super.onDestroy()
     }
