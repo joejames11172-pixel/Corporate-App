@@ -124,6 +124,31 @@ class MainActivity : Activity() {
         when(next) { Page.HOME->renderHome(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content);Page.TESTING->renderTesting(content) }
         scroll!!.addView(content)
         root.addView(scroll,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1f))
+        // Persistent native navigation: visible on every screen, independent of scroll position.
+        val navigationBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(dp(7),dp(8),dp(7),dp(8))
+            background = rounded(shade(palette.surface), 16, shade(palette.primary))
+        }
+        listOf(
+            Triple("Home", Page.HOME, "Home"),
+            Triple("Display", Page.DISPLAY, "Display"),
+            Triple("Audio", Page.AUDIO, "Audio"),
+            Triple("Privacy", Page.TRUST, "Privacy")
+        ).forEach { (_, destination, caption) ->
+            val navButton = button(caption, destination != next) {
+                if (destination != page) {
+                    if (page == Page.HOME) saveCoordinates()
+                    show(destination)
+                }
+            }
+            navigationBar.addView(navButton, LinearLayout.LayoutParams(0, dp(52), 1f).apply {
+                marginStart = dp(3); marginEnd = dp(3)
+            })
+        }
+        root.addView(navigationBar, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+
         setContentView(root)
         // Match system bar icons to the currently selected light/dark palette. Android 15+
         // enforces edge-to-edge, so setting statusBarColor alone is not sufficient.
@@ -149,19 +174,11 @@ class MainActivity : Activity() {
         Appearance.FOLLOW_DEVICE->systemDark; Appearance.DARK->true;Appearance.LIGHT->false
     }
     private fun renderHome(c: LinearLayout) {
-        addText(c,"Choose where to simulate your test location.",20f,true)
+        addText(c,"Choose your virtual location",24f,true)
         addText(c,"Your chosen point is synthetic or manually entered. The app never reads your real GPS coordinates, records routes, or sends data to a server.",14f,margin=8)
-        val navigation=innerCard().apply {
-            addText(this,"Settings",18f,true)
-            addView(topMargin(button("Display · 40 color themes") {saveCoordinates();show(Page.DISPLAY)},12))
-            addView(topMargin(button("Audio · 20 sound themes") {saveCoordinates();show(Page.AUDIO)},8))
-            addView(topMargin(button("Privacy and responsible use",true) {saveCoordinates();show(Page.TRUST)},8))
-            addView(topMargin(button("Development mode · UI testing",true) {saveCoordinates();show(Page.TESTING)},8))
-        }
-        c.addView(topMargin(navigation,18))
         val editor=innerCard().apply {
-            addText(this,"1 · Stationary test location",18f,true)
-            addText(this,"Enter latitude and longitude, or choose an illustrative location below.",14f,margin=7)
+            addText(this,"Enter your coordinates",20f,true)
+            addText(this,"Type any valid latitude and longitude. Example cities are optional shortcuts.",14f,margin=7)
             latitudeInput=field("Latitude",prefs.getString("lat","41.8781") ?: "41.8781")
             longitudeInput=field("Longitude",prefs.getString("lon","-87.6298") ?: "-87.6298")
             addView(topMargin(latitudeInput!!,12));addView(topMargin(longitudeInput!!,8))
@@ -171,6 +188,14 @@ class MainActivity : Activity() {
             addView(topMargin(button("Preview my selected point",false){previewPoint()},12))
         }
         c.addView(topMargin(editor,16))
+        val navigation=innerCard().apply {
+            addText(this,"Settings",18f,true)
+            addView(topMargin(button("Display · 40 color themes") {saveCoordinates();show(Page.DISPLAY)},12))
+            addView(topMargin(button("Audio · 20 sound themes") {saveCoordinates();show(Page.AUDIO)},8))
+            addView(topMargin(button("Privacy and responsible use",true) {saveCoordinates();show(Page.TRUST)},8))
+            addView(topMargin(button("Development mode · UI testing",true) {saveCoordinates();show(Page.TESTING)},8))
+        }
+        c.addView(topMargin(navigation,18))
         val physical=innerCard().apply {
             addText(this,"2 · Android developer test mode",18f,true)
             addText(this,"For testing apps you own or are authorized to test, Android can provide a MOCK location. Other applications can detect that it is simulated. The Android service displays an active notification with Stop.",14f,margin=7)
