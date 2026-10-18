@@ -21,6 +21,15 @@ class ProviderOwnershipTests(unittest.TestCase):
         block = SOURCE[start:register]
         self.assertIn("stopSelf()", block)
         self.assertIn("return START_NOT_STICKY", block)
+    def test_stop_action_reports_cleanup_result(self):
+        block = SOURCE[SOURCE.index("if (intent?.action == ACTION_STOP)"):SOURCE.index("if (intent?.action != ACTION_START)")]
+        self.assertIn("val removed = stopProvider()", block)
+        self.assertIn("provider cleanup could not be confirmed", block)
+        self.assertIn("stopSelf()", block)
+    def test_destroy_preserves_warning_for_owned_provider(self):
+        block = SOURCE[SOURCE.index("override fun onDestroy()"):]
+        self.assertIn("val hadOwnedProvider = ownsTestProvider", block)
+        self.assertIn("wasActive || hadOwnedProvider", block)
     def test_cleanup_retains_ownership_when_removal_throws(self):
         block = SOURCE[SOURCE.index("private fun stopProvider()"):SOURCE.index("override fun onDestroy()")]
         self.assertLess(block.index("manager.removeTestProvider("), block.index("ownsTestProvider = false"))
