@@ -65,5 +65,14 @@ fun main() {
  }
  equalNames.unhide("contact-id-101")
  test("Unhide restores selected local contact") { equalNames.visible("contact-id-101") }
+ val local = HiddenContacts(setOf("local-id-1", ""))
+ test("Restored hidden IDs exclude blanks") {local.ids()==setOf("local-id-1")}
+ test("Restored hidden contact remains hidden") {!local.visible("local-id-1")}
+ local.hide("local-id-2")
+ val snapshot=local.ids()
+ test("Snapshot contains only local IDs") {snapshot==setOf("local-id-1","local-id-2")}
+ local.unhide("local-id-1")
+ test("Unhide updates persisted snapshot") {local.ids()==setOf("local-id-2")}
+ test("Visibility state leaves owner authorization untouched") {p.listApps("Alice","Bob").isEmpty()}
  println("SUCCESS $count Kotlin domain tests")
 }
