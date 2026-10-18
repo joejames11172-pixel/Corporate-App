@@ -261,8 +261,16 @@ class MainActivity : Activity() {
         }
         c.addView(topMargin(physical,16))
         val premium=innerCard().apply {
-            addText(this,"Premium · planned, not billed",17f,true)
-            addText(this,"Earlier objectives discuss $1.99/week and a possible TapVoyage discount. No Play Billing integration or charges are active in this build.",13f,margin=6)
+            addText(this,"Premium status",19f,true)
+            val indicator = addText(this,"✕  Premium inactive · Free",17f,true,margin=8)
+            indicator.setTextColor(Color.rgb(190, 48, 48))
+            addText(this,"Premium requires a verified Google Play subscription. No subscription is active or billed in this build. Free mode cannot access Premium-only Circle sharing.",13f,margin=7)
+            addView(topMargin(button("Get Premium · availability",true) {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Premium is not available yet")
+                    .setMessage("Google Play Billing and verified subscription activation are not connected. This button cannot purchase Premium or grant access. No payment will be taken.")
+                    .setPositiveButton("OK",null).show()
+            },10))
         }
         c.addView(topMargin(premium,16))
     }
