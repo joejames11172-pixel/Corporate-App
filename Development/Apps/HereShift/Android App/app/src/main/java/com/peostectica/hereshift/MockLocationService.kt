@@ -73,7 +73,13 @@ class MockLocationService : Service() {
             .build()
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action == ACTION_STOP) {
+            val removed = stopProvider()
+            setStatus(if (removed) "Stopped. Android test provider removed." else
+                "Stop requested; provider cleanup could not be confirmed. Review Android Developer Options.")
+            stopSelf()
+            return START_NOT_STICKY
+        }
         if (intent?.action != ACTION_START) { stopSelf(); return START_NOT_STICKY }
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             setStatus("Permission missing: precise location required by Android foreground-service policy")
@@ -126,8 +132,9 @@ class MockLocationService : Service() {
     }
     override fun onDestroy() {
         val wasActive = active
+        val hadOwnedProvider = ownsTestProvider
         val removed = stopProvider()
-        if (wasActive) setStatus(if (removed) "Stopped. Android test provider removed."
+        if (wasActive || hadOwnedProvider) setStatus(if (removed) "Stopped. Android test provider removed."
             else "Stopped; provider cleanup could not be confirmed. Review Android Developer Options.")
         super.onDestroy()
     }
