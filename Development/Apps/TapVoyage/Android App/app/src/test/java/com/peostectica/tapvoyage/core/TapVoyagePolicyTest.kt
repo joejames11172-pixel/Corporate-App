@@ -74,5 +74,20 @@ fun main() {
  local.unhide("local-id-1")
  test("Unhide updates persisted snapshot") {local.ids()==setOf("local-id-2")}
  test("Visibility state leaves owner authorization untouched") {p.listApps("Alice","Bob").isEmpty()}
+ val separate=TapVoyagePolicy()
+ separate.invite("Cameron","Morgan")
+ separate.ownerAccept("Morgan","Cameron")
+ separate.ownerApproveInventory("Morgan","Cameron")
+ separate.requestApp("Cameron","Morgan","PhotoViewer")
+ separate.ownerApproveApp("Morgan","Cameron","PhotoViewer")
+ val individualId=separate.requestSession("Cameron","Morgan","PhotoViewer")
+ separate.ownerAcceptSession("Morgan",individualId)
+ separate.requestFullDevice("Cameron","Morgan")
+ separate.ownerApproveFullDevice("Morgan","Cameron")
+ separate.ownerRevokeFullDevice("Morgan","Cameron")
+ test("Revoke broad scope preserves independent per-app session") {separate.sessionAllowed(individualId)}
+ test("Revoke broad scope removes broad authorization") {!separate.fullDeviceApproved("Cameron","Morgan")}
+ separate.ownerRevokeRequester("Morgan","Cameron")
+ test("Revoke requester still stops independently authorized app") {!separate.sessionAllowed(individualId)}
  println("SUCCESS $count Kotlin domain tests")
 }
