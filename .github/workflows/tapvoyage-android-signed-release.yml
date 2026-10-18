@@ -55,6 +55,8 @@ jobs:
       - name: Kotlin tests and signed non-debuggable release ONLY
         working-directory: Development/Apps/TapVoyage/Android App
         run: gradle --no-daemon :app:testReleaseUnitTest :app:assembleRelease :app:bundleRelease
+      - name: Verify all 240 approved audio assets inside release APK
+        run: python3 'Development/Apps/TapVoyage/Android App/qa/verify_packaged_audio.py' 'Development/Apps/TapVoyage/Android App/app/build/outputs/apk/release/app-release.apk'
       - name: Verify production APK and AAB signatures
         env:
           APPROVED_CERT: \${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
