@@ -242,6 +242,49 @@ class CircleBillingTests(unittest.TestCase):
         with self.assertRaises(AuthorizationError):
             self.api.host_decline_session('bob',sid)
 
+    def test_pending_session_expires_before_owner_accept(self):
+        now=[10000]
+        self.api=TapVoyageMockBackend(self.play,clock_ms=lambda:now[0])
+        self.api.invite('alice','bob');self.api.host_accept_circle('bob','alice')
+        self.authorize('A')
+        sid=self.api.request_session('alice','bob','A',ttl_ms=100)
+        now[0]+=100
+        with self.assertRaises(AuthorizationError):
+            self.api.host_accept_session('bob',sid)
+        self.assertEqual('terminated',self.api.sessions[sid]['status'])
+
+    def test_active_session_expires_without_permission_resurrection(self):
+        now=[10000]
+        self.api=TapVoyageMockBackend(self.play,clock_ms=lambda:now[0])
+        self.api.invite('alice','bob');self.api.host_accept_circle('bob','alice')
+        self.authorize('A')
+        sid=self.api.request_session('alice','bob','A',ttl_ms=100)
+        self.api.host_accept_session('bob',sid)
+        self.assertTrue(self.api.session_is_allowed(sid))
+        now[0]+=101
+        self.assertFalse(self.api.session_is_allowed(sid))
+        now[0]-=101
+        self.assertFalse(self.api.session_is_allowed(sid))
+
+    def test_invalid_or_overlong_session_ttl_rejected(self):
+        self.authorize('A')
+        for invalid in (0,-1,3600001,True,False,1.2,'100'):
+            with self.assertRaises(AuthorizationError):
+                self.api.request_session('alice','bob','A',ttl_ms=invalid)
+
+    def test_expired_session_does_not_terminate_separate_live_session(self):
+        now=[10000]
+        self.api=TapVoyageMockBackend(self.play,clock_ms=lambda:now[0])
+        self.api.invite('alice','bob');self.api.host_accept_circle('bob','alice')
+        self.authorize('A')
+        first=self.api.request_session('alice','bob','A',ttl_ms=10)
+        other=self.api.request_session('alice','bob','A',ttl_ms=1000)
+        self.api.host_accept_session('bob',first)
+        self.api.host_accept_session('bob',other)
+        now[0]+=11
+        self.assertFalse(self.api.session_is_allowed(first))
+        self.assertTrue(self.api.session_is_allowed(other))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
