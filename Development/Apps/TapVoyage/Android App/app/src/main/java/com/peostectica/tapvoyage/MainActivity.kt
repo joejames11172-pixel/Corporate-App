@@ -111,7 +111,24 @@ class MainActivity : Activity() {
         add(c,text(title,20f,true),0);add(c,text(subtitle,14f,false,true),7);body(c)
         add(parent,c,13)
     }
-    override fun onCreate(savedInstanceState:Bundle?) {super.onCreate(savedInstanceState); render()}
+    override fun onCreate(savedInstanceState:Bundle?) {
+        super.onCreate(savedInstanceState)
+        // UI presentation state only: never restore prior remote grants or sessions.
+        savedInstanceState?.let { saved ->
+            page=Page.values().firstOrNull { it.name==saved.getString("page_name") } ?: Page.CIRCLE
+            selectedContactId=saved.getString("local_contact_id")
+            selectedContact=saved.getString("local_contact_label")
+            showHidden=saved.getBoolean("show_hidden",false)
+        }
+        render()
+    }
+    override fun onSaveInstanceState(outState:Bundle) {
+        outState.putString("page_name",page.name)
+        outState.putString("local_contact_id",selectedContactId)
+        outState.putString("local_contact_label",selectedContact)
+        outState.putBoolean("show_hidden",showHidden)
+        super.onSaveInstanceState(outState)
+    }
     private fun render() {
         stopAudioPreview()
         val root=vertical().apply {setBackgroundColor(bg)}
