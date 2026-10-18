@@ -28,6 +28,7 @@ class SystemInsetTests(unittest.TestCase):
         self.assertLess(SRC.index("root.setOnApplyWindowInsetsListener"),SRC.index("setContentView(root)"))
 
     def test_bottom_navigation_remains_in_safe_root(self):
-        self.assertIn("root.addView(HorizontalScrollView(this)",SRC)
+        self.assertIn("val navigationScroller = HorizontalScrollView(this).apply",SRC)
+        self.assertIn("root.addView(navigationScroller",SRC)
 
 if __name__=="__main__":unittest.main()
