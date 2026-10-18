@@ -320,7 +320,7 @@ class MainActivity : Activity() {
                     val label = (0..result.maxAddressLineIndex).joinToString(", ") {
                         result.getAddressLine(it).orEmpty()
                     }.ifBlank { "Unnamed geocoded result" }
-                    "$label\\n${result.latitude}, ${result.longitude}"
+                    "$label\n${result.latitude}, ${result.longitude}"
                 }.toTypedArray()
                 android.app.AlertDialog.Builder(this@MainActivity)
                     .setTitle("Select and confirm a geocoded address")
@@ -329,7 +329,7 @@ class MainActivity : Activity() {
                         val result = candidates[selected]
                         android.app.AlertDialog.Builder(this@MainActivity)
                             .setTitle("Use this location?")
-                            .setMessage(labels[selected] + "\\n\\nThis uses the geocoder's result; confirm that it is correct.")
+                            .setMessage(labels[selected] + "\n\nThis uses the geocoder's result; confirm that it is correct.")
                             .setNegativeButton("Cancel", null)
                             .setPositiveButton("Use location") { _, _ ->
                                 setPoint(result.latitude.toString(), result.longitude.toString())
