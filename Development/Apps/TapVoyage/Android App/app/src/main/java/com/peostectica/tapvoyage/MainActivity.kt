@@ -5,6 +5,11 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import org.json.JSONObject
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
@@ -26,7 +31,7 @@ import kotlin.math.roundToInt
 /** Native development client; no simulated contact is represented as authenticated. */
 class MainActivity : Activity() {
     private enum class Page(val label: String) {
-        CIRCLE("My Circle"), GET("Get Permission"), GIVE("Give Permission"), PREMIUM("Premium"), SETTINGS("Settings")
+        CIRCLE("My Circle"), GET("Get Permission"), GIVE("Give Permission"), PREMIUM("Premium"), SETTINGS("Settings"), AUDIO("Audio")
     }
     private val prefs by lazy { getSharedPreferences("tapvoyage_ui", MODE_PRIVATE) }
     private var page = Page.CIRCLE
@@ -37,6 +42,14 @@ class MainActivity : Activity() {
         HiddenContacts(prefs.getStringSet("hidden_contact_ids", emptySet()).orEmpty())
     }
     private var showHidden = false // display-only; never changes grants or revocation
+    private val audioThemes by lazy {
+        JSONObject(assets.open("audio/audio_themes_manifest.json").bufferedReader().use { it.readText() })
+            .getJSONArray("themes")
+    }
+    private val selectedAudioTheme: String get() =
+        prefs.getString("audio_theme", "none") ?: "none"
+    private var audioPlayer: MediaPlayer? = null
+    private var audioPreviewToken = 0
     private fun rememberHiddenContacts() {
         prefs.edit().putStringSet("hidden_contact_ids", hiddenContacts.ids()).apply()
     }
@@ -96,6 +109,7 @@ class MainActivity : Activity() {
     }
     override fun onCreate(savedInstanceState:Bundle?) {super.onCreate(savedInstanceState); render()}
     private fun render() {
+        stopAudioPreview()
         val root=vertical().apply {setBackgroundColor(bg)}
         val header=vertical().apply {setPadding(dp(16),dp(18),dp(16),dp(14));setBackgroundColor(surface)}
         add(header,text("PEOSTECTICA · TAP VOYAGE",12f,true,true),0)
@@ -110,6 +124,7 @@ class MainActivity : Activity() {
             Page.GIVE -> showGive(content)
             Page.PREMIUM -> showPremium(content)
             Page.SETTINGS -> showSettings(content)
+            Page.AUDIO -> showAudio(content)
         }
         scroller.addView(content)
         root.addView(scroller,LinearLayout.LayoutParams(-1,0,1f))
@@ -220,8 +235,103 @@ class MainActivity : Activity() {
             spinner.contentDescription="Select one of 40 display color themes"
             add(v,spinner,11)
         }
+        card(c,"Original audio themes · 20 choices","Preview the approved original 12-cue themes or turn sound effects off.") {v ->
+            add(v,text("Selection: " + selectedAudioTheme,15f,true),10)
+            add(v,button("Open Audio Settings") {page=Page.AUDIO;render()},9)
+        }
         card(c,"Privacy and security","No contacts are uploaded, no remote sessions are initiated, and no payment is collected by this development app.") { }
     }
+    private fun stopAudioPreview() {
+        audioPreviewToken++
+        audioPlayer?.let { player ->
+            try { player.stop() } catch (_: IllegalStateException) { }
+            player.release()
+        }
+        audioPlayer = null
+    }
+    private fun startAudioPreview() {
+        stopAudioPreview()
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        if (audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL) {
+            android.widget.Toast.makeText(this, "Silent mode: audio preview is muted", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        val id=selectedAudioTheme
+        if (id=="none") return
+        val item=(0 until audioThemes.length())
+            .map { audioThemes.getJSONObject(it) }
+            .firstOrNull { it.getString("id")==id } ?: return
+        val sounds=item.getJSONArray("sounds")
+        val token=audioPreviewToken
+        val handler=Handler(Looper.getMainLooper())
+        fun playNext(index:Int) {
+            if (token != audioPreviewToken || isFinishing || isDestroyed) return
+            try {
+                val filename=sounds.getJSONObject(index % sounds.length()).getString("filename")
+                val fd=assets.openFd("audio/sounds/" + filename)
+                val player=MediaPlayer()
+                try {
+                    player.setAudioAttributes(AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                    player.setDataSource(fd.fileDescriptor,fd.startOffset,fd.length)
+                } finally { fd.close() }
+                player.setOnCompletionListener { finished ->
+                    if (audioPlayer === finished) audioPlayer=null
+                    finished.release()
+                    if (token==audioPreviewToken) handler.postDelayed({playNext(index+1)},160)
+                }
+                audioPlayer=player
+                player.prepare()
+                player.start()
+            } catch (_: Exception) {
+                stopAudioPreview()
+                android.widget.Toast.makeText(this@MainActivity,
+                    "Approved audio sample unavailable",android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+        playNext(0)
+    }
+    override fun onPause() {
+        stopAudioPreview()
+        super.onPause()
+    }
+    override fun onDestroy() {
+        stopAudioPreview()
+        super.onDestroy()
+    }
+    private fun showAudio(c:LinearLayout) {
+        add(c,text("Audio settings",24f,true),5)
+        add(c,text("Choose one of 20 original Peostectica sound themes. None is the default. Preview plays the theme's 12 cues until stopped or the app is backgrounded.",14f,false,true),9)
+        card(c,"Sound theme","Music and audio previews respect device silent mode.") {v ->
+            val labels=mutableListOf("None · Sound effects off")
+            val ids=mutableListOf("none")
+            for (i in 0 until audioThemes.length()) {
+                val theme=audioThemes.getJSONObject(i)
+                ids.add(theme.getString("id"))
+                labels.add(theme.getString("id")+" · "+theme.getString("name"))
+            }
+            val selector=Spinner(this).apply {
+                adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,labels)
+                setSelection(ids.indexOf(selectedAudioTheme).coerceAtLeast(0))
+                onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent:AdapterView<*>?) { }
+                    override fun onItemSelected(parent:AdapterView<*>?, view:View?, position:Int, id:Long) {
+                        if (ids[position]!=selectedAudioTheme) {
+                            prefs.edit().putString("audio_theme",ids[position]).apply()
+                            render()
+                        }
+                    }
+                }
+                contentDescription="Select one of 20 original sound themes or None"
+            }
+            add(v,selector,10)
+            add(v,button("Play / stop 12-cue preview") {
+                if (audioPlayer!=null) stopAudioPreview() else startAudioPreview()
+            },10)
+        }
+    }
+
     private fun unsupported(message:String) {
         AlertDialog.Builder(this).setTitle("Not connected to production")
             .setMessage(message).setPositiveButton("OK",null).show()
