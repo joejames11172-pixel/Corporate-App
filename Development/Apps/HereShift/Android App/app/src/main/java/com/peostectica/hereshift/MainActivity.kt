@@ -259,8 +259,10 @@ class MainActivity : Activity() {
         Toast.makeText(this,"Selected illustrative point",Toast.LENGTH_SHORT).show()
     }
     private fun saveCoordinates() {
-        val lat=latitudeInput?.text?.toString() ?: return; val lon=longitudeInput?.text?.toString() ?: return
-        prefs.edit().putString("lat",lat).putString("lon",lon).apply()
+        val lat = latitudeInput?.text?.toString()?.trim() ?: return
+        val lon = longitudeInput?.text?.toString()?.trim() ?: return
+        if (ScenarioRules.parse(lat, lon) == null) return
+        prefs.edit().putString("lat", lat).putString("lon", lon).apply()
     }
     private fun currentPoint():TestPoint? {
         saveCoordinates()
