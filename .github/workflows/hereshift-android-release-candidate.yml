@@ -68,6 +68,8 @@ jobs:
           assert soundcount==240
           print('Verified',soundcount,'original audio clips')
           PYVERIFY
+      - name: Enforce complete HereShift objectives before release
+        run: python 'Development/Apps/HereShift/Android App/release_objectives_gate.py'
       - name: Require approved release signing credentials before compilation
         env:
           PEO_RELEASE_KEYSTORE_B64: ${{ secrets.HERESHIFT_RELEASE_KEYSTORE_B64 }}
