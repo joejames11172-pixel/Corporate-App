@@ -284,7 +284,7 @@ class MainActivity : Activity() {
     }
     private fun showPremium(c:LinearLayout) {
         add(c,text("Premium",24f,true),5)
-        card(c,"✕ Free · not subscribed","One oldest currently authorized app per approved Circle owner. Additional permissions remain stored but locked.") {v->
+        card(c,"Premium status · Not verified","Google Play account entitlement is not connected. This app cannot currently confirm either Free or Premium status. When verified Free, one oldest owner-authorized app per Circle owner is available.") {v->
             add(v,text("$1.99 / week",23f,true),14)
             add(v,text("$4.99 / month",17f,false,true),7)
             add(v,button("Get Premium") {unsupported("Google Play Billing is not configured; no purchase was started and no charge was made.")},12)
