@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.location.Location
 import android.location.LocationManager
+import android.location.provider.ProviderProperties
 import android.os.*
 import android.provider.Settings
 
@@ -105,7 +106,8 @@ class MockLocationService : Service() {
             }
             lat = newLat; lon = newLon
             manager.addTestProvider(LocationManager.GPS_PROVIDER,
-                false, true, false, false, false, true, true, 1, 1)
+                false, true, false, false, false, true, true,
+                ProviderProperties.POWER_USAGE_LOW, ProviderProperties.ACCURACY_FINE)
             ownsTestProvider = true
             manager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
             active = true
