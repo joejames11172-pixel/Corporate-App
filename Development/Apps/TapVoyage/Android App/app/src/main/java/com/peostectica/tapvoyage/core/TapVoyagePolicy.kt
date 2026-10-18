@@ -126,9 +126,11 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
 }
 
 /** Local-only UI preference; never changes granted device authority. */
-class HiddenContacts {
-    private val hidden=mutableSetOf<String>()
-    fun hide(id:String) {hidden.add(id)}
+class HiddenContacts(initialIds: Collection<String> = emptySet()) {
+    private val hidden=initialIds.filter { it.isNotBlank() }.toMutableSet()
+    fun hide(id:String) { require(id.isNotBlank()); hidden.add(id) }
     fun unhide(id:String) {hidden.remove(id)}
     fun visible(id:String,showHidden:Boolean=false)=showHidden || id !in hidden
+    /** Stable local contact IDs only, never a proof of identity or an access grant. */
+    fun ids():Set<String> = hidden.toSet()
 }
