@@ -1,0 +1,81 @@
+name: TapVoyage signed release acceptance pipeline
+on:
+  push:
+    branches: [feature/tapvoyage-android-foundation]
+    paths:
+      - 'Development/Apps/TapVoyage/Android App/**'
+      - '.github/workflows/tapvoyage-android-signed-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed on unmet product objectives and CEO icon approval
+        run: python 'Development/Apps/TapVoyage/Android App/qa/release_objectives_gate.py'
+      - name: Require production signing identity before ANY Android build
+        env:
+          KEYSTORE_B64: \${{ secrets.TAPVOYAGE_RELEASE_KEYSTORE_B64 }}
+          STORE_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: \${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
+          APPROVED_CERT: \${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD" && test -n "$APPROVED_CERT"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK 36 for release builds
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Load approved TapVoyage signing identity
+        env:
+          KEYSTORE_B64: \${{ secrets.TAPVOYAGE_RELEASE_KEYSTORE_B64 }}
+          STORE_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: \${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/tapvoyage-release.jks"
+          test -s "$RUNNER_TEMP/tapvoyage-release.jks"
+          printf 'TAPVOYAGE_RELEASE_KEYSTORE_FILE=%s\n' "$RUNNER_TEMP/tapvoyage-release.jks" >> "$GITHUB_ENV"
+          printf 'TAPVOYAGE_RELEASE_STORE_PASSWORD=%s\n' "$STORE_PASSWORD" >> "$GITHUB_ENV"
+          printf 'TAPVOYAGE_RELEASE_KEY_ALIAS=%s\n' "$KEY_ALIAS" >> "$GITHUB_ENV"
+          printf 'TAPVOYAGE_RELEASE_KEY_PASSWORD=%s\n' "$KEY_PASSWORD" >> "$GITHUB_ENV"
+      - name: Kotlin tests and signed non-debuggable release ONLY
+        working-directory: Development/Apps/TapVoyage/Android App
+        run: gradle --no-daemon :app:testReleaseUnitTest :app:assembleRelease :app:bundleRelease
+      - name: Verify production APK and AAB signatures
+        env:
+          APPROVED_CERT: \${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          P='Development/Apps/TapVoyage/Android App/app/build/outputs'
+          APK="$P/apk/release/app-release.apk"
+          AAB="$P/bundle/release/app-release.aab"
+          test -s "$APK" && test -s "$AAB"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$RUNNER_TEMP/tapvoyage-signature.txt"
+          CERT=$(sed -n 's/.*Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/tapvoyage-signature.txt" | head -1 | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          EXPECTED=$(printf '%s' "$APPROVED_CERT" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          test -n "$CERT" && test "$CERT" = "$EXPECTED"
+          jarsigner -verify -strict "$AAB"
+          ! find "$P" -type f -name '*debug*.apk' | grep -q .
+          ! find "$P" -type f -name '*unsigned*.apk' | grep -q .
+          sha256sum "$APK" "$AAB"
+      - name: Retain signed QA artifacts; NEVER promote to public download without completed DAVG
+        uses: actions/upload-artifact@v4
+        with:
+          name: TapVoyage-signed-QA-only
+          path: |
+            Development/Apps/TapVoyage/Android App/app/build/outputs/apk/release/app-release.apk
+            Development/Apps/TapVoyage/Android App/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 7
+          if-no-files-found: error
