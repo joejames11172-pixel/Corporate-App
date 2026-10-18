@@ -163,6 +163,12 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
         }
         s.state="ACTIVE"
     }
+    /** Requester-specific authorization to avoid session IDs becoming bearer credentials. */
+    fun sessionAllowedForRequester(requester:String,id:Long):Boolean {
+        val session=sessions[id] ?: return false
+        if (session.requester!=requester) return false
+        return sessionAllowed(id)
+    }
     fun sessionAllowed(id:Long):Boolean {
         val s=sessions[id]?:return false
         if(s.state!="ACTIVE")return false
