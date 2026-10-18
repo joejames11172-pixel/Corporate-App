@@ -196,6 +196,41 @@ class MainActivity : Activity() {
                     Toast.makeText(this@MainActivity, "Coordinates saved", Toast.LENGTH_SHORT).show()
                 }
             }, 12))
+            addText(this, "Other location sources", 17f, true, margin = 18)
+            val addressInput = EditText(this@MainActivity).apply {
+                hint = "Street address, city, state"
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS
+                setSingleLine(true)
+                setPadding(dp(14),dp(13),dp(14),dp(13))
+                background = rounded(shade(palette.background),10,shade(palette.primary))
+                setTextColor(shade(palette.onSurface))
+            }
+            addView(topMargin(addressInput, 9))
+            addView(topMargin(button("Confirm address", true) {
+                if (addressInput.text.toString().trim().isEmpty()) addressInput.error = "Enter an address"
+                else android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Address lookup pending")
+                    .setMessage("An address has been entered, but it has not been geocoded or confirmed on a map. The active location remains unchanged.")
+                    .setPositiveButton("OK", null).show()
+            }, 7))
+            val zipInput = EditText(this@MainActivity).apply {
+                hint = "U.S. ZIP code"
+                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                filters = arrayOf(android.text.InputFilter.LengthFilter(5))
+                setSingleLine(true)
+                setPadding(dp(14),dp(13),dp(14),dp(13))
+                background = rounded(shade(palette.background),10,shade(palette.primary))
+                setTextColor(shade(palette.onSurface))
+            }
+            addView(topMargin(zipInput, 10))
+            addView(topMargin(button("Select ZIP area", true) {
+                val entered = zipInput.text.toString().trim()
+                if (!Regex("[0-9]{5}").matches(entered)) zipInput.error = "Enter a five-digit ZIP"
+                else android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("ZIP verification pending")
+                    .setMessage("No verified address has been selected for this ZIP. The active location remains unchanged.")
+                    .setPositiveButton("OK", null).show()
+            }, 7))
             addView(topMargin(button("Example: Chicago city center",true){setPoint("41.8781","-87.6298")},8))
             addView(topMargin(button("Example: San Francisco city center",true){setPoint("37.7749","-122.4194")},8))
             addView(topMargin(button("Example: New York city center",true){setPoint("40.7128","-74.0060")},8))
