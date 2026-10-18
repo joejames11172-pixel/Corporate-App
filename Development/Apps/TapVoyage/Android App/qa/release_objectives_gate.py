@@ -27,6 +27,17 @@ def audit():
     if 'applicationId = "com.peostectica.tapvoyage"' not in gradle:issues.append('Wrong Android package ID')
     if 'isDebuggable = false' not in gradle or 'signingConfig = signingConfigs.getByName("production")' not in gradle:
         issues.append('Signed production release variant not enforced')
+    try:
+        matrix=json.loads((ROOT/'qa/acceptance_matrix.json').read_text())
+        if matrix.get('project')!='TapVoyage':issues.append('Requirement matrix belongs to a different app')
+        requirements=matrix.get('requirements',[])
+        mandatory={'BRAND','CIRCLE','CONTACTS','INVENTORY','GET_PERMISSIONS','GIVE_PERMISSIONS','FULL_DEVICE','SESSION_AUTH','REMOTE_VIDEO','REMOTE_AUDIO','REMOTE_CONTROL','FREE_RULE','PREMIUM','ENTITLEMENT_FAIL_CLOSED','DURABLE_REVOCATION','DISPLAY','AUDIO_THEME','DATA_POLICY','SIGNED_BUILD','RENDER','INSTALL','SECURITY','AUDIT','DEPLOY'}
+        if {x.get('id') for x in requirements if isinstance(x,dict)} != mandatory:issues.append('Missing/extra mandatory TapVoyage objective coverage')
+        for row in requirements:
+            if not isinstance(row,dict):issues.append('Invalid objective row');continue
+            if row.get('status')!='VERIFIED' or not row.get('source_revision') or not row.get('test_evidence') or not row.get('reviewer_id'):
+                issues.append('Objective unverified: '+str(row.get('id')))
+    except (OSError,ValueError,TypeError) as exc:issues.append('Missing or invalid TapVoyage acceptance matrix: '+str(exc))
     return issues
 if __name__=='__main__':
     problems=audit()
