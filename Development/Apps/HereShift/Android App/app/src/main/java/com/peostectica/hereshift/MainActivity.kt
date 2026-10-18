@@ -282,6 +282,13 @@ class MainActivity : Activity() {
             addText(this, "Not connected · no contact location is being received or published", 14f, margin = 8)
             addText(this, "In-App Virtual Location and Android Device-Wide Mock Location are separate modes. Both require explicit consent. The latter additionally requires Android Developer Options authorization.", 14f, margin = 10)
             addView(topMargin(button("Request contact permission", true) {
+                if (!PremiumAccessPolicy.currentBuildCanUse(PremiumAccessPolicy.Feature.CIRCLE_REMOTE_SHARING)) {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Premium verification required")
+                        .setMessage("Circle invitations require an active subscription verified by our trusted service, followed by the contact’s authenticated consent. Neither is available in this build. No invitation was sent.")
+                        .setPositiveButton("OK", null).show()
+                    return@button
+                }
                 android.app.AlertDialog.Builder(this@MainActivity)
                     .setTitle("Contact approval required")
                     .setMessage("Authenticated Circle invitations and contact-approved live sharing are not connected in this version. No invitation was sent and no contact has been authorized.")
