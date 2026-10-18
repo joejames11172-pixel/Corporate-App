@@ -7,6 +7,7 @@ Never use these mock entitlements in a public deployment.
 from __future__ import print_function
 import json
 import uuid
+import time
 
 
 class AuthorizationError(Exception):
@@ -31,8 +32,11 @@ class MockGooglePlayAPI(object):
 
 class TapVoyageMockBackend(object):
     """In-memory prototype only. All access checks are server-side."""
-    def __init__(self, play_api):
+    def __init__(self, play_api, clock_ms=None):
         self.play_api = play_api
+        # Injectable millisecond wall clock for deterministic expiry tests.
+        # Prototype only; production uses a trusted durable server clock.
+        self._clock_ms = clock_ms if clock_ms is not None else lambda: int(time.time() * 1000)
         self.circle = {}     # (requester, host) => status, app grants, pending requests
         self.sessions = {}   # session_id => owner/requester/app/status
         self._sequence = 0
@@ -126,6 +130,10 @@ class TapVoyageMockBackend(object):
                 continue
             if host is not None and sess['host'] != host:
                 continue
+            if self._clock_ms() >= sess['expiresAtMs']:
+                sess['status'] = 'terminated'
+                self._event('session_terminated', session=sid, reason='expired')
+                continue
             try:
                 enabled = any(app['appId'] == sess['appId'] and app['enabled']
                               and app['grantId'] == sess['grantId']
@@ -168,7 +176,9 @@ class TapVoyageMockBackend(object):
         self._stop_invalid_sessions(requester=requester, host=host)
         self._event('host_revoked_user', requester=requester, host=host)
 
-    def request_session(self, requester, host, app_id):
+    def request_session(self, requester, host, app_id, ttl_ms=300000):
+        if type(ttl_ms) is not int or not 1 <= ttl_ms <= 3600000:
+            raise AuthorizationError('Session TTL must be an integer between 1 and 3600000 milliseconds')
         available = [g for g in self.listed_apps(requester, host)
                      if g['appId'] == app_id and g['enabled']]
         if not available:
@@ -176,7 +186,8 @@ class TapVoyageMockBackend(object):
         session_id = str(uuid.uuid4())
         self.sessions[session_id] = {'requester': requester, 'host': host,
                                      'appId': app_id, 'grantId': available[0]['grantId'],
-                                     'status': 'pending_host_approval'}
+                                     'status': 'pending_host_approval',
+                                     'expiresAtMs': self._clock_ms() + ttl_ms}
         self._event('session_requested', requester=requester, host=host, app=app_id)
         return session_id
 
@@ -205,7 +216,11 @@ class TapVoyageMockBackend(object):
         sess = self.sessions.get(session_id)
         if not sess or sess['host'] != host or sess['status'] != 'pending_host_approval':
             raise AuthorizationError('host cannot approve this session')
-        # Recheck access at activation to close revoke/payment races.
+        # Recheck expiry and access at activation to close time/revoke/payment races.
+        if self._clock_ms() >= sess['expiresAtMs']:
+            sess['status'] = 'terminated'
+            self._event('session_terminated', session=session_id, reason='expired')
+            raise AuthorizationError('session expired before owner acceptance')
         available = [g for g in self.listed_apps(sess['requester'], sess['host'])
                      if g['appId'] == sess['appId'] and g['enabled']
                      and g['grantId'] == sess['grantId']]
