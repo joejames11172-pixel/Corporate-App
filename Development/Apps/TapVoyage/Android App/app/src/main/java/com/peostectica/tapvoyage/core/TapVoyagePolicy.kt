@@ -9,8 +9,9 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     private data class Circle(var link: Link=Link.PENDING, var inventory: Boolean=false,
        var fullAccessRequested: Boolean=false, var fullAccessApproved: Boolean=false,
        val pending: MutableSet<String> = mutableSetOf(), val grants: LinkedHashMap<String,Grant> = linkedMapOf())
+    private enum class SessionScope { APP, FULL_DEVICE }
     private data class Session(val id: Long, val requester: String, val owner: String,
-       val grant: Grant, val expires: Long, var state: String="PENDING")
+       val grant: Grant?, val scope: SessionScope, val expires: Long, var state: String="PENDING")
     private val circles=mutableMapOf<Pair<String,String>,Circle>()
     private val sessions=mutableMapOf<Long,Session>()
     private var sequence=0L
@@ -78,9 +79,13 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
         link(requester,owner).grants[g.app]?.id==g.id &&
             listApps(requester,owner).any {it.name==g.app && it.order==g.id && it.permitted}
     } catch (_:IllegalStateException) {false}
+    private fun sessionAuthorized(s:Session):Boolean = when(s.scope) {
+        SessionScope.APP -> s.grant?.let { available(s.requester,s.owner,it) } ?: false
+        SessionScope.FULL_DEVICE -> fullDeviceScopeEligible(s.requester,s.owner)
+    }
     private fun invalidate(requester:String,owner:String,force:Boolean=false) {
         for (s in sessions.values) if(s.requester==requester && s.owner==owner && s.state!="STOPPED") {
-            if(force || !available(requester,owner,s.grant)) s.state="STOPPED"
+            if(force || !sessionAuthorized(s)) s.state="STOPPED"
         }
     }
     fun entitlementChanged(requester:String) {
@@ -100,11 +105,10 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     fun ownerRevokeFullDevice(owner:String,requester:String) {
         val c=link(requester,owner)
         c.fullAccessRequested=false;c.fullAccessApproved=false
-        // Broad access and individually approved app grants are separate scopes.
-        // No session in this policy is derived from Full Device Access: requestSession
-        // requires an individual Grant. Do not terminate independent per-app sessions.
-        // A future broad-scope session type MUST identify its grant source and be
-        // terminated here when this owner revokes full-device access.
+        // Only sessions derived from the broad grant are terminated.
+        // Individually approved app sessions remain independently authorized.
+        for (s in sessions.values) if(s.requester==requester && s.owner==owner &&
+            s.scope==SessionScope.FULL_DEVICE && s.state!="STOPPED") s.state="STOPPED"
     }
     fun ownerRevokeRequester(owner:String,requester:String) {
         val c=link(requester,owner)
@@ -117,13 +121,23 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
         val grant=link(requester,owner).grants[app]
         check(grant!=null && available(requester,owner,grant)) {"No authorized app or entitlement"}
         val id=++sequence
-        sessions[id]=Session(id,requester,owner,grant,clock()+ttl)
+        sessions[id]=Session(id,requester,owner,grant,SessionScope.APP,clock()+ttl)
+        return id
+    }
+    /** Request owner-accepted broad access to supported TapVoyage capabilities only.
+     * Does not grant Android system permissions or start a remote transport.
+     */
+    fun requestFullDeviceSession(requester:String,owner:String,ttl:Long=300000):Long {
+        require(ttl in 1..3600000)
+        check(fullDeviceScopeEligible(requester,owner)) { "Broad access not owner-and-entitlement authorized" }
+        val id=++sequence
+        sessions[id]=Session(id,requester,owner,null,SessionScope.FULL_DEVICE,clock()+ttl)
         return id
     }
     fun ownerAcceptSession(owner:String,id:Long) {
         val s=sessions[id]
         check(s!=null && s.owner==owner && s.state=="PENDING") {"No owner-controlled pending session"}
-        if(clock()>=s.expires || !available(s.requester,s.owner,s.grant)) {
+        if(clock()>=s.expires || !sessionAuthorized(s)) {
             s.state="STOPPED";error("Expired or revoked before session approval")
         }
         s.state="ACTIVE"
@@ -131,7 +145,7 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     fun sessionAllowed(id:Long):Boolean {
         val s=sessions[id]?:return false
         if(s.state!="ACTIVE")return false
-        if(clock()>=s.expires || !available(s.requester,s.owner,s.grant)) {
+        if(clock()>=s.expires || !sessionAuthorized(s)) {
             s.state="STOPPED";return false
         }
         return true
