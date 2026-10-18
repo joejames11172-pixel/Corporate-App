@@ -170,5 +170,39 @@ fun main() {
  failBroad.requestFullDevice("Requester","Owner")
  failBroad.ownerApproveFullDevice("Owner","Requester")
  test("Verifier failure blocks all broad sessions") { denied { failBroad.requestFullDeviceSession("Requester","Owner") } }
+ val decline=TapVoyagePolicy({true})
+ decline.invite("Decliner","Host")
+ decline.ownerDeclineCircle("Host","Decliner")
+ test("Denied Circle cannot be accepted without reinvitation") { denied { decline.ownerAccept("Host","Decliner") } }
+ test("Denied Circle cannot request apps") { denied { decline.requestApp("Decliner","Host","Maps") } }
+ decline.invite("Decliner","Host")
+ test("Reinvite is pending, not automatically accepted") { denied { decline.ownerApproveInventory("Host","Decliner") } }
+ decline.ownerAccept("Host","Decliner")
+ decline.ownerApproveInventory("Host","Decliner")
+ decline.requestApp("Decliner","Host","Maps")
+ decline.ownerApproveApp("Host","Decliner","Maps")
+ val declineAppId=decline.requestSession("Decliner","Host","Maps")
+ decline.ownerAcceptSession("Host",declineAppId)
+ decline.requestFullDevice("Decliner","Host")
+ test("Duplicate Full Device Access request denied") { denied { decline.requestFullDevice("Decliner","Host") } }
+ decline.ownerDeclineFullDevice("Host","Decliner")
+ test("Decline broad request preserves independent app session") { decline.sessionAllowed(declineAppId) }
+ test("Decline broad request prevents broad session") { denied { decline.requestFullDeviceSession("Decliner","Host") } }
+ decline.requestFullDevice("Decliner","Host")
+ decline.ownerApproveFullDevice("Host","Decliner")
+ val inventoryBroadId=decline.requestFullDeviceSession("Decliner","Host")
+ decline.ownerAcceptSession("Host",inventoryBroadId)
+ decline.ownerRevokeInventory("Host","Decliner")
+ test("Inventory revoke stops broad and per-app active sessions") {
+     !decline.sessionAllowed(declineAppId) && !decline.sessionAllowed(inventoryBroadId)
+ }
+ test("Inventory revoke clears app grants and visibility") {
+     !decline.inventoryVisible("Decliner","Host") && decline.listApps("Decliner","Host").isEmpty()
+ }
+ test("Inventory revoke blocks pending broad request") { denied { decline.requestFullDeviceSession("Decliner","Host") } }
+ decline.ownerApproveInventory("Host","Decliner")
+ test("Restored inventory permission does not resurrect app grants") {
+     decline.listApps("Decliner","Host").isEmpty()
+ }
  println("SUCCESS $count Kotlin domain tests")
 }
