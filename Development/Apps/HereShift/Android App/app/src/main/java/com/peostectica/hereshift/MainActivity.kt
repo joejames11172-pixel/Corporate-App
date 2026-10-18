@@ -306,8 +306,15 @@ class MainActivity : Activity() {
         prefs.edit().putString("lat", lat).putString("lon", lon).apply()
     }
     private fun currentPoint():TestPoint? {
-        saveCoordinates()
-        return ScenarioRules.parse(prefs.getString("lat","")?:"",prefs.getString("lon","")?:"")
+        // Always validate the visible edits. Never fall back to a previously saved
+        // point when an invalid unsaved coordinate is on screen.
+        val latitude = latitudeInput?.text?.toString()?.trim()
+            ?: prefs.getString("lat", "")?.trim().orEmpty()
+        val longitude = longitudeInput?.text?.toString()?.trim()
+            ?: prefs.getString("lon", "")?.trim().orEmpty()
+        val point = ScenarioRules.parse(latitude, longitude) ?: return null
+        prefs.edit().putString("lat", latitude).putString("lon", longitude).apply()
+        return point
     }
     private fun previewPoint() {
         val point=currentPoint()
