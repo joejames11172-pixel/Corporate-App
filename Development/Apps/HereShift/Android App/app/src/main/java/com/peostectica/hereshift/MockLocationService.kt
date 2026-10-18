@@ -28,6 +28,8 @@ class MockLocationService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val manager by lazy { getSystemService(LOCATION_SERVICE) as LocationManager }
     private var active = false
+    // Never remove a provider that this service did not successfully register.
+    private var ownsTestProvider = false
     private var lat = 0.0
     private var lon = 0.0
     private val heartbeat = object : Runnable {
@@ -93,6 +95,7 @@ class MockLocationService : Service() {
             lat = newLat; lon = newLon
             manager.addTestProvider(LocationManager.GPS_PROVIDER,
                 false, true, false, false, false, true, true, 1, 1)
+            ownsTestProvider = true
             manager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
             active = true
             setStatus("ACTIVE · Simulated GPS test point ($lat, $lon). This is detectable as mock data.")
@@ -109,8 +112,10 @@ class MockLocationService : Service() {
     private fun stopProvider(): Boolean {
         active = false
         handler.removeCallbacks(heartbeat)
+        if (!ownsTestProvider) return true
         return try {
             manager.removeTestProvider(LocationManager.GPS_PROVIDER)
+            ownsTestProvider = false
             true
         } catch (_: Exception) { false }
     }
