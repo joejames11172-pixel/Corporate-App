@@ -62,7 +62,7 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     data class VisibleApp(val name:String,val permitted:Boolean,val order:Long)
     fun listApps(requester:String,owner:String):List<VisibleApp> {
         val grants=link(requester,owner).grants.values.toList()
-        val paid=paidEntitlement(requester) // must be injected from authoritative verifier
+        val paid=try { paidEntitlement(requester) } catch (_: Exception) { false } // fail closed to Free when verifier is unavailable
         return grants.mapIndexed {index,g->VisibleApp(g.app,paid || index==0,g.id)}
     }
     private fun available(requester:String,owner:String,g:Grant):Boolean = try {
