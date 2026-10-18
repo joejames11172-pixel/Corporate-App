@@ -1,6 +1,7 @@
 """Regression tests for the package verifier using NON-INSTALLABLE ZIP fixtures."""
 from pathlib import Path
 import hashlib
+import io
 import json
 import tempfile
 import unittest
@@ -31,8 +32,8 @@ class AudioPackageVerifierTests(unittest.TestCase):
         gate.EXPECTED_MANIFEST_SHA256=hashlib.sha256(self.manifest).hexdigest()
 
     def fixture(self,kind="good"):
-        path=Path(self.temp.name)/(kind+".zip")
-        with zipfile.ZipFile(path,"w") as z:
+        stream=io.BytesIO()
+        with zipfile.ZipFile(stream,"w") as z:
             raw=self.manifest if kind!="bad_manifest" else self.manifest+b"bad"
             z.writestr(gate.MANIFEST,raw)
             for n,(name,sound) in enumerate(self.samples.items()):
@@ -40,7 +41,8 @@ class AudioPackageVerifierTests(unittest.TestCase):
                 if kind=="tampered" and n==0:sound+=b"changed"
                 mode=zipfile.ZIP_DEFLATED if kind=="compressed" and n==0 else zipfile.ZIP_STORED
                 z.writestr("assets/audio/sounds/"+name,sound,compress_type=mode)
-        return path
+        stream.seek(0)
+        return stream
 
     def test_complete_240_audio_package_passes(self):
         self.assertEqual([],verify(self.fixture()))
