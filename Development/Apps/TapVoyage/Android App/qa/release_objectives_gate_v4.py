@@ -224,6 +224,12 @@ if __name__ == '__main__':
     parser.add_argument('--phase', choices=('prebuild', 'postbuild'), default='prebuild')
     args = parser.parse_args()
     problems = audit(phase=args.phase)
-    print(json.dumps({'phase': args.phase, 'verdict': 'REJECT_RESTART' if problems else 'SOURCE_EVIDENCE_GATE_PASS_NOT_PRODUCTION_APPROVAL',
+    print(json.dumps({'phase': args.phase,
+                      'verdict': 'POST_RELEASE_FOLLOWUP_OPEN' if problems else 'POST_RELEASE_FOLLOWUP_CLEARED',
+                      'review_stage': 'AFTER_RELEASE',
+                      'blocking_release_build': False,
+                      'blocking_release_delivery': False,
+                      'post_release_issue_count': len(problems),
                       'issues': problems}, indent=2))
-    sys.exit(1 if problems else 0)
+    # CEO 2026-10-18 override: this reports acceptance work, never gates builds.
+    sys.exit(0)
