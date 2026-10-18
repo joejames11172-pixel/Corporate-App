@@ -1,0 +1,200 @@
+{
+  "project": "TapVoyage",
+  "source": "Development/Apps/TapVoyage/objectives.txt; corporate mobile template",
+  "revision": "2026-10-18",
+  "state": "IN_DEVELOPMENT_DO_NOT_RELEASE",
+  "requirements": [
+    {
+      "id": "BRAND",
+      "requirement": "CEO-approved TapVoyage light and dark icons plus vector/adaptive resources",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "CIRCLE",
+      "requirement": "Authenticated Circle invitations, owner acceptance, zero-app memberships",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "CONTACTS",
+      "requirement": "User-selected phone contacts without bulk upload; verified device/account mapping",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "INVENTORY",
+      "requirement": "Host-approved disclosure of installed eligible apps only",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "GET_PERMISSIONS",
+      "requirement": "Per-app request/grant/newest authorization order; hide/unhide presentation only",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "GIVE_PERMISSIONS",
+      "requirement": "Owner-side explicit per-app consent, scopes, denial, expiry and one-click revoke",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "FULL_DEVICE",
+      "requirement": "Request Full Device Access with scope display and owner-specific approval/revocation",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "SESSION_AUTH",
+      "requirement": "Authenticated owner/requester identity and every-session owner approval",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "REMOTE_VIDEO",
+      "requirement": "Authorized remote screen streaming; aspect ratio and rotation without cropping",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "REMOTE_AUDIO",
+      "requirement": "Consent-gated audio where Android supports capture; silent/revoke controls",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "REMOTE_CONTROL",
+      "requirement": "Owner-authorized capability scopes; platform-mediated prompts and session stop",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "FREE_RULE",
+      "requirement": "Free permits only oldest still-approved app per Circle owner",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "PREMIUM",
+      "requirement": "Play subscriptions $1.99/week primary and $4.99/month secondary; server verified and subscription lifecycle tested",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "ENTITLEMENT_FAIL_CLOSED",
+      "requirement": "No restoration on refund/expiry/revocation or verifier unavailable; owner permission wins",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "DURABLE_REVOCATION",
+      "requirement": "Google Drive authority reconciled with atomic durable server-side revocation and offline fail-closed",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "DISPLAY",
+      "requirement": "40 app-approved color themes, OS appearance, accessibility font/contrast and responsive same navigation",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "AUDIO_THEME",
+      "requirement": "20 approved original audio themes, accessible mute/silent/reduced-motion settings",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "DATA_POLICY",
+      "requirement": "Permissions, privacy documents, deletion and Data safety accurately verified",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "SIGNED_BUILD",
+      "requirement": "Signed non-debuggable release APK/AAB and verified app-specific certificate",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "RENDER",
+      "requirement": "Every compiled APK screen light/dark portrait/landscape and approved baseline reviewed",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "INSTALL",
+      "requirement": "Install downloaded production APK on supported Samsung device; in-place upgrades verify signer/version/data retention",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "SECURITY",
+      "requirement": "Independent abuse/threat-model review and authenticated session/permission fuzz tests",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "AUDIT",
+      "requirement": "DAVG zero unresolved issues, five independent qualified auditor acceptances and founder signoff",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    },
+    {
+      "id": "DEPLOY",
+      "requirement": "Verified Drive deployment file and HTTPS full-byte public checksum/download/document links",
+      "status": "OPEN",
+      "source_revision": null,
+      "test_evidence": [],
+      "reviewer_id": null
+    }
+  ]
+}
