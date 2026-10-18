@@ -183,6 +183,19 @@ class MainActivity : Activity() {
             latitudeInput=field("Latitude",prefs.getString("lat","41.8781") ?: "41.8781")
             longitudeInput=field("Longitude",prefs.getString("lon","-87.6298") ?: "-87.6298")
             addView(topMargin(latitudeInput!!,12));addView(topMargin(longitudeInput!!,8))
+            addView(topMargin(button("Save my coordinates") {
+                val lat = latitudeInput?.text?.toString()?.trim().orEmpty()
+                val lon = longitudeInput?.text?.toString()?.trim().orEmpty()
+                val point = ScenarioRules.parse(lat, lon)
+                if (point == null) {
+                    latitudeInput?.error = "Latitude must be between -90 and 90"
+                    longitudeInput?.error = "Longitude must be between -180 and 180"
+                    Toast.makeText(this@MainActivity, "Correct both coordinates before saving", Toast.LENGTH_LONG).show()
+                } else {
+                    prefs.edit().putString("lat", lat).putString("lon", lon).apply()
+                    Toast.makeText(this@MainActivity, "Coordinates saved", Toast.LENGTH_SHORT).show()
+                }
+            }, 12))
             addView(topMargin(button("Example: Chicago city center",true){setPoint("41.8781","-87.6298")},8))
             addView(topMargin(button("Example: San Francisco city center",true){setPoint("37.7749","-122.4194")},8))
             addView(topMargin(button("Example: New York city center",true){setPoint("40.7128","-74.0060")},8))
