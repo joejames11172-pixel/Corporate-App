@@ -20,10 +20,9 @@ jobs:
         working-directory: Development/Apps/HereShift/Android App
     steps:
       - uses: actions/checkout@v4
-      - name: Verify executable DAVG rules and provider lifecycle regressions
+      - name: Verify all HereShift QA regression tests
         run: |
-          python3 -m unittest discover -s qa -p 'test_davg_*.py' -v
-          python3 -m unittest discover -s qa -p 'test_mock_provider_ownership.py' -v
+          python3 -m unittest discover -s qa -p 'test_*.py' -v
       - name: Require structured corrective iteration before release promotion
         run: |
           python3 qa/davg_transition_gate.py qa/davg_current_iteration.json
