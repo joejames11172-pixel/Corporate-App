@@ -29,7 +29,7 @@ class ProviderOwnershipTests(unittest.TestCase):
     def test_destroy_preserves_warning_for_owned_provider(self):
         block = SOURCE[SOURCE.index("override fun onDestroy()"):]
         self.assertIn("val hadOwnedProvider = ownsTestProvider", block)
-        self.assertIn("wasActive || hadOwnedProvider", block)
+        self.assertIn("wasActive || hadOwnedProvider || !removed", block)
     def test_cleanup_retains_ownership_when_removal_throws(self):
         block = SOURCE[SOURCE.index("private fun stopProvider()"):SOURCE.index("override fun onDestroy()")]
         self.assertLess(block.index("manager.removeTestProvider("), block.index("ownsTestProvider = false"))
