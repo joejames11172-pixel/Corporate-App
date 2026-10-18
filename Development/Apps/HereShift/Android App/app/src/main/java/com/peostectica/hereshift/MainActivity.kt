@@ -143,11 +143,18 @@ class MainActivity : Activity() {
                     show(destination)
                 }
             }
-            navigationBar.addView(navButton, LinearLayout.LayoutParams(0, dp(52), 1f).apply {
+            navButton.contentDescription = "Navigate to " + caption
+            navigationBar.addView(navButton, LinearLayout.LayoutParams(dp(92), dp(52)).apply {
                 marginStart = dp(3); marginEnd = dp(3)
             })
         }
-        root.addView(navigationBar, LinearLayout.LayoutParams(
+        val navigationScroller = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            isFillViewport = true
+            contentDescription = "HereShift page navigation"
+            addView(navigationBar)
+        }
+        root.addView(navigationScroller, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
 
         setContentView(root)
