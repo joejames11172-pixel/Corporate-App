@@ -279,7 +279,8 @@ class MainActivity : Activity() {
         addText(c, "Choose one consenting contact at a time. A Circle invitation alone never grants location access. Remote location sharing is unavailable until authenticated approval and revocation are connected.", 14f, margin = 9)
         val status = innerCard().apply {
             addText(this, "Sharing status", 19f, true)
-            addText(this, "Not connected · no contact location is being received or published", 14f, margin = 8)
+            val circleAuthorized = CircleConsentPolicy.currentBuildCanView()
+            addText(this, if (circleAuthorized) "Authenticated Circle grant active" else "Not connected · no contact location is being received or published", 14f, margin = 8)
             addText(this, "In-App Virtual Location and Android Device-Wide Mock Location are separate modes. Both require explicit consent. The latter additionally requires Android Developer Options authorization.", 14f, margin = 10)
             addView(topMargin(button("Request contact permission", true) {
                 if (!PremiumAccessPolicy.currentBuildCanUse(PremiumAccessPolicy.Feature.CIRCLE_REMOTE_SHARING)) {
