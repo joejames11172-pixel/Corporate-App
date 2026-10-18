@@ -10,6 +10,10 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.location.Geocoder
+import java.util.Locale
 import android.provider.Settings
 import android.view.*
 import android.window.OnBackInvokedCallback
@@ -215,10 +219,7 @@ class MainActivity : Activity() {
             addView(topMargin(addressInput, 9))
             addView(topMargin(button("Confirm address", true) {
                 if (addressInput.text.toString().trim().isEmpty()) addressInput.error = "Enter an address"
-                else android.app.AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Address lookup pending")
-                    .setMessage("An address has been entered, but it has not been geocoded or confirmed on a map. The active location remains unchanged.")
-                    .setPositiveButton("OK", null).show()
+                else resolveStreetAddress(addressInput.text.toString().trim())
             }, 7))
             val zipInput = EditText(this@MainActivity).apply {
                 hint = "U.S. ZIP code"
@@ -293,6 +294,50 @@ class MainActivity : Activity() {
             addText(this, "Contact selection must be authenticated, owner-approved, time-limited, and immediately revocable. Offline or stale authorization must fail closed. A Premium subscription never overrides the contact's consent.", 14f, margin = 8)
         }
         c.addView(topMargin(policy, 14))
+    }
+
+    private fun resolveStreetAddress(query: String) {
+        if (!Geocoder.isPresent()) {
+            Toast.makeText(this, "Address geocoding is unavailable on this device", Toast.LENGTH_LONG).show()
+            return
+        }
+        // Geocoding may use a platform network service: never block the UI thread.
+        Thread {
+            val results = try {
+                @Suppress("DEPRECATION")
+                Geocoder(this@MainActivity, Locale.US).getFromLocationName(query, 5).orEmpty()
+            } catch (_: Exception) { emptyList() }
+            Handler(Looper.getMainLooper()).post {
+                if (isFinishing || isDestroyed) return@post
+                val candidates = results.filter {
+                    ScenarioRules.parse(it.latitude.toString(), it.longitude.toString()) != null
+                }
+                if (candidates.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "No verified address match. Location unchanged.", Toast.LENGTH_LONG).show()
+                    return@post
+                }
+                val labels = candidates.map { result ->
+                    val label = (0..result.maxAddressLineIndex).joinToString(", ") {
+                        result.getAddressLine(it).orEmpty()
+                    }.ifBlank { "Unnamed geocoded result" }
+                    "$label\\n${result.latitude}, ${result.longitude}"
+                }.toTypedArray()
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Select and confirm a geocoded address")
+                    .setSingleChoiceItems(labels, -1) { dialog, selected ->
+                        dialog.dismiss()
+                        val result = candidates[selected]
+                        android.app.AlertDialog.Builder(this@MainActivity)
+                            .setTitle("Use this location?")
+                            .setMessage(labels[selected] + "\\n\\nThis uses the geocoder's result; confirm that it is correct.")
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("Use location") { _, _ ->
+                                setPoint(result.latitude.toString(), result.longitude.toString())
+                            }.show()
+                    }
+                    .setNegativeButton("Cancel", null).show()
+            }
+        }.start()
     }
 
     private fun setPoint(lat:String,lon:String) {
