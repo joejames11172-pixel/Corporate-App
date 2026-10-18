@@ -55,5 +55,15 @@ fun main() {
  for (app in listOf("A","B")) { unavailable.requestApp("Carol","Dave",app);unavailable.ownerApproveApp("Dave","Carol",app) }
  test("Verifier offline never unlocks Premium extras") {unavailable.listApps("Carol","Dave").filter{it.permitted}.map{it.name}==listOf("A")}
  test("Verifier offline rejects extra session") {denied{unavailable.requestSession("Carol","Dave","B")}}
+ val equalNames = HiddenContacts()
+ equalNames.hide("contact-id-101")
+ test("Hide by local contact identity, not duplicate display name") {
+     !equalNames.visible("contact-id-101") && equalNames.visible("contact-id-102")
+ }
+ test("Show Hidden is view-only and does not alter remote grants") {
+     equalNames.visible("contact-id-101", true) && p.listApps("Alice", "Bob").isEmpty()
+ }
+ equalNames.unhide("contact-id-101")
+ test("Unhide restores selected local contact") { equalNames.visible("contact-id-101") }
  println("SUCCESS $count Kotlin domain tests")
 }
