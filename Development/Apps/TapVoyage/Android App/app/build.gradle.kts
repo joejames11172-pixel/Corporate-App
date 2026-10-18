@@ -41,7 +41,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+    androidResources { noCompress += "wav" }
 }
 dependencies {
     testImplementation("junit:junit:4.13.2")
 }
+
+val generateApprovedAudio by tasks.registering(Exec::class) {
+    workingDir = rootProject.projectDir
+    environment("TAPVOYAGE_AUDIO_OUT", file("src/main/assets/audio").absolutePath)
+    commandLine("python3", "qa/generate_audio_assets.py")
+}
+tasks.named("preBuild").configure { dependsOn(generateApprovedAudio) }
+tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }
+    .configureEach { dependsOn(generateApprovedAudio) }
