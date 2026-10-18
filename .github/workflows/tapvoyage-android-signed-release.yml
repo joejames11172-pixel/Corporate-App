@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Run TapVoyage native and release-integrity regressions
+        run: python3 -m unittest discover -s 'Development/Apps/TapVoyage/Android App/qa' -p 'test_*.py'
       - name: Fail closed on unmet product objectives and CEO icon approval
         run: python 'Development/Apps/TapVoyage/Android App/qa/release_objectives_gate.py'
       - name: Require production signing identity before ANY Android build
