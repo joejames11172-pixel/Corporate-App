@@ -24,6 +24,7 @@ import android.widget.Button
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.SeekBar
 import android.widget.TextView
 import com.peostectica.tapvoyage.core.HiddenContacts
 import kotlin.math.roundToInt
@@ -50,6 +51,9 @@ class MainActivity : Activity() {
         prefs.getString("audio_theme", "none") ?: "none"
     private var audioPlayer: MediaPlayer? = null
     private var audioPreviewToken = 0
+    private var feedbackPlayer: MediaPlayer? = null
+    private var feedbackIndex = 0
+    private val soundLevel: Float get() = prefs.getInt("audio_volume", 60).coerceIn(0,100)/100f
     private fun rememberHiddenContacts() {
         prefs.edit().putStringSet("hidden_contact_ids", hiddenContacts.ids()).apply()
     }
@@ -95,7 +99,7 @@ class MainActivity : Activity() {
         text=value; isAllCaps=false; textSize=13f; minHeight=dp(48)
         setTextColor(themeColor("onPrimary"))
         background=rounded(primary,10)
-        setOnClickListener {action()}
+        setOnClickListener { if (page != Page.AUDIO) playUiFeedback(); action() }
         contentDescription=value
     }
     private fun add(v: LinearLayout, item: View, top:Int=8) {
@@ -241,6 +245,39 @@ class MainActivity : Activity() {
         }
         card(c,"Privacy and security","No contacts are uploaded, no remote sessions are initiated, and no payment is collected by this development app.") { }
     }
+    private fun playUiFeedback() {
+        if (selectedAudioTheme == "none" || audioPlayer != null) return
+        val am=getSystemService(AUDIO_SERVICE) as AudioManager
+        if (am.ringerMode != AudioManager.RINGER_MODE_NORMAL || soundLevel<=0f) return
+        try {
+            val theme=(0 until audioThemes.length()).map { audioThemes.getJSONObject(it) }
+                .firstOrNull { it.getString("id")==selectedAudioTheme } ?: return
+            val sounds=theme.getJSONArray("sounds")
+            val sample=sounds.getJSONObject(feedbackIndex % sounds.length()).getString("filename")
+            feedbackIndex=(feedbackIndex+1)%sounds.length()
+            feedbackPlayer?.release()
+            feedbackPlayer=null
+            val fd=assets.openFd("audio/sounds/" + sample)
+            val player=MediaPlayer()
+            feedbackPlayer=player
+            try {
+                player.setAudioAttributes(AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                player.setDataSource(fd.fileDescriptor,fd.startOffset,fd.length)
+                player.setVolume(soundLevel,soundLevel)
+            } finally { fd.close() }
+            player.setOnCompletionListener { finished ->
+                if (feedbackPlayer === finished) feedbackPlayer=null
+                finished.release()
+            }
+            player.prepare()
+            player.start()
+        } catch (_: Exception) {
+            feedbackPlayer?.release()
+            feedbackPlayer=null
+        }
+    }
     private fun stopAudioPreview() {
         audioPreviewToken++
         audioPlayer?.let { player ->
@@ -270,11 +307,13 @@ class MainActivity : Activity() {
                 val filename=sounds.getJSONObject(index % sounds.length()).getString("filename")
                 val fd=assets.openFd("audio/sounds/" + filename)
                 val player=MediaPlayer()
+                audioPlayer=player
                 try {
                     player.setAudioAttributes(AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
                     player.setDataSource(fd.fileDescriptor,fd.startOffset,fd.length)
+                    player.setVolume(soundLevel,soundLevel)
                 } finally { fd.close() }
                 player.setOnCompletionListener { finished ->
                     if (audioPlayer === finished) audioPlayer=null
@@ -294,10 +333,14 @@ class MainActivity : Activity() {
     }
     override fun onPause() {
         stopAudioPreview()
+        feedbackPlayer?.release()
+        feedbackPlayer=null
         super.onPause()
     }
     override fun onDestroy() {
         stopAudioPreview()
+        feedbackPlayer?.release()
+        feedbackPlayer=null
         super.onDestroy()
     }
     private fun showAudio(c:LinearLayout) {
@@ -326,6 +369,23 @@ class MainActivity : Activity() {
                 contentDescription="Select one of 20 original sound themes or None"
             }
             add(v,selector,10)
+            add(v,text("Sound effect volume · "+prefs.getInt("audio_volume",60).coerceIn(0,100)+"%",14f),12)
+            val volumeSlider=SeekBar(this).apply {
+                max=100
+                progress=prefs.getInt("audio_volume",60).coerceIn(0,100)
+                contentDescription="Audio effect volume"
+                setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(view:SeekBar?, value:Int, user:Boolean) {
+                        if (user) {
+                            prefs.edit().putInt("audio_volume",value).apply()
+                            audioPlayer?.setVolume(soundLevel,soundLevel)
+                        }
+                    }
+                    override fun onStartTrackingTouch(view:SeekBar?) {}
+                    override fun onStopTrackingTouch(view:SeekBar?) {}
+                })
+            }
+            add(v,volumeSlider,8)
             add(v,button("Play / stop 12-cue preview") {
                 if (audioPlayer!=null) stopAudioPreview() else startAudioPreview()
             },10)
