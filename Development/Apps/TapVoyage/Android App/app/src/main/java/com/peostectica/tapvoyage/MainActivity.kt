@@ -187,7 +187,12 @@ class MainActivity : Activity() {
             if(target==page)b.setTypeface(null,Typeface.BOLD)
             nav.addView(b,LinearLayout.LayoutParams(dp(109),dp(52)).apply {marginStart=dp(3);marginEnd=dp(3)})
         }
-        root.addView(HorizontalScrollView(this).apply {isHorizontalScrollBarEnabled=false;addView(nav)},LinearLayout.LayoutParams(-1,-2))
+        val navigationScroller = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled=false
+            contentDescription="Swipe to explore Tap Voyage sections"
+            addView(nav)
+        }
+        root.addView(navigationScroller,LinearLayout.LayoutParams(-1,-2))
         // SDK 35+ uses edge-to-edge by default. Keep the title and navigation
         // outside status/navigation bars and display cutouts in both orientations.
         root.setOnApplyWindowInsetsListener { view, windowInsets ->
@@ -209,6 +214,14 @@ class MainActivity : Activity() {
         }
         setContentView(root)
         root.requestApplyInsets()
+        // Keep the selected section visible after a non-tab action changes page.
+        navigationScroller.post {
+            val selectedTab=nav.getChildAt(page.ordinal)
+            if (selectedTab!=null) {
+                val centered=selectedTab.left + selectedTab.width/2 - navigationScroller.width/2
+                navigationScroller.scrollTo(centered.coerceAtLeast(0),0)
+            }
+        }
     }
     private fun showCircle(c:LinearLayout) {
         add(c,text("My Circle",24f,true),5)
