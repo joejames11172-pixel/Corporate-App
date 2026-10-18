@@ -1,9 +1,12 @@
-name: TapVoyage signed release acceptance pipeline
+# Canonical Drive source: Development/Apps/TapVoyage/Android App/qa/tapvoyage-android-signed-release.v3.yml
+# This workflow does not publish APKs. Production acceptance requires postbuild DAVG and CEO approval.
+name: TapVoyage signed-release engineering and acceptance v3
 on:
   push:
     branches: [feature/tapvoyage-android-foundation]
     paths:
       - 'Development/Apps/TapVoyage/Android App/**'
+      - 'Development/Apps/TapVoyage/Backend Prototype/**'
       - '.github/workflows/tapvoyage-android-signed-release.yml'
   workflow_dispatch:
 permissions:
@@ -13,20 +16,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run TapVoyage native and release-integrity regressions
-        run: python3 -m unittest discover -s 'Development/Apps/TapVoyage/Android App/qa' -p 'test_*.py'
-      - name: Fail closed on unmet product objectives and CEO icon approval
-        run: python 'Development/Apps/TapVoyage/Android App/qa/release_objectives_gate.py'
-      - name: Require production signing identity before ANY Android build
+      - name: Run fail-closed ALL source QA regression tests (no APK build)
+        working-directory: Development/Apps/TapVoyage/Android App
+        run: python -m unittest discover -s qa -p 'test_*.py' -v
+      - name: Run owner consent/session/expiry backend simulator regressions
+        working-directory: Development/Apps/TapVoyage/Backend Prototype
+        run: python3 test_tap_voyage_backend_mock.py
+      - name: Require CEO brand and verified prebuild objectives
+        run: python 'Development/Apps/TapVoyage/Android App/qa/release_objectives_gate_v3.py' --phase prebuild
+      - name: Require approved signing identity before ANY Android build
         env:
-          KEYSTORE_B64: \${{ secrets.TAPVOYAGE_RELEASE_KEYSTORE_B64 }}
-          STORE_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
-          KEY_ALIAS: \${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
-          APPROVED_CERT: \${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
+          KEYSTORE_B64: ${{ secrets.TAPVOYAGE_RELEASE_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
+          APPROVED_CERT: ${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
         run: |
           set -euo pipefail
           test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD" && test -n "$APPROVED_CERT"
+          test "$(printf '%s' "$APPROVED_CERT" | tr -d ':[:space:]' | wc -c)" -eq 64
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -35,53 +43,66 @@ jobs:
         with:
           gradle-version: '8.13'
       - uses: android-actions/setup-android@v3
-      - name: Install SDK 36 for release builds
+      - name: Install SDK 36 for release-only build
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-      - name: Load approved TapVoyage signing identity
+      - name: Load and verify preapproved signer BEFORE compilation
         env:
-          KEYSTORE_B64: \${{ secrets.TAPVOYAGE_RELEASE_KEYSTORE_B64 }}
-          STORE_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
-          KEY_ALIAS: \${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: \${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
+          KEYSTORE_B64: ${{ secrets.TAPVOYAGE_RELEASE_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
+          APPROVED_CERT: ${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
         run: |
           set -euo pipefail
           umask 077
           printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/tapvoyage-release.jks"
           test -s "$RUNNER_TEMP/tapvoyage-release.jks"
-          printf 'TAPVOYAGE_RELEASE_KEYSTORE_FILE=%s\n' "$RUNNER_TEMP/tapvoyage-release.jks" >> "$GITHUB_ENV"
-          printf 'TAPVOYAGE_RELEASE_STORE_PASSWORD=%s\n' "$STORE_PASSWORD" >> "$GITHUB_ENV"
-          printf 'TAPVOYAGE_RELEASE_KEY_ALIAS=%s\n' "$KEY_ALIAS" >> "$GITHUB_ENV"
-          printf 'TAPVOYAGE_RELEASE_KEY_PASSWORD=%s\n' "$KEY_PASSWORD" >> "$GITHUB_ENV"
-      - name: Prepare approved audio-generation dependency
+          keytool -list -v -keystore "$RUNNER_TEMP/tapvoyage-release.jks" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" > "$RUNNER_TEMP/keystore-cert.txt"
+          ACTUAL=$(sed -n 's/^[[:space:]]*SHA256: //p' "$RUNNER_TEMP/keystore-cert.txt" | head -1 | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          EXPECTED=$(printf '%s' "$APPROVED_CERT" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          test -n "$ACTUAL" && test "$ACTUAL" = "$EXPECTED"
+      - name: Install pinned original-audio generation dependency
         run: python3 -m pip install --user 'numpy==2.3.5'
-      - name: Kotlin tests and signed non-debuggable release ONLY
+      - name: Release-variant unit tests and SIGNED release APK/AAB only
         working-directory: Development/Apps/TapVoyage/Android App
-        run: gradle --no-daemon :app:testReleaseUnitTest :app:assembleRelease :app:bundleRelease
-      - name: Verify all 240 approved audio assets inside release APK
-        run: python3 'Development/Apps/TapVoyage/Android App/qa/verify_packaged_audio.py' 'Development/Apps/TapVoyage/Android App/app/build/outputs/apk/release/app-release.apk'
-      - name: Verify production APK and AAB signatures
         env:
-          APPROVED_CERT: \${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
+          TAPVOYAGE_RELEASE_KEYSTORE_FILE: ${{ runner.temp }}/tapvoyage-release.jks
+          TAPVOYAGE_RELEASE_STORE_PASSWORD: ${{ secrets.TAPVOYAGE_RELEASE_STORE_PASSWORD }}
+          TAPVOYAGE_RELEASE_KEY_ALIAS: ${{ secrets.TAPVOYAGE_RELEASE_KEY_ALIAS }}
+          TAPVOYAGE_RELEASE_KEY_PASSWORD: ${{ secrets.TAPVOYAGE_RELEASE_KEY_PASSWORD }}
+        run: gradle --no-daemon :app:testReleaseUnitTest :app:assembleRelease :app:bundleRelease
+      - name: Verify both APK and AAB against the approved signing certificate
+        env:
+          APPROVED_CERT: ${{ secrets.TAPVOYAGE_RELEASE_CERT_SHA256 }}
         run: |
           set -euo pipefail
           P='Development/Apps/TapVoyage/Android App/app/build/outputs'
           APK="$P/apk/release/app-release.apk"
           AAB="$P/bundle/release/app-release.aab"
           test -s "$APK" && test -s "$AAB"
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$RUNNER_TEMP/tapvoyage-signature.txt"
-          CERT=$(sed -n 's/.*Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/tapvoyage-signature.txt" | head -1 | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/apk-signature.txt"
+          APK_CERT=$(sed -n 's/.*Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/apk-signature.txt" | head -1 | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
+          jarsigner -verify -strict "$AAB" > "$RUNNER_TEMP/aab-verify.txt"
+          keytool -printcert -jarfile "$AAB" > "$RUNNER_TEMP/aab-cert.txt"
+          AAB_CERT=$(sed -n 's/^[[:space:]]*SHA256: //p' "$RUNNER_TEMP/aab-cert.txt" | head -1 | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
           EXPECTED=$(printf '%s' "$APPROVED_CERT" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')
-          test -n "$CERT" && test "$CERT" = "$EXPECTED"
-          jarsigner -verify -strict "$AAB"
-          ! find "$P" -type f -name '*debug*.apk' | grep -q .
-          ! find "$P" -type f -name '*unsigned*.apk' | grep -q .
+          test -n "$APK_CERT" && test "$APK_CERT" = "$EXPECTED"
+          test -n "$AAB_CERT" && test "$AAB_CERT" = "$EXPECTED"
+          if "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -Eq 'android:debuggable.*(0xffffffff|0x1|true)'; then
+            echo 'FORBIDDEN: debuggable APK manifest'; exit 1
+          fi
+          ! find "$P" -type f \( -iname '*debug*.apk' -o -iname '*unsigned*.apk' -o -iname '*debug*.aab' -o -iname '*unsigned*.aab' \) | grep -q .
           sha256sum "$APK" "$AAB"
-      - name: Retain signed QA artifacts; NEVER promote to public download without completed DAVG
+      - name: Verify all original WAV cue hashes inside signed release APK
+        run: python3 'Development/Apps/TapVoyage/Android App/qa/verify_packaged_audio.py' 'Development/Apps/TapVoyage/Android App/app/build/outputs/apk/release/app-release.apk'
+      - name: Retain verified signed QA artifact privately; never public-deploy here
         uses: actions/upload-artifact@v4
         with:
-          name: TapVoyage-signed-QA-only
+          name: TapVoyage-signed-internal-QA-only-not-release
           path: |
             Development/Apps/TapVoyage/Android App/app/build/outputs/apk/release/app-release.apk
             Development/Apps/TapVoyage/Android App/app/build/outputs/bundle/release/app-release.aab
           retention-days: 7
           if-no-files-found: error
+      - name: Postbuild evidence and five independent audits required (no promotion)
+        run: python 'Development/Apps/TapVoyage/Android App/qa/release_objectives_gate_v3.py' --phase postbuild
