@@ -234,10 +234,7 @@ class MainActivity : Activity() {
             addView(topMargin(button("Select ZIP area", true) {
                 val entered = zipInput.text.toString().trim()
                 if (!Regex("[0-9]{5}").matches(entered)) zipInput.error = "Enter a five-digit ZIP"
-                else android.app.AlertDialog.Builder(this@MainActivity)
-                    .setTitle("ZIP verification pending")
-                    .setMessage("No verified address has been selected for this ZIP. The active location remains unchanged.")
-                    .setPositiveButton("OK", null).show()
+                else resolveZipArea(entered)
             }, 7))
             addView(topMargin(button("Example: Chicago city center",true){setPoint("41.8781","-87.6298")},8))
             addView(topMargin(button("Example: San Francisco city center",true){setPoint("37.7749","-122.4194")},8))
@@ -294,6 +291,39 @@ class MainActivity : Activity() {
             addText(this, "Contact selection must be authenticated, owner-approved, time-limited, and immediately revocable. Offline or stale authorization must fail closed. A Premium subscription never overrides the contact's consent.", 14f, margin = 8)
         }
         c.addView(topMargin(policy, 14))
+    }
+
+    private fun resolveZipArea(zip: String) {
+        if (!Geocoder.isPresent()) {
+            Toast.makeText(this, "ZIP lookup unavailable on this device", Toast.LENGTH_LONG).show()
+            return
+        }
+        Thread {
+            val results = try {
+                @Suppress("DEPRECATION")
+                Geocoder(this@MainActivity, Locale.US).getFromLocationName("$zip, USA", 8).orEmpty()
+            } catch (_: Exception) { emptyList() }
+            val matches = results.filter { item ->
+                item.countryCode.equals("US", ignoreCase = true) &&
+                    item.postalCode == zip &&
+                    ScenarioRules.parse(item.latitude.toString(), item.longitude.toString()) != null
+            }
+            Handler(Looper.getMainLooper()).post {
+                if (isFinishing || isDestroyed) return@post
+                if (matches.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "No matching verified ZIP area. Location unchanged.", Toast.LENGTH_LONG).show()
+                    return@post
+                }
+                val match = matches.first()
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Confirm approximate ZIP area")
+                    .setMessage("ZIP: $zip\\nArea: ${match.locality.orEmpty()}, ${match.adminArea.orEmpty()}\\n\\nApproximate geocoded area only, NOT a verified street address.\\nCoordinates: ${match.latitude}, ${match.longitude}")
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Use approximate area") { _, _ ->
+                        setPoint(match.latitude.toString(), match.longitude.toString())
+                    }.show()
+            }
+        }.start()
     }
 
     private fun resolveStreetAddress(query: String) {
