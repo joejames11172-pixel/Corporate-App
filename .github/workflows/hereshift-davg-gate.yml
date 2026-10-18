@@ -47,6 +47,13 @@ jobs:
           gradle-version: '8.11.1'
       - name: Compile Android debug APK (not a production release)
         run: gradle --no-daemon :app:assembleDebug
+      - name: Inspect compiled APK identity and signing
+        run: |
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | head -n 5
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          sha256sum "$APK"
       - name: Retain internal unsigned-production-ineligible debug artifact
         uses: actions/upload-artifact@v4
         with:
