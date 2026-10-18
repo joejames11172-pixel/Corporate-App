@@ -34,7 +34,21 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
         check(c?.link==Link.PENDING) { "No pending invitation" }
         c!!.link=Link.ACCEPTED
     }
+    fun ownerDeclineCircle(owner:String,requester:String) {
+        val c=circles[key(requester,owner)]
+        check(c?.link==Link.PENDING) { "No pending Circle invitation to decline" }
+        c!!.link=Link.REVOKED
+        c.inventory=false;c.fullAccessRequested=false;c.fullAccessApproved=false
+        c.pending.clear();c.grants.clear()
+        invalidate(requester,owner,true)
+    }
     fun ownerApproveInventory(owner:String,requester:String) { link(requester,owner).inventory=true }
+    fun ownerRevokeInventory(owner:String,requester:String) {
+        val c=link(requester,owner)
+        c.inventory=false;c.fullAccessRequested=false;c.fullAccessApproved=false
+        c.pending.clear();c.grants.clear()
+        invalidate(requester,owner,true)
+    }
     fun inventoryVisible(requester:String,owner:String):Boolean =
         circles[key(requester,owner)]?.let { it.link==Link.ACCEPTED && it.inventory } ?: false
     fun requestApp(requester:String,owner:String,app:String) {
@@ -51,12 +65,19 @@ class TapVoyagePolicy(private val paidEntitlement: (String)->Boolean = { false }
     fun requestFullDevice(requester:String,owner:String) {
         val c=link(requester,owner)
         check(c.inventory) { "Owner must approve inventory visibility first" }
+        check(!c.fullAccessRequested && !c.fullAccessApproved) { "Full device request already exists or was approved" }
         c.fullAccessRequested=true
     }
     fun ownerApproveFullDevice(owner:String,requester:String) {
         val c=link(requester,owner)
         check(c.fullAccessRequested) { "No pending full-device request" }
         c.fullAccessRequested=false;c.fullAccessApproved=true
+    }
+    fun ownerDeclineFullDevice(owner:String,requester:String) {
+        val c=link(requester,owner)
+        check(c.fullAccessRequested) { "No pending Full Device Access request to decline" }
+        c.fullAccessRequested=false
+        // Denial never revokes independent application grants, nor approves broad scope.
     }
     fun fullDeviceApproved(requester:String,owner:String):Boolean =
         circles[key(requester,owner)]?.let {it.link==Link.ACCEPTED && it.fullAccessApproved} ?: false
