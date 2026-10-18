@@ -204,5 +204,22 @@ fun main() {
  test("Restored inventory permission does not resurrect app grants") {
      decline.listApps("Decliner","Host").isEmpty()
  }
+ val bound=TapVoyagePolicy()
+ bound.invite("ScopeRequester","ScopeOwner")
+ bound.ownerAccept("ScopeOwner","ScopeRequester")
+ bound.ownerApproveInventory("ScopeOwner","ScopeRequester")
+ bound.requestApp("ScopeRequester","ScopeOwner","Calculator")
+ bound.ownerApproveApp("ScopeOwner","ScopeRequester","Calculator")
+ val boundSession=bound.requestSession("ScopeRequester","ScopeOwner","Calculator")
+ bound.ownerAcceptSession("ScopeOwner",boundSession)
+ test("Requester can query only their own authorized session") {
+     bound.sessionAllowedForRequester("ScopeRequester",boundSession)
+ }
+ test("Guessing another requester's session ID never grants access") {
+     !bound.sessionAllowedForRequester("OtherUser",boundSession)
+ }
+ test("Unknown session ID fails closed for real requester") {
+     !bound.sessionAllowedForRequester("ScopeRequester",Long.MAX_VALUE)
+ }
  println("SUCCESS $count Kotlin domain tests")
 }
