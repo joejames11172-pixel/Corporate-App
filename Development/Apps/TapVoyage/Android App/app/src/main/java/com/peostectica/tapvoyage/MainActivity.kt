@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.View
 import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.os.Build
 import android.view.ViewGroup
 import android.widget.Button
@@ -85,6 +86,33 @@ class MainActivity : Activity() {
     private val ink: Int get()=themeColor("onBackground")
     private val muted: Int get()=themeColor("outline")
     private val primary: Int get()=themeColor("primary")
+    private fun updateSystemBarContrast() {
+        // Keep status/navigation icons legible on both the default OS theme
+        // and user-selected light/dark themes. SDK 35+ controls bar surfaces.
+        val showDarkIcons = !night()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val mask = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+            window.insetsController?.setSystemBarsAppearance(
+                if (showDarkIcons) mask else 0, mask
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            val mask = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+                View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility =
+                (window.decorView.systemUiVisibility and mask.inv()) or
+                (if (showDarkIcons) mask else 0)
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // On pre-edge-to-edge devices protect dark/light icon readability.
+            @Suppress("DEPRECATION")
+            window.statusBarColor = surface
+            @Suppress("DEPRECATION")
+            window.navigationBarColor = surface
+        }
+    }
     private fun dp(x: Int) = (x*resources.displayMetrics.density).roundToInt()
     private fun rounded(color: Int, radius: Int=15, border: Int?=null): GradientDrawable = GradientDrawable().apply {
         shape=GradientDrawable.RECTANGLE;setColor(color);cornerRadius=dp(radius).toFloat()
@@ -132,6 +160,7 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
     private fun render() {
+        updateSystemBarContrast()
         stopAudioPreview()
         val root=vertical().apply {setBackgroundColor(bg)}
         val header=vertical().apply {setPadding(dp(16),dp(18),dp(16),dp(14));setBackgroundColor(surface)}
