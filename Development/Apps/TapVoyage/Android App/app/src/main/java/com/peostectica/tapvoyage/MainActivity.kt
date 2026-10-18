@@ -19,6 +19,8 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.View
+import android.view.WindowInsets
+import android.os.Build
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
@@ -157,7 +159,27 @@ class MainActivity : Activity() {
             nav.addView(b,LinearLayout.LayoutParams(dp(109),dp(52)).apply {marginStart=dp(3);marginEnd=dp(3)})
         }
         root.addView(HorizontalScrollView(this).apply {isHorizontalScrollBarEnabled=false;addView(nav)},LinearLayout.LayoutParams(-1,-2))
+        // SDK 35+ uses edge-to-edge by default. Keep the title and navigation
+        // outside status/navigation bars and display cutouts in both orientations.
+        root.setOnApplyWindowInsetsListener { view, windowInsets ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val safe = windowInsets.getInsets(
+                    WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
+                )
+                view.setPadding(safe.left, safe.top, safe.right, safe.bottom)
+            } else {
+                @Suppress("DEPRECATION")
+                view.setPadding(
+                    windowInsets.systemWindowInsetLeft,
+                    windowInsets.systemWindowInsetTop,
+                    windowInsets.systemWindowInsetRight,
+                    windowInsets.systemWindowInsetBottom
+                )
+            }
+            windowInsets
+        }
         setContentView(root)
+        root.requestApplyInsets()
     }
     private fun showCircle(c:LinearLayout) {
         add(c,text("My Circle",24f,true),5)
