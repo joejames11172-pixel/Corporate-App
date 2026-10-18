@@ -49,5 +49,11 @@ fun main() {
  test("Reinvite requires fresh acceptance") {denied{p.listApps("Alice","Bob")}}
  p.ownerAccept("Bob","Alice")
  test("Rejoin does not restore stale grants") {p.listApps("Alice","Bob").isEmpty()}
+ val unavailable=TapVoyagePolicy({ throw IllegalStateException("Billing backend unavailable") })
+ unavailable.invite("Carol","Dave");unavailable.ownerAccept("Dave","Carol")
+ unavailable.ownerApproveInventory("Dave","Carol")
+ for (app in listOf("A","B")) { unavailable.requestApp("Carol","Dave",app);unavailable.ownerApproveApp("Dave","Carol",app) }
+ test("Verifier offline never unlocks Premium extras") {unavailable.listApps("Carol","Dave").filter{it.permitted}.map{it.name}==listOf("A")}
+ test("Verifier offline rejects extra session") {denied{unavailable.requestSession("Carol","Dave","B")}}
  println("SUCCESS $count Kotlin domain tests")
 }
