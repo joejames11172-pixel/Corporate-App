@@ -91,7 +91,12 @@ class MockLocationService : Service() {
             } else {
                 startForeground(NOTE_ID, notification("Stationary test point · Stop from notification"))
             }
-            stopProvider()
+            // A failed cleanup means we still own a provider; never register a second one.
+            if (!stopProvider()) {
+                setStatus("Previous test provider cleanup failed. Simulation not restarted.")
+                stopSelf()
+                return START_NOT_STICKY
+            }
             lat = newLat; lon = newLon
             manager.addTestProvider(LocationManager.GPS_PROVIDER,
                 false, true, false, false, false, true, true, 1, 1)
