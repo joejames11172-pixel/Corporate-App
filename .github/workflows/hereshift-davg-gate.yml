@@ -56,6 +56,24 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | head -n 5
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
           sha256sum "$APK"
+      - name: Compile release variant (unsigned until approved key is provisioned)
+        run: gradle --no-daemon :app:assembleRelease
+      - name: Verify release variant is not debuggable and never promote unsigned builds
+        run: |
+          APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | head -n 5
+          if "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify "$APK" >/dev/null 2>&1; then
+            echo "::error::Unexpected signature on unsigned release variant; review signing configuration"
+            exit 1
+          fi
+          sha256sum "$APK"
+      - name: Retain release variant for authorized production signing only
+        uses: actions/upload-artifact@v4
+        with:
+          name: hereshift-release-unsigned-NOT-FOR-INSTALLATION
+          path: Development/Apps/HereShift/Android App/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
       - name: Retain internal unsigned-production-ineligible debug artifact
         uses: actions/upload-artifact@v4
         with:
