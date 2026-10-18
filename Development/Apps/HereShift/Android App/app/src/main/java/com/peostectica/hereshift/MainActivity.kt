@@ -290,7 +290,7 @@ class MainActivity : Activity() {
             addView(topMargin(button("Stop / revoke my sharing", true) {
                 stopMock()
                 prefs.edit().remove("circle_selected_contact").apply()
-                Toast.makeText(this@MainActivity, "Local session stopped; no remote sharing was active", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "Stop requested for local simulation. No remote sharing was active; verify service cleanup status.", Toast.LENGTH_LONG).show()
             }, 8))
         }
         c.addView(topMargin(status, 18))
