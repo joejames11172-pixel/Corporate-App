@@ -50,6 +50,8 @@ jobs:
           printf 'TAPVOYAGE_RELEASE_STORE_PASSWORD=%s\n' "$STORE_PASSWORD" >> "$GITHUB_ENV"
           printf 'TAPVOYAGE_RELEASE_KEY_ALIAS=%s\n' "$KEY_ALIAS" >> "$GITHUB_ENV"
           printf 'TAPVOYAGE_RELEASE_KEY_PASSWORD=%s\n' "$KEY_PASSWORD" >> "$GITHUB_ENV"
+      - name: Prepare approved audio-generation dependency
+        run: python3 -m pip install --user 'numpy==2.3.5'
       - name: Kotlin tests and signed non-debuggable release ONLY
         working-directory: Development/Apps/TapVoyage/Android App
         run: gradle --no-daemon :app:testReleaseUnitTest :app:assembleRelease :app:bundleRelease
