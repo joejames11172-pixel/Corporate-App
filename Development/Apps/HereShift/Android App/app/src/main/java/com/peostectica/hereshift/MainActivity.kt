@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 /** Native, dependency-light initial release: stationary location, 40 paired display themes,
  * 20 audio themes. No remote control, unapproved billing, telemetry, or integrity evasion. */
 class MainActivity : Activity() {
-    private enum class Page { HOME, DISPLAY, AUDIO, TRUST, TESTING }
+    private enum class Page { HOME, CIRCLE, DISPLAY, AUDIO, TRUST, TESTING }
     private lateinit var engine: SettingsEngine
     private lateinit var audio: AudioFeedback
     private var page: Page = Page.HOME
@@ -116,12 +116,12 @@ class MainActivity : Activity() {
         }
         val logo=ImageView(this).apply {setImageResource(if (effectiveDark()) R.drawable.hereshift_icon_dark else R.drawable.hereshift_icon_light);contentDescription="HereShift selected icon"; scaleType=ImageView.ScaleType.FIT_CENTER}
         header.addView(logo,LinearLayout.LayoutParams(dp(36),dp(36)).apply {marginStart=dp(8)})
-        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing";Page.TESTING->"Development mode"};setPadding(dp(8),0,0,0) }
+        val heading=colorText(19f,true).apply { text=when(next){Page.HOME->"HereShift";Page.CIRCLE->"Circle and sharing";Page.DISPLAY->"Display settings";Page.AUDIO->"Audio settings";Page.TRUST->"Privacy and testing";Page.TESTING->"Development mode"};setPadding(dp(8),0,0,0) }
         header.addView(heading,LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f))
         root.addView(header)
         scroll=ScrollView(this).apply {isFillViewport=false;clipToPadding=false}
         val content=column().apply {setPadding(dp(16),0,dp(16),dp(34))}
-        when(next) { Page.HOME->renderHome(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content);Page.TESTING->renderTesting(content) }
+        when(next) { Page.HOME->renderHome(content); Page.CIRCLE->renderCircle(content); Page.DISPLAY->renderDisplay(content); Page.AUDIO->renderAudio(content);Page.TRUST->renderTrust(content);Page.TESTING->renderTesting(content) }
         scroll!!.addView(content)
         root.addView(scroll,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1f))
         // Persistent native navigation: visible on every screen, independent of scroll position.
@@ -132,6 +132,7 @@ class MainActivity : Activity() {
         }
         listOf(
             Triple("Home", Page.HOME, "Home"),
+            Triple("Circle", Page.CIRCLE, "Circle"),
             Triple("Display", Page.DISPLAY, "Display"),
             Triple("Audio", Page.AUDIO, "Audio"),
             Triple("Privacy", Page.TRUST, "Privacy")
@@ -213,6 +214,33 @@ class MainActivity : Activity() {
         }
         c.addView(topMargin(premium,16))
     }
+    private fun renderCircle(c: LinearLayout) {
+        addText(c, "Circle · contact sharing", 24f, true)
+        addText(c, "Choose one consenting contact at a time. A Circle invitation alone never grants location access. Remote location sharing is unavailable until authenticated approval and revocation are connected.", 14f, margin = 9)
+        val status = innerCard().apply {
+            addText(this, "Sharing status", 19f, true)
+            addText(this, "Not connected · no contact location is being received or published", 14f, margin = 8)
+            addText(this, "In-App Virtual Location and Android Device-Wide Mock Location are separate modes. Both require explicit consent. The latter additionally requires Android Developer Options authorization.", 14f, margin = 10)
+            addView(topMargin(button("Request contact permission", true) {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Contact approval required")
+                    .setMessage("Authenticated Circle invitations and contact-approved live sharing are not connected in this version. No invitation was sent and no contact has been authorized.")
+                    .setPositiveButton("OK", null).show()
+            }, 12))
+            addView(topMargin(button("Stop / revoke my sharing", true) {
+                stopMock()
+                prefs.edit().remove("circle_selected_contact").apply()
+                Toast.makeText(this@MainActivity, "Local session stopped; no remote sharing was active", Toast.LENGTH_LONG).show()
+            }, 8))
+        }
+        c.addView(topMargin(status, 18))
+        val policy = innerCard().apply {
+            addText(this, "Required permission rules", 18f, true)
+            addText(this, "Contact selection must be authenticated, owner-approved, time-limited, and immediately revocable. Offline or stale authorization must fail closed. A Premium subscription never overrides the contact's consent.", 14f, margin = 8)
+        }
+        c.addView(topMargin(policy, 14))
+    }
+
     private fun setPoint(lat:String,lon:String) {
         latitudeInput?.setText(lat);longitudeInput?.setText(lon); saveCoordinates()
         Toast.makeText(this,"Selected illustrative point",Toast.LENGTH_SHORT).show()
