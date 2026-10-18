@@ -180,6 +180,27 @@ class TapVoyageMockBackend(object):
         self._event('session_requested', requester=requester, host=host, app=app_id)
         return session_id
 
+    def host_decline_session(self, host, session_id):
+        sess = self.sessions.get(session_id)
+        if not sess or sess['host'] != host or sess['status'] != 'pending_host_approval':
+            raise AuthorizationError('host cannot decline this pending session')
+        sess['status'] = 'terminated'
+        self._event('session_declined', session=session_id, host=host)
+
+    def host_stop_session(self, host, session_id):
+        sess = self.sessions.get(session_id)
+        if not sess or sess['host'] != host or sess['status'] not in ('pending_host_approval', 'active'):
+            raise AuthorizationError('host cannot stop this session')
+        sess['status'] = 'terminated'
+        self._event('session_host_stopped', session=session_id, host=host)
+
+    def requester_stop_session(self, requester, session_id):
+        sess = self.sessions.get(session_id)
+        if not sess or sess['requester'] != requester or sess['status'] not in ('pending_host_approval', 'active'):
+            raise AuthorizationError('requester cannot stop this session')
+        sess['status'] = 'terminated'
+        self._event('session_requester_stopped', session=session_id, requester=requester)
+
     def host_accept_session(self, host, session_id):
         sess = self.sessions.get(session_id)
         if not sess or sess['host'] != host or sess['status'] != 'pending_host_approval':
