@@ -119,5 +119,56 @@ fun main() {
  test("Premium verifier outage blocks broad scope") {
      !broadUnavailable.fullDeviceScopeEligible("Drew","Alexis")
  }
+ var scopePremium=false
+ var scopeTime=20000L
+ val scope=TapVoyagePolicy({scopePremium},{scopeTime})
+ scope.invite("Requester","Owner");scope.ownerAccept("Owner","Requester")
+ scope.ownerApproveInventory("Owner","Requester")
+ scope.requestApp("Requester","Owner","Maps")
+ scope.ownerApproveApp("Owner","Requester","Maps")
+ scope.requestFullDevice("Requester","Owner")
+ scope.ownerApproveFullDevice("Owner","Requester")
+ test("Free cannot request broad session despite host approval") {
+     denied { scope.requestFullDeviceSession("Requester","Owner") }
+ }
+ scopePremium=true
+ val broadSession=scope.requestFullDeviceSession("Requester","Owner")
+ test("Broad session awaits fresh owner confirmation") { !scope.sessionAllowed(broadSession) }
+ scope.ownerAcceptSession("Owner",broadSession)
+ test("Owner accepts broad session with fresh entitlement") { scope.sessionAllowed(broadSession) }
+ val individualSession=scope.requestSession("Requester","Owner","Maps")
+ scope.ownerAcceptSession("Owner",individualSession)
+ scope.ownerRevokeFullDevice("Owner","Requester")
+ test("Broad revocation stops derived broad session") { !scope.sessionAllowed(broadSession) }
+ test("Broad revocation preserves independent Maps session") { scope.sessionAllowed(individualSession) }
+ test("Cannot request new broad session after revoke") {
+     denied { scope.requestFullDeviceSession("Requester","Owner") }
+ }
+ scope.ownerRevokeRequester("Owner","Requester")
+ test("Requester revoke also stops independent session") { !scope.sessionAllowed(individualSession) }
+ val expiry=TapVoyagePolicy({scopePremium},{scopeTime})
+ expiry.invite("Req2","Owner2");expiry.ownerAccept("Owner2","Req2")
+ expiry.ownerApproveInventory("Owner2","Req2")
+ expiry.requestFullDevice("Req2","Owner2")
+ expiry.ownerApproveFullDevice("Owner2","Req2")
+ val pendingBroad=expiry.requestFullDeviceSession("Req2","Owner2",100L)
+ scopeTime+=101L
+ test("Expired broad session cannot be accepted") { denied { expiry.ownerAcceptSession("Owner2",pendingBroad) } }
+ val expiringBroad=expiry.requestFullDeviceSession("Req2","Owner2",100L)
+ expiry.ownerAcceptSession("Owner2",expiringBroad)
+ scopeTime+=101L
+ test("Active broad session expires on TTL") { !expiry.sessionAllowed(expiringBroad) }
+ val premiumExpiredBroad=expiry.requestFullDeviceSession("Req2","Owner2")
+ expiry.ownerAcceptSession("Owner2",premiumExpiredBroad)
+ scopePremium=false
+ test("Broad session immediately denied when Premium expires") { !expiry.sessionAllowed(premiumExpiredBroad) }
+ expiry.entitlementChanged("Req2")
+ test("Broad session stays stopped after entitlement refresh") { !expiry.sessionAllowed(premiumExpiredBroad) }
+ val failBroad=TapVoyagePolicy({ throw IllegalStateException("verifier down") })
+ failBroad.invite("Requester","Owner");failBroad.ownerAccept("Owner","Requester")
+ failBroad.ownerApproveInventory("Owner","Requester")
+ failBroad.requestFullDevice("Requester","Owner")
+ failBroad.ownerApproveFullDevice("Owner","Requester")
+ test("Verifier failure blocks all broad sessions") { denied { failBroad.requestFullDeviceSession("Requester","Owner") } }
  println("SUCCESS $count Kotlin domain tests")
 }
